@@ -4,6 +4,7 @@ import { Server } from "socket.io";
 import "dotenv/config";
 import chalk from "chalk";
 
+import { usersRouter } from "./routes/users.js";
 import { friendpaneRouter } from "./routes/friendpane.js";
 import {
   inviteUser,
@@ -25,6 +26,11 @@ app.use(express.static("public"));
 app.use(express.json());
 
 app.use("/friendpane", friendpaneRouter);
+app.use("/users", usersRouter);
+
+app.get("/", (req, res) => {
+  res.redirect("/friendpane");
+});
 
 io.on("connection", (socket) => {
   console.log(

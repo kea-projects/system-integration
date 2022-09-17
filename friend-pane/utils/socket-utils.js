@@ -48,7 +48,7 @@ export const registerUser = (userData) => {
   fs.writeFileSync("users.json", JSON.stringify(updatedUsers), "utf-8");
 };
 
-export const createUser = (userData) => {
+export const createUser = (userData, onSuccess, onFail) => {
   if (!isEmailUsed(userData.email)) {
     const newUser = {
       email: userData.email,
@@ -61,6 +61,14 @@ export const createUser = (userData) => {
     users.push(newUser);
     fs.writeFileSync("users.json", JSON.stringify(users), "utf-8");
     console.log(chalk.yellowBright("Created user:"), newUser);
+
+    if (onSuccess) {
+      onSuccess(newUser);
+    }
+  } else {
+    if (onFail) {
+      onFail();
+    }
   }
 };
 
