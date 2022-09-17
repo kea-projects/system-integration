@@ -14,6 +14,6 @@
     "nodemon": "^2.0.20"
   },
   "nodemonConfig": {
-    "ext": "js html css json"
+    "ext": "js html css"
   }
 }
