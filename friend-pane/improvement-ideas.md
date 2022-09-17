@@ -5,4 +5,6 @@
 3. Have names be unique.
 4. Add event listeners for "Enter" key on input fields.
 5. Implement "Back" buttons.
-6. Add error messages
+6. Add error messages.
+7. Add swagger.
+8. Sockets docs.
