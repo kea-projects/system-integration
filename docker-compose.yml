@@ -17,7 +17,7 @@ services:
     networks:
       - docker-net
     ports:
-      - 80:80
+      - 22:22 # sftp
       # - 443:443
     restart: always
 
@@ -26,8 +26,8 @@ services:
     image: atmoz/sftp
     networks:
       - docker-net
-    ports:
-      - 22:22
+    #ports: # only open ports for direct testing, let gateway reroute otherwise
+    #  - 22:22
     volumes:
       - ftp-uploads:/home/$SFTP_USERNAME/upload
     command: "$SFTP_USERNAME:$SFTP_PASSWORD:1001"
