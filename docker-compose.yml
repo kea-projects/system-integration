@@ -1,0 +1,49 @@
+version: "3"
+# All $VARIABLES are currently stored in a .env file on the same level as this
+# document, please remember to populate it.
+#
+# You can test to see if the variables are loading correctly with the command:
+# `docker compose config`
+# If the variables still have a $ on them then the .env is not being loaded.
+
+# ---------------------------------
+# ------------ GATEWAY ------------
+services:
+  gateway: # NGINX
+    container_name: gateway
+    build:
+      context: .
+      dockerfile: ./configs/gateway/gateway-dockerfile
+    networks:
+      - docker-net
+    ports:
+      - 80:80
+      # - 443:443
+    restart: always
+
+  sftp-server:
+    container_name: sftp-server
+    image: atmoz/sftp
+    networks:
+      - docker-net
+    ports:
+      - 22:22
+    volumes:
+      - ftp-uploads:/home/$SFTP_USERNAME/upload
+    command: "$SFTP_USERNAME:$SFTP_PASSWORD:1001"
+    healthcheck: # This is a hack to get the permissions correct on the upload folder
+      test: "/bin/chown 1001 -R /home/$SFTP_USERNAME/upload/ || exit 1"
+      retries: 1
+      start_period: 10s
+
+# ---------------------------------
+# ------------ NETWORK ------------
+networks:
+  docker-net:
+    name: docker-net
+
+# ---------------------------------
+# ------------ NETWORK ------------
+volumes:
+  ftp-uploads:
+    name: ftp-uploads
