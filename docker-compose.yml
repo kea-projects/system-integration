@@ -54,7 +54,7 @@ networks:
     name: docker-net
 
 # ---------------------------------
-# ------------ NETWORK ------------
+# ------------ VOLUMES ------------
 volumes:
   ftp-uploads:
     name: ftp-uploads
