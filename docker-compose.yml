@@ -28,7 +28,7 @@ services:
       - docker-net
     ports:
       - 80:80 # http
-      - 3000:3000
+      - 3000:3000 # SFTP server
       # - 443:443
     restart: always
 
@@ -41,7 +41,7 @@ services:
       - SFTP_USERNAME=$SFTP_USERNAME
     networks:
       - docker-net
-    #ports: # only open ports for direct testing, let gateway reroute otherwise
+    #ports: # only open ports for direct container testing, let gateway reroute otherwise
     #  - 22:22
     volumes:
       - ftp-uploads:/home/$SFTP_USERNAME/upload
