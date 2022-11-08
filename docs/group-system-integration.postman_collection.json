@@ -1,0 +1,95 @@
+{
+	"info": {
+		"_postman_id": "022dabb1-7bcd-4695-a3a4-f151a78d8bdd",
+		"name": "group-system-integration",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12894842"
+	},
+	"item": [
+		{
+			"name": "friend-pane",
+			"item": [
+				{
+					"name": "index",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}",
+							"host": [
+								"{{host}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "friendpane",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{friendpane}}",
+							"host": [
+								"{{friendpane}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invite",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"unused@email.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{users}}/invite",
+							"host": [
+								"{{users}}"
+							],
+							"path": [
+								"invite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"Postman\",\r\n    \"password\": \"1\",\r\n    \"email\": \"post@man.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{users}}/create",
+							"host": [
+								"{{users}}"
+							],
+							"path": [
+								"create"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
