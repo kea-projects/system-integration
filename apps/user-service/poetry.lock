@@ -13,8 +13,8 @@ twisted = ["twisted"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.10"
-content-hash = "5ccae290a7116f762894884bb4aba64503b8cf3b2c247139008034581d0ac9e4"
+python-versions = "^3.9"
+content-hash = "051786782255b66325420125a565a274168ce558aad4e76fad889b480e1e5023"
 
 [metadata.files]
 pika = [
