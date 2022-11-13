@@ -111,10 +111,10 @@ const mutation = new GraphQLObjectType({
                     name: args.name,
                     email: args.email,
                     phone: args.phone,
-                })
+                });
 
                 return user.save();
-            }
+            },
         },
 
         // Delete user
@@ -152,8 +152,27 @@ const mutation = new GraphQLObjectType({
                 })
 
                 return invite.save();
-            }
+            },
         },
+
+        // add product additional info
+        addProductAdditionalInfo: {
+            type: ProductAdditionalInfoType,
+            args: {
+                product_id: { type: GraphQLNonNull(GraphQLID) },
+                choices: { type: GraphQLNonNull(GraphQLID) },
+                additional_info: { type: GraphQLString },
+            },
+            resolve(parent, args) {
+                const productAdditionalInfo = new ProductAdditionalInfo({
+                    product_id: args.product_id,
+                    choices: args.choices,
+                    additional_info: args.additional_info,
+                });
+
+                return productAdditionalInfo.save();
+            },
+        }
     }
 });
 
