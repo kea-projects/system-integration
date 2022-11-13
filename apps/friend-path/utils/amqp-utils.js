@@ -13,7 +13,7 @@ export const sendMessage = (message, onSuccess, onError) => {
         onError();
       }
 
-      const queue = "friend-path";
+      const queue = process.env.QUEUE_NAME || "friend-path";
       channel.assertQueue(queue, { durable: false });
 
       channel.sendToQueue(queue, Buffer.from(message));
