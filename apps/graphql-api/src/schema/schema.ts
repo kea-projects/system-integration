@@ -12,7 +12,10 @@ import UserType from "./types/UserType";
 import {
     GraphQLObjectType,
     GraphQLID,
-    GraphQLList
+    GraphQLList,
+    GraphQLString,
+    GraphQLNonNull,
+    GraphQLSchema,
 } from "graphql";
 
 const RootQuery = new GraphQLObjectType({
@@ -89,4 +92,72 @@ const RootQuery = new GraphQLObjectType({
             },
         },
     },
-  });
+});
+
+// MUTATIONS
+const mutation = new GraphQLObjectType({
+    name: "Mutation",
+    fields: {
+        // Add new user
+        addUser: {
+            type: UserType,
+            args: {
+                name: { type: GraphQLString },
+                email: { type: GraphQLString },
+                phone: { type: GraphQLString },
+            },
+            resolve(parent, args) {
+                const user = new User({
+                    name: args.name,
+                    email: args.email,
+                    phone: args.phone,
+                })
+
+                return user.save();
+            }
+        },
+
+        // Delete user
+        deleteUser: {
+            type: UserType,
+            args: {
+                id: { type: GraphQLNonNull(GraphQLID) },
+            },
+            resolve(parent, args) {
+                User.find({ userId: args.id }).then((users) => {
+                    users.forEach((user) => {
+                        user.remove();
+                    });
+                });
+
+                return User.findByIdAndRemove(args.id);
+            },
+        },
+
+        // Create invite
+        createInvite: {
+            type: InviteType,
+            args: {
+                invitee_id: { type: GraphQLNonNull(GraphQLID) },
+                invited_email: { type: GraphQLNonNull(GraphQLString) },
+                // token: { type: GraphQLNonNull(GraphQLString) },
+                // expiration: { type: GraphQLString },
+            },
+            resolve(parent, args) {
+                const invite = new Invite({
+                    invitee_id: args.invitee_id,
+                    invited_email: args.invited_email,
+                    // token: args.token,
+                    // expiration: args.expiration,
+                })
+
+                return invite.save();
+            }
+        },
+    }
+});
+
+export default new GraphQLSchema({
+    query: RootQuery,
+    mutation,
+})
