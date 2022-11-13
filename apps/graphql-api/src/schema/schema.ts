@@ -172,7 +172,18 @@ const mutation = new GraphQLObjectType({
 
                 return productAdditionalInfo.save();
             },
-        }
+        },
+
+        // delete product additional info
+        deleteProductAdditionalInfo: {
+            type: ProductAdditionalInfoType,
+            args: {
+                id: { type: GraphQLNonNull(GraphQLID) },
+            },
+            resolve(parent, args) {
+                return ProductAdditionalInfo.findByIdAndRemove(args.id);
+            },
+        },
     }
 });
 
