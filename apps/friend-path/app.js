@@ -1,28 +1,29 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
+import cors from "cors";
 import "dotenv/config";
 import chalk from "chalk";
 
-import { sendMessage } from "./utils/amqp-utils.js";
+import { sendInvite } from "./utils/amqp-utils.js";
 import {
   getAllUsers,
-  isEmailUsed,
-  getUserByEmail,
-  registerUser,
-  loginUser,
   disconnectUser,
 } from "./utils/socket-utils.js";
 import { validateEmail } from "./utils/validators.js";
 
+// ---- Config ----
 const PORT = process.env.SERVER_PORT || 8080;
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+// ---- Middleware ----
+app.use(cors());
 app.use(express.json());
 
+// ---- Endpoints ----
 app.post("/friend/invite", (req, res) => {
   const { email } = req.body;
 
@@ -30,47 +31,22 @@ app.post("/friend/invite", (req, res) => {
     res.status(400).send("Email required.");
   }
 
-  // TODO: Check if the email is already used.
+  // TODO: Check if the email is already invited to the friend list.
 
-  sendMessage(
+  sendInvite(
     email,
     () => res.send({ message: "User invited!" }),
     () => res.status(500).send({ message: "An error has ocurred." })
   );
 });
 
+// ---- Sockets ----
 io.on("connection", (socket) => {
   console.log(
     chalk.yellowBright("New socket connected:"),
     chalk.redBright(socket.id)
   );
 
-  socket.on("login-start", (data) => {
-    if (isEmailUsed(data.userEmail)) {
-      const user = getUserByEmail(data.userEmail);
-      console.log(chalk.yellowBright("Login started for user:"), user);
-      if (user.username && user.password && user.status !== "Not registered") {
-        socket.emit("login-continue-password", { userEmail: data.userEmail });
-      } else {
-        socket.emit("login-continue-register", { userEmail: data.userEmail });
-      }
-    }
-  });
-  socket.on("login-register", (data) => {
-    registerUser({ ...data, id: socket.id });
-    socket.emit("login-done");
-    socket.broadcast.emit("refresh");
-  });
-  socket.on("login-password", (data) => {
-    loginUser(
-      { ...data, id: socket.id },
-      () => {
-        socket.emit("login-done");
-        socket.broadcast.emit("refresh");
-      },
-      () => socket.emit("login-fail")
-    );
-  });
   socket.on("disconnect", (_) => {
     disconnectUser(socket.id);
     socket.broadcast.emit("refresh");
@@ -88,6 +64,7 @@ io.on("connection", (socket) => {
   });
 });
 
+// ---- Server Start ----
 server.listen(PORT, (error) => {
   if (error) {
     console.error(error);
