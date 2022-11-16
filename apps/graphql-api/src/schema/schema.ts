@@ -1,13 +1,13 @@
-import Invite from "../data/Invite";
+//import Invite from "../data/Invite";
 import Product from "../data/Product";
-import User from "../data/User";
+//import User from "../data/User";
 import ProductAdditionalInfo from "../data/ProductAdditionalInfo";
 import ProductImage from "../data/ProductImage";
 import ProductType from "./types/ProductType";
-import InviteType from "./types/InviteType";
+//import InviteType from "./types/InviteType";
 import ProductAdditionalInfoType from "./types/ProductAdditionalInfoType";
 import ProductImageType from "./types/ProductImageType";
-import UserType from "./types/UserType";
+//import UserType from "./types/UserType";
 
 import {
     GraphQLObjectType,
@@ -33,20 +33,6 @@ const RootQuery = new GraphQLObjectType({
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
                 return Product.findById(args.id);
-            },
-        },
-        // INVITE
-        Invites: {
-            type: new GraphQLList(InviteType),
-            resolve(parent, args) {
-                return Invite.find();
-            },
-        },
-        Invite: {
-            type: InviteType,
-            args: { id: { type: GraphQLID } },
-            resolve(parent, args) {
-                return Invite.findById(args.id);
             },
         },
         // PRODUCT ADDITIONAL INFO
@@ -77,20 +63,34 @@ const RootQuery = new GraphQLObjectType({
                 return ProductImage.findById(args.id);
             },
         },
-        // USERS
-        Users: {
-            type: new GraphQLList(UserType),
-            resolve(parent, args) {
-                return User.find();
-            },
-        },
-        User: {
-            type: UserType,
-            args: { id: { type: GraphQLID } },
-            resolve(parent, args) {
-                return User.findById(args.id);
-            },
-        },
+        // // INVITE
+        // Invites: {
+        //     type: new GraphQLList(InviteType),
+        //     resolve(parent, args) {
+        //         return Invite.find();
+        //     },
+        // },
+        // Invite: {
+        //     type: InviteType,
+        //     args: { id: { type: GraphQLID } },
+        //     resolve(parent, args) {
+        //         return Invite.findById(args.id);
+        //     },
+        // },
+        // // USERS
+        // Users: {
+        //     type: new GraphQLList(UserType),
+        //     resolve(parent, args) {
+        //         return User.find();
+        //     },
+        // },
+        // User: {
+        //     type: UserType,
+        //     args: { id: { type: GraphQLID } },
+        //     resolve(parent, args) {
+        //         return User.findById(args.id);
+        //     },
+        // },
     },
 });
 
@@ -98,63 +98,6 @@ const RootQuery = new GraphQLObjectType({
 const mutation = new GraphQLObjectType({
     name: "Mutation",
     fields: {
-        // Add new user
-        addUser: {
-            type: UserType,
-            args: {
-                name: { type: GraphQLString },
-                email: { type: GraphQLString },
-                phone: { type: GraphQLString },
-            },
-            resolve(parent, args) {
-                const user = new User({
-                    name: args.name,
-                    email: args.email,
-                    phone: args.phone,
-                });
-
-                return user.save();
-            },
-        },
-
-        // Delete user
-        deleteUser: {
-            type: UserType,
-            args: {
-                id: { type: GraphQLNonNull(GraphQLID) },
-            },
-            resolve(parent, args) {
-                User.find({ userId: args.id }).then((users) => {
-                    users.forEach((user) => {
-                        user.remove();
-                    });
-                });
-
-                return User.findByIdAndRemove(args.id);
-            },
-        },
-
-        // Create invite
-        createInvite: {
-            type: InviteType,
-            args: {
-                invitee_id: { type: GraphQLNonNull(GraphQLID) },
-                invited_email: { type: GraphQLNonNull(GraphQLString) },
-                // token: { type: GraphQLNonNull(GraphQLString) },
-                // expiration: { type: GraphQLString },
-            },
-            resolve(parent, args) {
-                const invite = new Invite({
-                    invitee_id: args.invitee_id,
-                    invited_email: args.invited_email,
-                    // token: args.token,
-                    // expiration: args.expiration,
-                })
-
-                return invite.save();
-            },
-        },
-
         // add product additional info
         addProductAdditionalInfo: {
             type: ProductAdditionalInfoType,
@@ -184,6 +127,64 @@ const mutation = new GraphQLObjectType({
                 return ProductAdditionalInfo.findByIdAndRemove(args.id);
             },
         },
+
+        // // Add new user
+        // addUser: {
+        //     type: UserType,
+        //     args: {
+        //         name: { type: GraphQLString },
+        //         email: { type: GraphQLString },
+        //         phone: { type: GraphQLString },
+        //     },
+        //     resolve(parent, args) {
+        //         const user = new User({
+        //             name: args.name,
+        //             email: args.email,
+        //             phone: args.phone,
+        //         });
+
+        //         return user.save();
+        //     },
+        // },
+
+        // // Delete user
+        // deleteUser: {
+        //     type: UserType,
+        //     args: {
+        //         id: { type: GraphQLNonNull(GraphQLID) },
+        //     },
+        //     resolve(parent, args) {
+        //         User.find({ userId: args.id }).then((users) => {
+        //             users.forEach((user) => {
+        //                 user.remove();
+        //             });
+        //         });
+
+        //         return User.findByIdAndRemove(args.id);
+        //     },
+        // },
+
+        // // Create invite
+        // createInvite: {
+        //     type: InviteType,
+        //     args: {
+        //         invitee_id: { type: GraphQLNonNull(GraphQLID) },
+        //         invited_email: { type: GraphQLNonNull(GraphQLString) },
+        //         // token: { type: GraphQLNonNull(GraphQLString) },
+        //         // expiration: { type: GraphQLString },
+        //     },
+        //     resolve(parent, args) {
+        //         const invite = new Invite({
+        //             invitee_id: args.invitee_id,
+        //             invited_email: args.invited_email,
+        //             // token: args.token,
+        //             // expiration: args.expiration,
+        //         })
+
+        //         return invite.save();
+        //     },
+        // },
+
     }
 });
 
