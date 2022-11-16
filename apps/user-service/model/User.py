@@ -34,7 +34,7 @@ class User(BaseModel):
 
     @classmethod
     def get_by_id(cls, id: str) -> Err[str] | Ok["User"]:
-        """Simple function to search for a User by his id
+        """Simple function to search for a User by his `user_id` field.
 
         If a match is found it is returned inside an `Ok` object, otherwise an `Err` is returned"""
         user_obj = cls.get_or_none(cls.user_id == id)
@@ -48,7 +48,7 @@ class User(BaseModel):
 
     @classmethod
     def get_by_email(cls, email: str) -> Err[str] | Ok["User"]:
-        """Simple function to search for a User by his id
+        """Simple function to search for a User by his `email` field.
 
         If a match is found it is returned inside an `Ok` object, otherwise an `Err` is returned"""
         user_obj = cls.get_or_none(cls.email == email)
