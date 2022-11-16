@@ -50,8 +50,7 @@ services:
     environment:
       - SFTP_USERNAME=$SFTP_USERNAME
     networks: [docker-net]
-    #ports: # only open ports for direct container testing, let gateway reroute otherwise
-    #  - 22:22
+    #ports: [22:22] # only open ports for direct container testing, let gateway reroute otherwise
     volumes:
       - ftp-uploads:/home/$SFTP_USERNAME/upload
     command: "$SFTP_USERNAME:$SFTP_PASSWORD:1001"
@@ -77,6 +76,7 @@ services:
       - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
       - POSTGRES_DB=$POSTGRES_DB
     networks: [user-service-net]
+    ports: [5432:5432]
 
 # ---------------------------------
 # ------------ NETWORK ------------
