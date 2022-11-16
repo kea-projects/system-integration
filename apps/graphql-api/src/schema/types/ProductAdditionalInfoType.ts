@@ -1,4 +1,4 @@
-import Product from "../../data/Product";
+import Product from "../../models/Product";
 import ProductType from "./ProductType";
 import {
     GraphQLObjectType,
