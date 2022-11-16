@@ -11,8 +11,6 @@ const PORT = process.env.SERVER_PORT || 8080;
 const app = express();
 const server = http.createServer(app);
 
-const azureConnectionString = process.env.AZURE_CONNECTION_STRING;
-
 // ---- Middleware ----
 app.use(cors());
 app.use(express.json());
@@ -36,10 +34,30 @@ server.listen(PORT, (error) => {
   }
 
   // Check if the necessary environment variables are present
-  if (!azureConnectionString) {
+  if (!process.env.AZURE_CONNECTION_STRING) {
     console.log(
       chalk.redBright(
         "[ERROR] The Azure storage connection string is missing from environment variables, shutting down!"
+      )
+    );
+    server.close();
+    return;
+  }
+  // Check if the necessary environment variables are present
+  if (!process.env.AZURE_STORAGE_ACCOUNT_NAME) {
+    console.log(
+      chalk.redBright(
+        "[ERROR] The Azure storage name is missing from environment variables, shutting down!"
+      )
+    );
+    server.close();
+    return;
+  }
+  // Check if the necessary environment variables are present
+  if (!process.env.AZURE_CONNECTION_STRING) {
+    console.log(
+      chalk.redBright(
+        "[ERROR] The Azure storage container name is missing from environment variables, shutting down!"
       )
     );
     server.close();

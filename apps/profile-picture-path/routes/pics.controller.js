@@ -4,7 +4,11 @@ import formidable from "formidable";
 import fs from "fs";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
-import { getAllPics } from "../utils/azure-storage.service.js";
+import {
+  getAllPics,
+  getPicById,
+  uploadPic,
+} from "../utils/azure-storage.service.js";
 
 export const picsRouter = Router();
 
@@ -61,11 +65,24 @@ picsRouter.post("/", async (req, res) => {
           message: "The uploaded file is invalid! The limit is 10 MegaBytes.",
         });
         return;
+      } else if (!files[""].mimetype.includes("image/")) {
+        filesArr.push(files[""].filepath);
+        console.log(
+          chalk.yellow(
+            `[WARNING] Someone tried to upload a file that wasn't an image (it was ${files[""].mimetype})`
+          )
+        );
+        res.status(400).send({
+          status: 400,
+          message: "The uploaded file has to be an image.",
+        });
+        return;
       } else {
         filesArr.push(files[""].filepath);
-        // TODO - Upload this bitch
+        res
+          .status(201)
+          .send(await uploadPic(files[""].filepath, files[""].mimetype));
       }
-      res.json({ fields, files });
     } catch (exception) {
       console.log(
         chalk.redBright(
