@@ -47,6 +47,20 @@ class User(BaseModel):
             return Ok(user_obj)
 
     @classmethod
+    def get_by_email(cls, email: str) -> Err[str] | Ok["User"]:
+        """Simple function to search for a User by his id
+
+        If a match is found it is returned inside an `Ok` object, otherwise an `Err` is returned"""
+        user_obj = cls.get_or_none(cls.email == email)
+        if user_obj == None:
+            return Err(
+                "UserNotFoundError",
+                f"User with the email of: '{email}' was not found in the database.",
+            )
+        else:
+            return Ok(user_obj)
+
+    @classmethod
     def update_by_id(cls, user_id: str, user_obj: "User") -> Err[Any] | Ok["User"]:
         # Get user object
         result = User.get_by_id(user_id)
