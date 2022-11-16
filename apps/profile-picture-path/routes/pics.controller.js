@@ -131,3 +131,6 @@ picsRouter.post("/", async (req, res) => {
     }
   });
 });
+
+// TODO - update profile picture path. Simply remove the blob and upload the new one
+// TODO - integrate this into the NGINX/DOCKEr-COMPOSE setup
