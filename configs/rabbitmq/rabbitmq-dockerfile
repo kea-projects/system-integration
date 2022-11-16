@@ -1,0 +1,8 @@
+FROM rabbitmq:3.11-management
+
+# Expose used ports
+EXPOSE 5672 15672
+
+# Copy the configuration files needed
+COPY ./definitions.json /import/
+COPY ./rabbitmq.conf /etc/rabbitmq/
