@@ -26,15 +26,20 @@ const pics = [
 ];
 
 export const getAllPics = async () => {
-  const containers = storageClient.listContainers();
-  for await (const container of containers) {
-    console.log(`Container : ${container.name}`);
+  const blobs = storageClient.getContainerClient(containerName).listBlobsFlat();
+  const blobList = [];
+  for await (const blob of blobs) {
+    blobList.push(createResourceUrl(blob.name));
   }
-  return pics;
+  return blobList;
 };
 
 export const getPicById = async (id) => {
-  return pics.filter((pic) => pic.name.replace(/\..*/m, "") === id);
+  // Terribly efficient fetching of all blobs and then finding one that matches the ID
+  // Can't fetch one directly from azure since the name includes the extension
+  const pics = await getAllPics();
+  const matchingPic = pics.filter((pic) => pic.includes(id))[0];
+  return matchingPic ? matchingPic : null;
 };
 
 export const uploadPic = async (filepath, fileType) => {
@@ -46,9 +51,13 @@ export const uploadPic = async (filepath, fileType) => {
 
   const options = { blobHTTPHeaders: { blobContentType: fileType } };
   await containerClient.getBlockBlobClient(id).uploadFile(filepath, options);
-  const url = `https://${storageAccountName}.blob.core.windows.net/${containerName}/${id}`;
+  const url = createResourceUrl(id);
   console.log(chalk.green(`[INFO] New file uploaded at ${url}`));
   return {
     url: url,
   };
 };
+
+function createResourceUrl(fileName) {
+  return `https://${storageAccountName}.blob.core.windows.net/${containerName}/${fileName}`;
+}

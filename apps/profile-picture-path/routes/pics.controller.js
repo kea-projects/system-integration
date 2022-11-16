@@ -4,6 +4,7 @@ import formidable from "formidable";
 import fs from "fs";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+import { validate as uuidValidate } from "uuid";
 import {
   getAllPics,
   getPicById,
@@ -18,14 +19,19 @@ picsRouter.get("/", async (req, res) => {
 
 picsRouter.get("/:picId", async (req, res) => {
   const id = req.params.picId;
-  if (!id || id.length < 3) {
+  if (!id || !uuidValidate(id)) {
     res.status(400).send({
       status: 400,
-      message: "Invalid picture Id, minimum length of 3 characters",
+      message: "Invalid picture Id, must be a valid UUIDv4",
     });
     return;
   }
-  res.send(await getPicById(id));
+  const foundPic = await getPicById(id);
+  if (!foundPic) {
+    res.status(404).send({ error: 404, message: "Not Found" });
+  } else {
+    res.send({ url: foundPic });
+  }
 });
 
 picsRouter.post("/", async (req, res) => {
