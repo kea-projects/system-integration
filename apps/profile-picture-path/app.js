@@ -18,11 +18,26 @@ app.use(express.json());
 // ---- Endpoints ----
 app.use("/pics", picsRouter);
 
-app.get("/", (req, res) => {
-  res.send(418, {
-    getAllPics: "GET /pics/",
-    getPicById: "GET /pics/:picId",
-    uploadPic: "POST /pics/",
+app.get("/", (_req, res) => {
+  res.status(418).send({
+    getAllPics: {
+      method: "GET",
+      route: "/pics",
+      requirements: "",
+      returns: "A list of URLs",
+    },
+    getPicById: {
+      method: "GET",
+      route: "/pics/:picId",
+      requirements: ":picId path param has to be a valid UUIDv4 string",
+      returns: "A URL",
+    },
+    uploadPic: {
+      method: "POST",
+      route: "/pics",
+      requirements: "One File, has to be an image, 10MB max",
+      returns: "A URL",
+    },
     docs: "https://bit.ly/3uTw3UC",
   });
 });
@@ -43,7 +58,6 @@ server.listen(PORT, (error) => {
     server.close();
     return;
   }
-  // Check if the necessary environment variables are present
   if (!process.env.AZURE_STORAGE_ACCOUNT_NAME) {
     console.log(
       chalk.redBright(
@@ -53,7 +67,6 @@ server.listen(PORT, (error) => {
     server.close();
     return;
   }
-  // Check if the necessary environment variables are present
   if (!process.env.AZURE_CONNECTION_STRING) {
     console.log(
       chalk.redBright(

@@ -10,21 +10,10 @@ const storageClient = BlobServiceClient.fromConnectionString(
   azureConnectionString
 );
 
-const pics = [
-  {
-    name: "1223456789.png",
-    url: "hotdeals.dev/1223456789",
-  },
-  {
-    name: "0987654321.png",
-    url: "hotdeals.dev/0987654321",
-  },
-  {
-    name: "0011223344.png",
-    url: "hotdeals.dev/0011223344",
-  },
-];
-
+/**
+ * Fetch all blobs in the specified Azure container.
+ * @returns a list of URLs.
+ */
 export const getAllPics = async () => {
   const blobs = storageClient.getContainerClient(containerName).listBlobsFlat();
   const blobList = [];
@@ -34,6 +23,11 @@ export const getAllPics = async () => {
   return blobList;
 };
 
+/**
+ * Find a specific blog by its id (name minus the file extension).
+ * @param {*} id the name minus the file extension.
+ * @returns a url or null.
+ */
 export const getPicById = async (id) => {
   // Terribly efficient fetching of all blobs and then finding one that matches the ID
   // Can't fetch one directly from azure since the name includes the extension
@@ -42,6 +36,12 @@ export const getPicById = async (id) => {
   return matchingPic ? matchingPic : null;
 };
 
+/**
+ * Upload a file to azure.
+ * @param {*} filepath the path to the file on the disk.
+ * @param {*} fileType the mimetype (file type) as seen by the API (image/jpg etc).
+ * @returns URL of the uploaded file.
+ */
 export const uploadPic = async (filepath, fileType) => {
   // prepare the data for upload
   const id = uuidv4() + "." + fileType.replace("image/", "");
@@ -58,6 +58,11 @@ export const uploadPic = async (filepath, fileType) => {
   };
 };
 
+/**
+ * Create a resource url that can be used to directly access the uploaded file.
+ * @param {*} fileName the name (with the file extension) of the desired file.
+ * @returns a URL.
+ */
 function createResourceUrl(fileName) {
   return `https://${storageAccountName}.blob.core.windows.net/${containerName}/${fileName}`;
 }

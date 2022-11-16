@@ -13,10 +13,19 @@ import {
 
 export const picsRouter = Router();
 
-picsRouter.get("/", async (req, res) => {
+/**
+ * Get all uploaded images.
+ * @returns a list of URLs.
+ */
+picsRouter.get("/", async (_req, res) => {
   res.send(await getAllPics());
 });
 
+/**
+ * Get a picture by its id.\
+ * Requires a query param that is a valid UUIDv4 string.
+ * @returns a single URL pointing to the given file or Not Found error message
+ */
 picsRouter.get("/:picId", async (req, res) => {
   const id = req.params.picId;
   if (!id || !uuidValidate(id)) {
@@ -34,6 +43,17 @@ picsRouter.get("/:picId", async (req, res) => {
   }
 });
 
+/**
+ * Upload a file to Azure storage.
+ *
+ * Requirements:
+ * - One file max
+ * - One File minimum
+ * - Has to be an image (mimetype includes `image/`)
+ * - Under 10 MB
+ *
+ * @returns a url to the uploaded file.
+ */
 picsRouter.post("/", async (req, res) => {
   const form = new formidable.IncomingForm({
     multiples: true, // have to accept multiple so that the formidable is aware there are multiple, and allows me to delete them all. yeah, I know, great logic
@@ -41,7 +61,7 @@ picsRouter.post("/", async (req, res) => {
     uploadDir: dirname(fileURLToPath(import.meta.url)) + "/temp", // Where the files should be saved
   });
 
-  form.parse(req, async (err, fields, files) => {
+  form.parse(req, async (_err, _fields, files) => {
     const filesArr = [];
     try {
       // Send bad request if there are multiple files, otherwise upload if there is only one
