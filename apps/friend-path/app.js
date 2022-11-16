@@ -5,11 +5,8 @@ import cors from "cors";
 import "dotenv/config";
 import chalk from "chalk";
 
-import { sendInvite } from "./utils/amqp-utils.js";
-import {
-  getAllUsers,
-  disconnectUser,
-} from "./utils/socket-utils.js";
+import { sendInvite, userHasBeenInvited, test } from "./utils/amqp-utils.js";
+import { getAllUsers, disconnectUser } from "./utils/socket-utils.js";
 import { validateEmail } from "./utils/validators.js";
 
 // ---- Config ----
@@ -32,11 +29,22 @@ app.post("/friend/invite", (req, res) => {
   }
 
   // TODO: Check if the email is already invited to the friend list.
-
-  sendInvite(
-    email,
-    () => res.send({ message: "User invited!" }),
-    () => res.status(500).send({ message: "An error has ocurred." })
+  test(
+    "ping",
+    (message) => {
+      userHasBeenInvited(
+        4,
+        (message) => {
+          sendInvite(
+            email,
+            () => res.send({ message: "User invited!", response: message }),
+            () => res.status(500).send({ message: "An error has ocurred." })
+          );
+        },
+        () => console.log("Error")
+      );
+    },
+    () => console.log("Error")
   );
 });
 
