@@ -24,7 +24,7 @@ export const getAllPics = async () => {
 };
 
 /**
- * Find a specific blog by its id (name minus the file extension).
+ * Find a specific file by its id (name minus the file extension).
  * @param {*} id the name minus the file extension.
  * @returns a url or null.
  */
@@ -56,6 +56,25 @@ export const uploadPic = async (filepath, fileType) => {
   return {
     url: url,
   };
+};
+
+/**
+ * Find and delete a specific file by its id (name minus the file extension).
+ * @param {*} id the name minus the file extension.
+ * @returns null if not found, false if failed to delete, and true if deletion succeeded.
+ */
+export const deletePic = async (id) => {
+  const pic = await getPicById(id);
+  if (pic === null) {
+    return null;
+  }
+  // Strip URL part
+  const name = pic.replace(/.*\//gm, "");
+  const response = await storageClient
+    .getContainerClient(containerName)
+    .getBlockBlobClient(name)
+    .deleteIfExists();
+  return response.succeeded;
 };
 
 /**

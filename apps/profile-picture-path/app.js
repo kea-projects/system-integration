@@ -30,13 +30,19 @@ app.get("/", (_req, res) => {
       method: "GET",
       route: "/pics/:picId",
       requirements: ":picId path param has to be a valid UUIDv4 string",
-      returns: "A URL",
+      returns: "A URL, or 404 Not Found",
     },
     uploadPic: {
       method: "POST",
       route: "/pics",
       requirements: "One File, has to be an image, 10MB max",
       returns: "A URL",
+    },
+    deletePic: {
+      method: "DELETE",
+      route: "/pics/:picId",
+      requirements: ":picId path param has to be a valid UUIDv4 string",
+      returns: "204 No Content or 404 Not Found",
     },
     docs: "https://bit.ly/3uTw3UC",
   });

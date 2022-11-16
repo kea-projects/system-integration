@@ -6,6 +6,7 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { validate as uuidValidate } from "uuid";
 import {
+  deletePic,
   getAllPics,
   getPicById,
   uploadPic,
@@ -132,5 +133,32 @@ picsRouter.post("/", async (req, res) => {
   });
 });
 
-// TODO - update profile picture path. Simply remove the blob and upload the new one
-// TODO - integrate this into the NGINX/DOCKEr-COMPOSE setup
+/**
+ * Remove a picture by its ID.\
+ * Requires a query param that is a valid UUIDv4 string.
+ * @returns a confirmation that the file got deleted or Not Found error message.
+ */
+picsRouter.delete("/:picId", async (req, res) => {
+  const id = req.params.picId;
+  if (!id || !uuidValidate(id)) {
+    res.status(400).send({
+      status: 400,
+      message: "Invalid picture Id, must be a valid UUIDv4",
+    });
+    return;
+  }
+  const foundPic = await deletePic(id);
+  if (foundPic === null) {
+    res.status(404).send({ error: 404, message: "Not Found" });
+  } else if (foundPic) {
+    res.status(204).send();
+  } else {
+    {
+      res
+        .status(500)
+        .send({ error: 500, message: "Failed to delete the picture" });
+    }
+  }
+});
+
+// TODO - integrate this into the NGINX/DOCKER-COMPOSE setup
