@@ -1,4 +1,5 @@
 #!/bin/env python
+import uuid
 from config.database import DB_CONNECTION
 from utility.functions import initialize_db, Password
 from model.User import User
@@ -6,35 +7,53 @@ from model.Invite import Invite
 
 import bcrypt
 import os
-
+import sys
 
 
 def main():
-    initialize_db(DB_CONNECTION, [User, Invite])
+    result = initialize_db(DB_CONNECTION, [User, Invite])
+    if result.is_err():
+        print(f"DB Connection Failed! Reason: {result.err()}\nExiting...")
+        sys.exit(-1)
+
+    result = User.get_by_id("6debdd1f-9d4f-45f7-bfd7-175ffc8e319f")
+    print("User Get Request: ", result.data())
+
+    new_user = User(
+        user_id=uuid.uuid4(),
+        email="InvalidMail@google.com",
+        name="bob",
+        password="longesty",
+    )
+    print("New User: ", new_user)
+
+    result = User.update_by_id(user_id=result.data().user_id, user_obj=new_user)
+
+    print("Update result: ", result)
 
 
+main()
+
+
+def test_creating_users():
     result = User.create_new(email="valid9@email.test", name="bieb", password="pass")
 
-    #print(result)
-    
     if result.is_ok():
-        print(result.ok())
-        print("OK")
+        print("Ok Result")
+        print(result.data())
     else:
-        print("ERROR")
+        print("Error Result")
         print(result.err())
 
-    
     result2 = User.create_new(email="valid7@email.test", name="beb", password="banana")
 
+    # print(result)
 
-    #print(result)
-    
     if result2.is_ok():
-        print(result2.ok())
-        print("OK")
+        print("Ok Result")
+        print(result2.data())
     else:
-        print("ERROR")
+        print("Error Result")
         print(result2.err())
 
     query = User.select()
@@ -48,6 +67,3 @@ def main():
 
     result = User.get_by_id("6debdd1f-9d4f-45f7-bfd7-175ffc8e319c")
     print(result)
-
-
-main()

@@ -45,3 +45,39 @@ class User(BaseModel):
             )
         else:
             return Ok(user_obj)
+
+    @classmethod
+    def update_by_id(cls, user_id: str, user_obj: "User") -> Err[Any] | Ok["User"]:
+        # Get user object
+        result = User.get_by_id(user_id)
+        if result.is_err():
+            return result
+
+        old_user_obj: User = result.data()
+
+        if not is_valid_email(str(user_obj.email)):
+            return Err(
+                "ValidationError", f"Email '{user_obj.email}' did not pass validation."
+            )
+
+        passwd_validation_result = Password.validate_password_len(str(user_obj.password))
+        if passwd_validation_result.is_err():
+            return passwd_validation_result  # type: ignore | can only be an Err[str]
+
+        temp_mail = user_obj.email
+        temp_name: CharField = user_obj.name
+        temp_password: str = Password.hash(str(passwd_validation_result.data()))
+
+        # Reassign the old fields with new
+        old_user_obj.email = temp_mail
+        old_user_obj.name = temp_name
+        old_user_obj.password = temp_password
+
+        try:  # To save the updated object
+            result = old_user_obj.save()
+            if result == 1:
+                return Ok(old_user_obj)
+            else:
+                return Err("UpdateError", "Failed to update User")
+        except IntegrityError as error:
+            return Err("IntegrityError", error)

@@ -4,20 +4,20 @@ from typing import TypeVar, Generic
 T = TypeVar("T")
 
 
-class Result():
+class Result(Generic[T]):
     def is_err(self) -> bool:
         return True if type(self) == Err else False
 
     def is_ok(self) -> bool:
         return True if type(self) == Ok else False
 
-    def ok(self) -> Any:
+    def data(self) -> T:
         if self.is_ok():
-            return self.data  # type: ignore
+            return self.ok  # type: ignore
         else:
             raise Exception("Can not extract contents of non-ok object")
 
-    def err(self) -> Any:
+    def err(self) -> T:
         if self.is_err():
             return self.detail  # type: ignore
         else:
@@ -37,7 +37,7 @@ class Err(Result, Generic[T]):
 
 
 class Ok(Result, Generic[T]):
-    data: T
+    ok: T
 
     def __init__(self, data: T) -> None:
-        self.data: T = data
+        self.ok: T = data
