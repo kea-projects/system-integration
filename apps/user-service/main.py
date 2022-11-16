@@ -16,6 +16,13 @@ def main():
         print(f"DB Connection Failed! Reason: {result.err()}\nExiting...")
         sys.exit(-1)
 
+    
+
+
+main()
+
+
+def test_updating_users():
     result = User.get_by_id("6debdd1f-9d4f-45f7-bfd7-175ffc8e319f")
     print("User Get Request: ", result.data())
 
@@ -31,10 +38,6 @@ def main():
 
     print("Update result: ", result)
 
-
-main()
-
-
 def test_creating_users():
     result = User.create_new(email="valid9@email.test", name="bieb", password="pass")
 
@@ -46,8 +49,6 @@ def test_creating_users():
         print(result.err())
 
     result2 = User.create_new(email="valid7@email.test", name="beb", password="banana")
-
-    # print(result)
 
     if result2.is_ok():
         print("Ok Result")
