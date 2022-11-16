@@ -3,6 +3,7 @@ import cors from "cors";
 import "dotenv/config";
 import express from "express";
 import http from "http";
+import { picsRouter } from "./routes/pics.controller.js";
 
 // ---- Config ----
 const PORT = process.env.SERVER_PORT || 8080;
@@ -10,14 +11,21 @@ const PORT = process.env.SERVER_PORT || 8080;
 const app = express();
 const server = http.createServer(app);
 
+const azureConnectionString = process.env.AZURE_CONNECTION_STRING;
+
 // ---- Middleware ----
 app.use(cors());
 app.use(express.json());
 
 // ---- Endpoints ----
+app.use("/pics", picsRouter);
+
 app.get("/", (req, res) => {
   res.send(418, {
-    message: "ya yeet",
+    getAllPics: "GET /pics/",
+    getPicById: "GET /pics/:picId",
+    uploadPic: "POST /pics/",
+    docs: "https://bit.ly/3uTw3UC",
   });
 });
 
@@ -25,6 +33,17 @@ app.get("/", (req, res) => {
 server.listen(PORT, (error) => {
   if (error) {
     console.error(error);
+  }
+
+  // Check if the necessary environment variables are present
+  if (!azureConnectionString) {
+    console.log(
+      chalk.redBright(
+        "[ERROR] The Azure storage connection string is missing from environment variables, shutting down!"
+      )
+    );
+    server.close();
+    return;
   }
 
   console.log(
