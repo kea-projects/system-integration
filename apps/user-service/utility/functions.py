@@ -12,8 +12,7 @@ M = TypeVar("M", bound=type(Model))
 
 
 def initialize_db(
-    db_connection: PostgresqlExtDatabase, models: list[M]
-) -> Err[OperationalError] | Ok[str]:
+    db_connection: PostgresqlExtDatabase, models: list[M]) -> Err[OperationalError] | Ok[str]:
     print("Initializing DB ...")
 
     try:
@@ -44,7 +43,7 @@ class Password:
     @staticmethod
     def validate_password_len(password: str) -> Err[str] | Ok[str]:
         password_min_len = int(secrets.PASSWORD_MIN_LENGTH)
-        print("MIN PASS LEN: ", password_min_len)
+        
         if len(password) < password_min_len:
             return Err(
                 "PasswordTooShortError",

@@ -5,9 +5,7 @@ from utility.functions import initialize_db, Password
 from model.User import User
 from model.Invite import Invite
 
-import bcrypt
-import os
-import sys
+import sys, os
 
 
 def main():
@@ -15,7 +13,7 @@ def main():
     if result.is_err():
         print(f"DB Connection Failed! Reason: {result.err()}\nExiting...")
         sys.exit(-1)
-
+    
 
 def test_getting_user_by_mail():
     result = User.get_by_email(email="valid9@email.test")
@@ -29,7 +27,7 @@ def test_getting_user_by_mail():
     assert result.data() != result2.data()
 
 
-def test_updating_users():
+def test_updating_users_password():
     result = User.get_by_id("6debdd1f-9d4f-45f7-bfd7-175ffc8e319f")
     print("User Get Request: ", result.data())
 
@@ -37,13 +35,15 @@ def test_updating_users():
         user_id=uuid.uuid4(),
         email="InvalidMail@google.com",
         name="bob",
-        password="longesty",
+        password=os.urandom(10),
     )
     print("New User: ", new_user)
 
-    result = User.update_by_id(user_id=result.data().user_id, user_obj=new_user)
+    result2 = User.update_by_id(user_id=result.data().user_id, user_obj=new_user)
 
-    print("Update result: ", result)
+    print("Update result: ", result2)
+
+    assert result.data().password != result2.data().password
 
 
 def test_creating_users():
