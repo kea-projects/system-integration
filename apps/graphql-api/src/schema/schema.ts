@@ -118,6 +118,29 @@ const mutation = new GraphQLObjectType({
             },
         },
 
+        updateProductAdditionalInfo: {
+            type: ProductAdditionalInfoType,
+            args: {
+                id: { type: GraphQLNonNull(GraphQLID) },
+                product_id: { type: GraphQLNonNull(GraphQLID) },
+                choices: { type: GraphQLNonNull(GraphQLID) },
+                additional_info: { type: GraphQLString },
+            },
+            resolve(parent, args) {
+                return ProductAdditionalInfo.findByIdAndUpdate(
+                    args.id,
+                    {
+                        $set: {
+                            product_id: args.product_id,
+                            choices: args.choices,
+                            additional_info: args.additional_info,
+                        },
+                    },
+                    { new: true },
+                );
+            },
+        },
+
         // delete product additional info
         deleteProductAdditionalInfo: {
             type: ProductAdditionalInfoType,
@@ -150,6 +173,31 @@ const mutation = new GraphQLObjectType({
             },
         },
 
+        updateProductImage: {
+            type: ProductImageType,
+            args: {
+                id: { type: GraphQLNonNull(GraphQLID) },
+                product_id: { type: GraphQLNonNull(GraphQLID) },
+                image_url: { type: GraphQLNonNull(GraphQLID) },
+                alt_text: { type: GraphQLString },
+                additional_info: { type: GraphQLString },
+            },
+            resolve(parent, args) {
+                return ProductImage.findByIdAndUpdate(
+                    args.id,
+                    {
+                        $set: {
+                            product_id: args.product_id,
+                            image_url: args.image_url,
+                            alt_text: args.alt_text,
+                            additional_info: args.additional_info,
+                        },
+                    },
+                    { new: true },
+                );
+            },
+        },
+
         // delete product image
         deleteProductImage: {
             type: ProductImageType,
@@ -158,6 +206,41 @@ const mutation = new GraphQLObjectType({
             },
             resolve(parent, args) {
                 return ProductImage.findByIdAndRemove(args.id);
+            },
+        },
+
+        updateProduct: {
+            type: ProductType,
+            args: {
+                id: { type: GraphQLNonNull(GraphQLID) },
+                product_id: { type: GraphQLNonNull(GraphQLID) },
+                product_name: { type: GraphQLString },
+                product_sub_title: { type: GraphQLString },
+                product_description: { type: GraphQLString },
+                main_category: { type: GraphQLString },
+                sub_category: { type: GraphQLString },
+                price: { type: GraphQLInt },
+                link: { type: GraphQLString },
+                overall_rating: { type: GraphQLString },
+            },
+            resolve(parent, args) {
+                return Product.findByIdAndUpdate(
+                    args.id,
+                    {
+                        $set: {
+                            product_id: args.product_id,
+                            product_name: args.product_name,
+                            product_sub_title: args.product_sub_title,
+                            product_description: args.product_description,
+                            main_category: args.main_category,
+                            sub_category: args.sub_category,
+                            price: args.price,
+                            link: args.link,
+                            overall_rating: args.overall_rating,
+                        },
+                    },
+                    { new: true },
+                );
             },
         },
 
