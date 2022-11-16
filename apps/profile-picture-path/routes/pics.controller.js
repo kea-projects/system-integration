@@ -54,7 +54,7 @@ picsRouter.post("/", async (req, res) => {
         });
         return;
       } else if (Object.keys(files).length === 0) {
-        // This occurs if the uploaded file is too big. Yup, an empty object. Yeah, logical
+        // This occurs if the uploaded file is too big, or there are no uploaded objects. Yup, an empty object. Yeah, logical
         console.log(
           chalk.yellow(
             "[WARNING] Someone tried to upload a file that was too big"
@@ -62,7 +62,8 @@ picsRouter.post("/", async (req, res) => {
         );
         res.status(400).send({
           status: 400,
-          message: "The uploaded file is invalid! The limit is 10 MegaBytes.",
+          message:
+            "You either didn't upload any file or the uploaded file is invalid. The limit is 10 MegaBytes.",
         });
         return;
       } else if (!files[""].mimetype.includes("image/")) {
