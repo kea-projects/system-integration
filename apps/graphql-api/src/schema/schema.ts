@@ -16,6 +16,7 @@ import {
     GraphQLString,
     GraphQLNonNull,
     GraphQLSchema,
+    GraphQLInt,
 } from "graphql";
 
 const RootQuery = new GraphQLObjectType({
@@ -125,6 +126,80 @@ const mutation = new GraphQLObjectType({
             },
             resolve(parent, args) {
                 return ProductAdditionalInfo.findByIdAndRemove(args.id);
+            },
+        },
+
+        // add product additional info
+        addProductImage: {
+            type: ProductImageType,
+            args: {
+                product_id: { type: GraphQLNonNull(GraphQLID) },
+                image_url: { type: GraphQLNonNull(GraphQLID) },
+                alt_text: { type: GraphQLString },
+                additional_info: { type: GraphQLString },
+            },
+            resolve(parent, args) {
+                const productImage = new ProductImage({
+                    product_id: args.product_id,
+                    image_url: args.image_url,
+                    alt_text: args.alt_text,
+                    additional_info: args.additional_info,
+                });
+
+                return productImage.save();
+            },
+        },
+
+        // delete product image
+        deleteProductImage: {
+            type: ProductImageType,
+            args: {
+                id: { type: GraphQLNonNull(GraphQLID) },
+            },
+            resolve(parent, args) {
+                return ProductImage.findByIdAndRemove(args.id);
+            },
+        },
+
+         // add product additional info
+         addProduct: {
+            type: ProductType,
+            args: {
+                product_id: { type: GraphQLNonNull(GraphQLID) },
+                product_name: { type: GraphQLString },
+                product_sub_title: { type: GraphQLString },
+                product_description: { type: GraphQLString },
+                main_category: { type: GraphQLString },
+                sub_category: { type: GraphQLString },
+                price: { type: GraphQLInt },
+                link: { type: GraphQLString },
+                overall_rating: { type: GraphQLString },
+            },
+            resolve(parent, args) {
+                const product = new Product({
+                    product_id: args.product_id,
+                    product_name: args.product_name,
+                    product_sub_title: args.product_sub_title,
+                    product_description: args.product_description,
+                    main_category: args.main_category,
+                    sub_category: args.sub_category,
+                    price: args.price,
+                    link: args.link,
+                    overall_rating: args.overall_rating,
+                });
+
+                return product.save();
+            },
+        },
+
+        // delete product
+        deleteProduct: {
+            type: ProductType,
+            args: {
+                id: { type: GraphQLNonNull(GraphQLID) },
+            },
+            resolve(parent, args) {
+                return Product.findByIdAndRemove(args.id);
             },
         },
 
