@@ -5,6 +5,7 @@ import fs from "fs";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { getAllPics } from "../utils/azure-storage.service.js";
+
 export const picsRouter = Router();
 
 picsRouter.get("/", async (req, res) => {
@@ -26,8 +27,8 @@ picsRouter.get("/:picId", async (req, res) => {
 picsRouter.post("/", async (req, res) => {
   const form = new formidable.IncomingForm({
     multiples: true, // have to accept multiple so that the formidable is aware there are multiple, and allows me to delete them all. yeah, I know, great logic
-    maxFileSize: 10 * 1024 * 1024, // 10 MB
-    uploadDir: dirname(fileURLToPath(import.meta.url)),
+    maxFileSize: 10 * 1024 * 1024, // 10 MB // Causes the files[""] to be an empty object. Logical
+    uploadDir: dirname(fileURLToPath(import.meta.url)) + "/temp", // Where the files should be saved
   });
 
   form.parse(req, async (err, fields, files) => {
@@ -40,29 +41,29 @@ picsRouter.post("/", async (req, res) => {
         files[""].forEach((file) => {
           filesArr.push(file.filepath);
         });
+        console.log(
+          chalk.yellow("[WARNING] Someone tried to upload more than one file")
+        );
         res.status(400).send({
           status: 400,
           message: "You can't upload more than one file!",
         });
-        console.log(
-          chalk.yellow("[WARNING] Someone tried to upload more than one file")
-        );
         return;
       } else if (Object.keys(files).length === 0) {
         // This occurs if the uploaded file is too big. Yup, an empty object. Yeah, logical
-        res.status(400).send({
-          status: 400,
-          message: "The uploaded file is invalid! The limit is 10 MegaBytes.",
-        });
         console.log(
           chalk.yellow(
             "[WARNING] Someone tried to upload a file that was too big"
           )
         );
+        res.status(400).send({
+          status: 400,
+          message: "The uploaded file is invalid! The limit is 10 MegaBytes.",
+        });
         return;
       } else {
         filesArr.push(files[""].filepath);
-        // Upload this bitch
+        // TODO - Upload this bitch
       }
       res.json({ fields, files });
     } catch (exception) {
@@ -72,7 +73,12 @@ picsRouter.post("/", async (req, res) => {
         )
       );
       console.error(exception);
+      res.status(500).send({
+        error: "500",
+        message: "An internal server error has occured. Try again later :)",
+      });
     } finally {
+      // Remove the saved files
       filesArr.forEach((element) => {
         fs.unlink(element, (err) => {
           if (err) console.error("error:", err);
@@ -80,5 +86,4 @@ picsRouter.post("/", async (req, res) => {
       });
     }
   });
-  //res.status(201).send(await uploadPic());
 });
