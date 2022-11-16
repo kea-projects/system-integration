@@ -60,20 +60,20 @@ const callProcedure = (message, exchange, topic, onSuccess, onError) => {
             console.error("Error2", error2);
           }
 
-          channel.bindQueue(queue.queue, exchange, topic);
+          channel.bindQueue(queue.queue, exchange, `${topic}.response`);
           channel.consume(
             queue.queue,
             (response) => {
               if (response.properties.correlationId == correlationId) {
                 console.log(
                   chalk.yellowBright("Response:"),
-                  chalk.blueBright(response),
+                  chalk.blueBright(response.content),
                   chalk.yellowBright("received from exchange:"),
                   chalk.green(exchange),
                   chalk.yellowBright("on topic:"),
-                  chalk.blueBright(topic)
+                  chalk.blueBright(`${topic}.response`)
                 );
-                onSuccess(response);
+                onSuccess(response.content.toString());
                 setTimeout(function () {
                   connection.close();
                 }, 500);
@@ -82,11 +82,16 @@ const callProcedure = (message, exchange, topic, onSuccess, onError) => {
             { noAck: true }
           );
 
-          channel.publish(exchange, topic, Buffer.from(message.toString()), {
-            persistent: true,
-            replyTo: queue.queue,
-            correlationId: correlationId,
-          });
+          channel.publish(
+            exchange,
+            `${topic}.request`,
+            Buffer.from(message.toString()),
+            {
+              persistent: true,
+              replyTo: queue.queue,
+              correlationId: correlationId,
+            }
+          );
 
           console.log(
             chalk.yellowBright("Message:"),
@@ -94,7 +99,7 @@ const callProcedure = (message, exchange, topic, onSuccess, onError) => {
             chalk.yellowBright("sent to exchange:"),
             chalk.green(exchange),
             chalk.yellowBright("on topic:"),
-            chalk.blueBright(topic)
+            chalk.blueBright(`${topic}.request`)
           );
         });
       });

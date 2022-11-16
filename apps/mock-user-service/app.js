@@ -24,7 +24,7 @@ amqp.connect(
         }
 
         channel.prefetch(1);
-        channel.bindQueue(queue.queue, userExchange, "fib");
+        channel.bindQueue(queue.queue, userExchange, "fib.request");
 
         channel.consume(
           queue.queue,
@@ -70,7 +70,7 @@ amqp.connect(
         }
 
         channel.prefetch(1);
-        channel.bindQueue(queue.queue, userExchange, "game");
+        channel.bindQueue(queue.queue, userExchange, "game.request");
 
         channel.consume(
           queue.queue,
