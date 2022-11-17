@@ -57,16 +57,17 @@ picsRouter.get("/:picId", async (req, res) => {
  */
 picsRouter.post("/", async (req, res) => {
   const form = new formidable.IncomingForm({
-    multiples: true, // have to accept multiple so that the formidable is aware there are multiple, and allows me to delete them all. yeah, I know, great logic
+    multiples: false, // have to accept multiple so that the formidable is aware there are multiple, and allows me to delete them all. yeah, I know, great logic
     maxFileSize: 10 * 1024 * 1024, // 10 MB // Causes the files[""] to be an empty object. Logical
     uploadDir: dirname(fileURLToPath(import.meta.url)) + "/temp", // Where the files should be saved
   });
 
   form.parse(req, async (_err, _fields, files) => {
     const filesArr = [];
+    console.log(files);
     try {
       // Send bad request if there are multiple files, otherwise upload if there is only one
-      // No matter what make sure to clean upo the data
+      // No matter what make sure to clean up the data
       // files[""] is because formidable is stupid just like the rest of javascript-based Node
       if (Array.isArray(files[""])) {
         files[""].forEach((file) => {
@@ -120,7 +121,7 @@ picsRouter.post("/", async (req, res) => {
       console.error(exception);
       res.status(500).send({
         error: "500",
-        message: "An internal server error has occured. Try again later :)",
+        message: "An internal server error has occurred. Try again later :)",
       });
     } finally {
       // Remove the saved files
