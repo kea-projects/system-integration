@@ -67,13 +67,13 @@ server.listen(PORT, (error) => {
   if (!process.env.AZURE_STORAGE_ACCOUNT_NAME) {
     console.log(
       chalk.redBright(
-        "[ERROR] The Azure storage name is missing from environment variables, shutting down!"
+        "[ERROR] The Azure storage account name is missing from environment variables, shutting down!"
       )
     );
     server.close();
     return;
   }
-  if (!process.env.AZURE_CONNECTION_STRING) {
+  if (!process.env.AZURE_CONTAINER_NAME) {
     console.log(
       chalk.redBright(
         "[ERROR] The Azure storage container name is missing from environment variables, shutting down!"
