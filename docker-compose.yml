@@ -47,6 +47,18 @@ services:
       - ftp-uploads:/home/$SFTP_USERNAME/upload
     command: "$SFTP_USERNAME:$SFTP_PASSWORD:1001"
 
+  pictures-server:
+    container_name: pictures-server
+    build:
+      context: ./apps/profile-picture-path/
+      dockerfile: Dockerfile
+    environment:
+      - AZURE_CONNECTION_STRING=$AZURE_CONNECTION_STRING
+      - AZURE_STORAGE_ACCOUNT_NAME=$AZURE_STORAGE_ACCOUNT_NAME
+      - AZURE_CONTAINER_NAME=$AZURE_CONTAINER_NAME
+    networks:
+      - docker-net
+
 
 # ---------------------------------
 # ------------ NETWORK ------------
