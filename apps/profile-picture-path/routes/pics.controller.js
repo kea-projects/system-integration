@@ -64,7 +64,6 @@ picsRouter.post("/", async (req, res) => {
 
   form.parse(req, async (_err, _fields, files) => {
     const filesArr = [];
-    console.log(files);
     try {
       // Send bad request if there are multiple files, otherwise upload if there is only one
       // No matter what make sure to clean up the data
