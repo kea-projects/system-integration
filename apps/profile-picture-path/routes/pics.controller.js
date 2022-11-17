@@ -281,5 +281,3 @@ picsRouter.delete("/:picId", async (req, res) => {
     }
   }
 });
-
-// TODO - integrate this into the NGINX/DOCKER-COMPOSE setup

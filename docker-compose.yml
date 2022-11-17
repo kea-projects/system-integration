@@ -50,8 +50,8 @@ services:
   pictures-server:
     container_name: pictures-server
     build:
-      context: ./apps/profile-picture-path/
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./configs/profile-picture-path/profile-pics.dockerfile
     environment:
       - AZURE_CONNECTION_STRING=$AZURE_CONNECTION_STRING
       - AZURE_STORAGE_ACCOUNT_NAME=$AZURE_STORAGE_ACCOUNT_NAME
