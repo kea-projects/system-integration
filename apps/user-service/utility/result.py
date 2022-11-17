@@ -1,4 +1,3 @@
-from typing import Any
 from typing import TypeVar, Generic
 
 T = TypeVar("T")
