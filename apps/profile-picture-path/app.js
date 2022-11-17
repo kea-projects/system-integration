@@ -38,6 +38,13 @@ app.get("/", (_req, res) => {
       requirements: "One File, has to be an image, 10MB max",
       returns: "A URL",
     },
+    update: {
+      method: "PUT",
+      route: "/pics/:picId",
+      requirements:
+        ":picId path param has to be a valid UUIDv4 string. One File, has to be an image, 10MB max",
+      returns: "A URL",
+    },
     deletePic: {
       method: "DELETE",
       route: "/pics/:picId",

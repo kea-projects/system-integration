@@ -59,6 +59,38 @@ export const uploadPic = async (filepath, fileType) => {
 };
 
 /**
+ * Update and upload a file to azure.
+ * @param {*} filepath the path to the file on the disk.
+ * @param {*} fileType the mimetype (file type) as seen by the API (image/jpg etc).
+ * @param {*} id the ID of the file to update.
+ * @returns URL of the uploaded file.
+ */
+export const updatePic = async (filepath, fileType, id) => {
+  if (getPicById(id) === null) {
+    return null;
+  }
+
+  // Delete the original blob
+  const result = await deletePic(id);
+  if (result !== true) {
+    return null;
+  }
+
+  // upload the new picture
+  const name = id + "." + fileType.replace("image/", "");
+  const containerClient = storageClient.getContainerClient(containerName);
+  await containerClient.createIfNotExists();
+
+  const options = { blobHTTPHeaders: { blobContentType: fileType } };
+  await containerClient.getBlockBlobClient(name).uploadFile(filepath, options);
+  const url = createResourceUrl(name);
+  console.log(chalk.green(`[INFO] File updated at ${url}`));
+  return {
+    url: url,
+  };
+};
+
+/**
  * Find and delete a specific file by its id (name minus the file extension).
  * @param {*} id the name minus the file extension.
  * @returns null if not found, false if failed to delete, and true if deletion succeeded.
