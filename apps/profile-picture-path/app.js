@@ -16,38 +16,44 @@ app.use(cors());
 app.use(express.json());
 
 // ---- Endpoints ----
-app.use("/pics", picsRouter);
+app.use("/pictures/", picsRouter);
 
-app.get("/", (_req, res) => {
+app.get("/pictures", (_req, res) => {
   res.status(418).send({
     getAllPics: {
       method: "GET",
-      route: "/pics",
+      route: "/pictures/all",
       requirements: "",
       returns: "A list of URLs",
     },
     getPicById: {
       method: "GET",
-      route: "/pics/:picId",
+      route: "/pictures/:picId",
       requirements: ":picId path param has to be a valid UUIDv4 string",
       returns: "A URL, or 404 Not Found",
     },
     uploadPic: {
       method: "POST",
-      route: "/pics",
+      route: "/pictures",
       requirements: "One File, has to be an image, 10MB max",
       returns: "A URL",
     },
     update: {
       method: "PUT",
-      route: "/pics/:picId",
+      route: "/pictures/:picId",
       requirements:
         ":picId path param has to be a valid UUIDv4 string. One File, has to be an image, 10MB max",
       returns: "A URL",
     },
     deletePic: {
       method: "DELETE",
-      route: "/pics/:picId",
+      route: "/pictures/:picId",
+      requirements: ":picId path param has to be a valid UUIDv4 string",
+      returns: "204 No Content or 404 Not Found",
+    },
+    deletePic: {
+      method: "DELETE",
+      route: "/pictures/:picId",
       requirements: ":picId path param has to be a valid UUIDv4 string",
       returns: "204 No Content or 404 Not Found",
     },

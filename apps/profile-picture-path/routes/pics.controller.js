@@ -19,7 +19,7 @@ export const picsRouter = Router();
  * Get all uploaded images.
  * @returns a list of URLs.
  */
-picsRouter.get("/", async (_req, res) => {
+picsRouter.get("/all", async (_req, res) => {
   res.send(await getAllPics());
 });
 
