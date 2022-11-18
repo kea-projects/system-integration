@@ -1,11 +1,11 @@
 from dotenv import dotenv_values
+from utility.result import Err, Ok
 import sys
 
 _envs = dotenv_values()
 _external_envs = dotenv_values("../../.env")
 
 _secrets = {
-    "PASSWORD_SALT": _envs.get("PASSWORD_SALT").encode("utf-8"),  # type: ignore
     "PASSWORD_MIN_LENGTH": _envs.get("PASSWORD_MIN_LENGTH"),
     "JWT_SECRET": _envs.get("JWT_SECRET"),
     "POSTGRES_USER": _external_envs.get("POSTGRES_USER"),
@@ -20,7 +20,15 @@ _secrets = {
 
 def get_env(env: str) -> str:
     if _secrets[env] is not None:
-        return _secrets[env]
+        return _secrets[env]  # type: ignore | can only be str
     else:
-        print(f"ENV '{env}' is not loaded, exiting...")
+        print(f"ENV '{env}' does not exist.\nExiting...")
         sys.exit(1)
+
+
+def validate_envs() -> Err[str] | Ok[str]:
+    for key, value in _secrets.items():
+        if value is None:
+            return Err("UnsetEnvError", f"The ENV '{key} is not set.")
+
+    return Ok("All ENVs set correctly")
