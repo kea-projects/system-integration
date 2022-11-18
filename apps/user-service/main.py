@@ -6,6 +6,8 @@ from model.User import User
 from model.Invite import Invite
 
 
+
+
 import sys, os
 
 
@@ -15,8 +17,23 @@ def main():
         print(f"DB Connection Failed! Reason: {result.err()}\nExiting...")
         sys.exit(-1)
 
+    # test_creating_users()
+    # test_creating_invite()
+    #print(Invite.has_invited_other("valid2@email.test", "valid3@email.test").to_bool())
+    test_getting_list_of_invites()
     
 
+def test_getting_list_of_invites():
+    from_email = 'valid2@email.test'
+    result = Invite.get_all_invited(from_email)
+    print(result)
+
+def test_creating_invite():
+    from_email = 'valid1@email.test'
+    to_email = 'valid2@email.test'
+
+    result = Invite.create_new_invite(from_email, to_email)
+    print(result)
 
 def test_altered_token():
     token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2Njg2NDczMzUuNDkwNjA1LCJleHAiOjE2NjkyNTIxMzYuNDkwNjA1LCJmcm9tX2VtYWlsIjoic29tZUNoYW5nZWRAbWFpbC5jb20iLCJ0b19lbWFpbCI6Im90aGVyQG1haWwuY29tIn0.HH4d6nQte_Mg--M5KYN9mLG10RNCk9LLEcSW1rYE18o"
@@ -85,7 +102,7 @@ def test_updating_users_password():
 
 
 def test_creating_users():
-    result = User.create_new(email="valid9@email.test", name="bieb", password="pass")
+    result = User.create_new(email="valid3@email.test", name="bieb", password="pass")
 
     if result.is_ok():
         print("Ok Result")

@@ -1,4 +1,3 @@
-from typing import Any
 from playhouse.postgres_ext import PostgresqlExtDatabase
 from peewee import Model, OperationalError
 from utility.result import Err, Ok
@@ -12,8 +11,7 @@ M = TypeVar("M", bound=type(Model))
 
 
 def initialize_db(
-    db_connection: PostgresqlExtDatabase, models: list[M]
-) -> Err[OperationalError] | Ok[str]:
+    db_connection: PostgresqlExtDatabase, models: list[M]) -> Err[OperationalError] | Ok[str]:
     print("Initializing DB ...")
 
     try:
