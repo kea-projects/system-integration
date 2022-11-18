@@ -1,3 +1,4 @@
+import json
 import uuid
 from peewee import UUIDField, CharField, ForeignKeyField, IntegrityError
 from config.database import DB_CONNECTION
@@ -5,6 +6,7 @@ from model.BaseModel import BaseModel
 from model.User import User
 from utility.result import Ok, Err
 from utility.functions import Token
+from utility.serializers import UUIDEncoder
 
 
 class Invite(BaseModel):  # type: ignore
@@ -36,4 +38,6 @@ class Invite(BaseModel):  # type: ignore
         except IntegrityError as error:
             return Err("IntegrityError", error.args[0])
 
-        
+
+    def to_json(self) -> str:
+        return json.dumps(self.__dict__['__data__'], cls=UUIDEncoder)

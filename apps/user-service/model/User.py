@@ -1,3 +1,4 @@
+import json
 from typing import Any
 import uuid
 from peewee import UUIDField, CharField, IntegrityError, InternalError
@@ -5,6 +6,7 @@ from model.BaseModel import BaseModel
 from utility.functions import is_valid_email, Password
 from utility.result import Err, Ok
 from config.database import DB_CONNECTION
+from utility.serializers import UUIDEncoder
 
 
 class User(BaseModel):
@@ -62,7 +64,6 @@ class User(BaseModel):
 
     @classmethod
     def update_by_id(cls, user_id: str, user_obj: "User") -> Err[Any] | Ok["User"]:
-        # Get user object
         result = User.get_by_id(user_id)
         if result.is_err():
             return result
@@ -95,3 +96,6 @@ class User(BaseModel):
                 return Err("UpdateError", "Failed to update User")
         except IntegrityError as error:
             return Err("IntegrityError", error)
+
+    def to_json(self) -> str:
+        return json.dumps(self.__dict__["__data__"], cls=UUIDEncoder)
