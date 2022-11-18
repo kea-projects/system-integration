@@ -1,7 +1,6 @@
 import json
-from typing import Any
 import uuid
-from peewee import UUIDField, CharField, ForeignKeyField, IntegrityError
+from peewee import UUIDField, CharField, IntegrityError
 from config.database import DB_CONNECTION
 from model.BaseModel import BaseModel
 from model.User import User

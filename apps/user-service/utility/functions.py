@@ -4,14 +4,13 @@ from utility.result import Err, Ok
 import re
 from typing import TypeVar
 
-import config.secrets as secrets
+from config.secrets import get_env
 
 # Generic type of Model and all it's subtypes
 M = TypeVar("M", bound=type(Model))
 
 
-def initialize_db(
-    db_connection: PostgresqlExtDatabase, models: list[M]) -> Err[OperationalError] | Ok[str]:
+def initialize_db(db_connection: PostgresqlExtDatabase, models: list[M]) -> Err[OperationalError] | Ok[str]:
     print("Initializing DB ...")
 
     try:
@@ -42,7 +41,7 @@ import bcrypt
 class Password:
     @staticmethod
     def validate_password_len(password: str) -> Err[str] | Ok[str]:
-        password_min_len = int(secrets.PASSWORD_MIN_LENGTH)
+        password_min_len = int(get_env('PASSWORD_MIN_LENGTH'))
 
         if len(password) < password_min_len:
             return Err(
@@ -78,7 +77,7 @@ from jwt import ImmatureSignatureError, ExpiredSignatureError, InvalidSignatureE
 class Token:
     @staticmethod
     def generate_for_email(from_email: str, to_email: str) -> str | None:
-        from config.secrets import JWT_SECRET  # isolate import to where it is used
+        JWT_SECRET = get_env('JWT_SECRET')  # isolate import to where it is used
 
         if len(JWT_SECRET) < 1:
             return None
@@ -99,7 +98,7 @@ class Token:
 
     @staticmethod
     def decode_email_token(token: str) -> Err | Ok:
-        from config.secrets import JWT_SECRET  # isolate import to where it is used
+        JWT_SECRET = get_env('JWT_SECRET')  # isolate import to where it is used
 
         try:
             decoded_token = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])

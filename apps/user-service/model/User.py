@@ -1,7 +1,7 @@
 import json
 from typing import Any
 import uuid
-from peewee import UUIDField, CharField, IntegrityError, InternalError
+from peewee import UUIDField, CharField, IntegrityError
 from model.BaseModel import BaseModel
 from utility.functions import is_valid_email, Password
 from utility.result import Err, Ok
