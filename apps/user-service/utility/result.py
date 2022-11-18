@@ -22,8 +22,31 @@ class Result(Generic[T]):
         else:
             raise Exception("Can not extract contents of non-error object")
 
+    def to_bool(self):
+        if type(self) == Ok:
+            return True
+        else:
+            return False
+
+    def to_list(self):
+        if type(self) == Ok:
+            return_list = []
+            # If the data stored is Iterable, iterate it and append to array
+            if hasattr(self.ok, '__iter__'): # type: ignore
+                for data in self.ok:  # type: ignore
+                    return_list.append(data)
+            # If it not, then append the whole of it in an array
+            else:
+                return_list.append(self.ok) # type: ignore
+
+            return return_list
+        else:
+            return list()
+
+
     def __str__(self) -> str:
         return str(self.__dict__)
+    
 
 
 class Err(Result, Generic[T]):
