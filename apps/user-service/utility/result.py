@@ -14,13 +14,13 @@ class Result(Generic[T]):
         if self.is_ok():
             return self.ok  # type: ignore
         else:
-            raise Exception("Can not extract contents of non-ok object")
+            raise Exception(f"Attempted to open an Ok, but opened an Err: '{self.detail}'") #type: ignore | can only be an Err if we get here
 
     def err(self) -> T:
         if self.is_err():
             return self.detail  # type: ignore
         else:
-            raise Exception("Can not extract contents of non-error object")
+            raise Exception("Attempted to open an Err but opened an Ok: '{self.ok}'")
 
     def to_bool(self):
         if type(self) == Ok:
