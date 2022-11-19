@@ -140,6 +140,7 @@ def test_decoding_token():
 
 
 def test_altered_token():
+    # spell-checker:disable-next-line 
     token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2Njg2NDczMzUuNDkwNjA1LCJleHAiOjE2NjkyNTIxMzYuNDkwNjA1LCJmcm9tX2VtYWlsIjoic29tZUNoYW5nZWRAbWFpbC5jb20iLCJ0b19lbWFpbCI6Im90aGVyQG1haWwuY29tIn0.HH4d6nQte_Mg--M5KYN9mLG10RNCk9LLEcSW1rYE18o"
     result = Token.decode_email_token(str(token))
     assert result.is_err()
@@ -147,6 +148,7 @@ def test_altered_token():
 
 
 def test_decoding_expired_token():
+    # spell-checker:disable-next-line 
     token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2Njg2NDY5MzcuODkyMjg5LCJleHAiOjE2Njg2NDY5NDYuODkyMjg5LCJmcm9tX2VtYWlsIjoic29tZUBtYWlsLmNvbSIsInRvX2VtYWlsIjoib3RoZXJAbWFpbC5jb20ifQ.xC7p0tbF4K9BrwWUY2_6eEAa813a0ofLZcFRsiPmkrg"
 
     result = Token.decode_email_token(str(token))
