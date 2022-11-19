@@ -10,7 +10,7 @@ from config.secrets import get_env
 M = TypeVar("M", bound=type(Model))
 
 
-def initialize_db(db_connection: PostgresqlExtDatabase, models: list[M]) -> Err[OperationalError] | Ok[str]:
+def initialize_db(db_connection: PostgresqlExtDatabase, models: list[M], delete_schema: bool = False) -> Err[OperationalError] | Ok[str]:
     print("Initializing DB ...")
 
     try:
@@ -18,7 +18,9 @@ def initialize_db(db_connection: PostgresqlExtDatabase, models: list[M]) -> Err[
     except OperationalError as error:
         return Err("OperationalError", error)
 
-    # db_connection.drop_tables(models)
+    if delete_schema is True:
+        db_connection.drop_tables(models)
+    
     db_connection.create_tables(models)
 
     print("Initialization completed.")
