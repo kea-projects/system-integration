@@ -2,6 +2,7 @@ from config.database import DB_CONNECTION
 from model.User import User
 from model.Invite import Invite
 from utility.functions import Token, initialize_db
+from config.secrets import validate_envs
 import uuid
 import os
 
@@ -10,6 +11,7 @@ def run_tests():
     print("WARNING: running tests will nuke the database")
     initialize_db(DB_CONNECTION, [User, Invite], delete_schema=True).data()
 
+    test_all_envs_loaded()
     test_creating_users()
     test_getting_user_by_mail()
     test_updating_users_password()
@@ -19,6 +21,10 @@ def run_tests():
     test_decoding_token()
     test_altered_token()
     test_decoding_expired_token()
+
+
+def test_all_envs_loaded():
+    assert validate_envs().is_ok()
 
 
 def test_creating_users():
@@ -38,12 +44,22 @@ def test_creating_users():
     print("PASS: test_creating_users")
 
 
+def test_duplicate_creating_users():
+    result = User.create_new(email="valid1@email.test", name="bob", password="pass")
+
+    assert result.is_err()
+    print("PASS: test_duplicate_creating_users")
+
+
 def test_getting_user_by_mail():
     result = User.get_by_email(email="valid1@email.test")
     assert result.is_ok()
 
     result2 = User.get_by_email(email="valid2@email.test")
     assert result2.is_ok()
+
+    result3 = User.get_by_email(email="invalidEmail@email.test")
+    assert result3.is_err()
 
     assert result.data() != result2.data()
     print("PASS: test_getting_user_by_mail")
@@ -63,9 +79,29 @@ def test_updating_users_password():
 
     result2 = User.update_by_id(user_id=result.data().user_id, user_obj=new_user)
 
-
-    assert result.data().password != result2.data().password
+    assert (
+        result.data().user_id == result2.data().user_id
+    )  # User_id should be unchanged
+    assert result.data().password != result2.data().password  # Password should
     print("PASS: test_updating_users_password")
+
+
+def test_updating_users_invalid_password():
+    result = User.get_by_email(email="valid1@email.test")
+
+    assert result.is_ok()
+
+    new_user = User(
+        user_id=uuid.uuid4(),
+        email="validUpdated@email.test",
+        name="bob",
+        password=os.urandom(2),  # too short
+    )
+
+    result2 = User.update_by_id(user_id=result.data().user_id, user_obj=new_user)
+
+    assert result2.is_err()
+    print("PASS: test_updating_users_password_invalid")
 
 
 def test_creating_invite():
@@ -92,6 +128,7 @@ def test_generating_token():
     assert token is not None
     print("PASS: test_generating_token")
 
+
 def test_decoding_token():
     from_email = "some@mail.com"
     to_email = "other@mail.com"
@@ -115,10 +152,6 @@ def test_decoding_expired_token():
     result = Token.decode_email_token(str(token))
     assert result.is_err()
     print("PASS: test_decoding_expired_token")
-
-
-
-
 
 
 run_tests()
