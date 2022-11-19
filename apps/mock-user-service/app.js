@@ -1,103 +1,79 @@
 import amqp from "amqplib/callback_api.js";
+import users from "./users.json" assert { type: "json" };
 import "dotenv/config";
 
 const userExchange = "friend-user-rpc";
 const user = process.env.RABBITMQ_USER || "guest";
 const password = process.env.RABBITMQ_PASSWORD || "guest";
 
-amqp.connect(
-  `amqp://${user}:${password}@localhost/si`,
-  (error0, connection) => {
-    if (error0) {
-      console.error("Error0", error0);
-    }
-
-    connection.createChannel((error1, channel) => {
-      if (error1) {
-        console.error("Error1", error1);
+const subscribe = (topic, callback) => {
+  amqp.connect(
+    `amqp://${user}:${password}@localhost/si`,
+    (error0, connection) => {
+      if (error0) {
+        console.error("Error0", error0);
       }
-
-      channel.assertExchange(userExchange, "direct", { durable: true });
-      channel.assertQueue("", { exclusive: true }, (error2, queue) => {
-        if (error2) {
-          console.error("Error2", error2);
+      connection.createChannel((error1, channel) => {
+        if (error1) {
+          console.error("Error1", error1);
         }
 
-        channel.prefetch(1);
-        channel.bindQueue(queue.queue, userExchange, "fib.request");
+        channel.assertExchange(userExchange, "direct", { durable: true });
+        channel.assertQueue("", { exclusive: true }, (error2, queue) => {
+          if (error2) {
+            console.error("Error2", error2);
+          }
 
-        channel.consume(
-          queue.queue,
-          (message) => {
-            setTimeout(() => {
-              const content = message.content.toString();
-              console.log(content);
+          channel.prefetch(1);
+          channel.bindQueue(queue.queue, userExchange, `${topic}.request`);
 
-              const response = fibonacci(content);
+          channel.consume(
+            queue.queue,
+            (message) => {
+              console.log("consuming");
+              setTimeout(() => {
+                channel.sendToQueue(
+                  message.properties.replyTo,
+                  Buffer.from(callback(message)),
+                  { correlationId: message.properties.correlationId }
+                );
 
-              channel.sendToQueue(
-                message.properties.replyTo,
-                Buffer.from(response.toString()),
-                { correlationId: message.properties.correlationId }
-              );
-
-              channel.ack(message);
-            }, 3000);
-          },
-          { noAck: false }
-        );
+                channel.ack(message);
+              }, 0);
+            },
+            { noAck: false }
+          );
+        });
       });
-    });
-  }
-);
-
-amqp.connect(
-  `amqp://${user}:${password}@localhost/si`,
-  (error0, connection) => {
-    if (error0) {
-      console.error("Error0", error0);
     }
+  );
+};
 
-    connection.createChannel((error1, channel) => {
-      if (error1) {
-        console.error("Error1", error1);
-      }
+subscribe("user.check.invited", (message) => {
+  console.log(message.content.toString());
+  return JSON.parse(message.content.toString())["invitee"] === "user@non.com"
+    ? Buffer.from("1")
+    : Buffer.from("0");
+});
 
-      channel.assertExchange(userExchange, "direct", { durable: true });
-      channel.assertQueue("", { exclusive: true }, (error2, queue) => {
-        if (error2) {
-          console.error("Error2", error2);
-        }
+subscribe("token.check.valid", (message) => {
+  console.log(message.content.toString());
+  return message.content.toString() ===
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQG5vLmNvbSJ9.2Al_e2IUwudRaUrq5YzvPnmxBnnw5jwb9pBa9BXUnP8"
+    ? Buffer.from("0")
+    : Buffer.from("1");
+});
 
-        channel.prefetch(1);
-        channel.bindQueue(queue.queue, userExchange, "game.request");
+subscribe("user.get.friends", (message) => {
+  console.log(message.content.toString());
+  let response = JSON.stringify([]);
 
-        channel.consume(
-          queue.queue,
-          (message) => {
-            setTimeout(() => {
-              const content = message.content.toString();
-              console.log(content);
+  const user = users.filter(
+    (user) => user.email === message.content.toString()
+  );
 
-              const response = "pong";
+  if (user.length > 0) response = JSON.stringify(user[0].invites || []);
 
-              channel.sendToQueue(
-                message.properties.replyTo,
-                Buffer.from(response.toString()),
-                { correlationId: message.properties.correlationId }
-              );
-
-              channel.ack(message);
-            }, 3000);
-          },
-          { noAck: false }
-        );
-      });
-    });
-  }
-);
-
-function fibonacci(n) {
-  if (n == 0 || n == 1) return n;
-  else return fibonacci(n - 1) + fibonacci(n - 2);
-}
+  console.log(response);
+  return response;
+});

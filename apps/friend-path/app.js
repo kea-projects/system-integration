@@ -5,46 +5,65 @@ import cors from "cors";
 import "dotenv/config";
 import chalk from "chalk";
 
-import { sendInvite, userHasBeenInvited, test } from "./utils/amqp-utils.js";
-import { getAllUsers, disconnectUser } from "./utils/socket-utils.js";
+import { sendInvite, checkUserIsInvited } from "./utils/amqp-utils.js";
+import { getSocketUser, emitStatusUpdate } from "./utils/socket-utils.js";
 import { validateEmail } from "./utils/validators.js";
+import { getAuthUser } from "./utils/auth-utils.js";
+import { validateToken } from "./middleware/auth.js";
+import { validateSocketToken } from "./middleware/socket-auth.js";
 
 // ---- Config ----
 const PORT = process.env.SERVER_PORT || 8080;
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+  transports: ["polling", "websocket"],
+});
 
 // ---- Middleware ----
 app.use(cors());
 app.use(express.json());
 
+io.use(validateSocketToken);
+
 // ---- Endpoints ----
-app.post("/friend/invite", (req, res) => {
+app.get("/friend/health", (_, res) => {
+  res.send({ message: "Up and running!" });
+});
+
+app.post("/friend/invite", validateToken, (req, res) => {
   const { email } = req.body;
 
   if (!email || !validateEmail(email)) {
     res.status(400).send("Email required.");
   }
 
-  // TODO: Check if the email is already invited to the friend list.
-  test(
-    "ping",
-    (message) => {
-      userHasBeenInvited(
-        4,
-        (message) => {
-          sendInvite(
-            email,
-            () => res.send({ message: "User invited!", response: message }),
-            () => res.status(500).send({ message: "An error has ocurred." })
-          );
-        },
-        () => console.log("Error")
-      );
+  checkUserIsInvited(
+    {
+      invitee: getAuthUser(req),
+      invited: email,
     },
-    () => console.log("Error")
+    (message) => {
+      const response = Boolean(Number(message.content.toString()));
+
+      if (response === true) {
+        res.status(400).send({ message: "Email already invited." });
+      } else {
+        sendInvite(
+          {
+            invitee: getAuthUser(req),
+            invited: email,
+          },
+          () => res.send({ message: "User invited!" }),
+          () => res.status(500).send({ message: "An error has ocurred." })
+        );
+      }
+    },
+    () => res.status(500).send({ message: "An error has ocurred." })
   );
 });
 
@@ -52,23 +71,35 @@ app.post("/friend/invite", (req, res) => {
 io.on("connection", (socket) => {
   console.log(
     chalk.yellowBright("New socket connected:"),
-    chalk.redBright(socket.id)
+    chalk.redBright(socket.id),
+    chalk.yellowBright("from user:"),
+    chalk.redBright(getSocketUser(socket))
   );
+  // TODO Update the users list for this dude.
+  socket.broadcast.emit("refresh");
+
+  socket.on("status", async (_) => {
+    console.log(
+      chalk.yellowBright("Socket:"),
+      chalk.redBright(socket.id),
+      chalk.yellowBright("from user:"),
+      chalk.redBright(getSocketUser(socket)),
+      chalk.yellowBright("requested the friends status.")
+    );
+
+    emitStatusUpdate(socket, io);
+  });
 
   socket.on("disconnect", (_) => {
-    disconnectUser(socket.id);
+    console.log(
+      chalk.yellowBright("Socket:"),
+      chalk.redBright(socket.id),
+      chalk.yellowBright("from user:"),
+      chalk.redBright(getSocketUser(socket)),
+      chalk.yellowBright("disconnected.")
+    );
+    // TODO Update the users list for this dude.
     socket.broadcast.emit("refresh");
-  });
-
-  socket.on("get-users", (data) => {
-    socket.emit("all-users", { users: getAllUsers() });
-  });
-
-  socket.on("invite-user", (data) => {
-    inviteUser(data.userEmail, (user) => {
-      socket.emit("invite-user-success", { ...user });
-      socket.broadcast.emit("refresh");
-    });
   });
 });
 

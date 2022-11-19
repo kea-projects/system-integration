@@ -4,5 +4,5 @@ FROM rabbitmq:3.11-management
 EXPOSE 5672 15672
 
 # Copy the configuration files needed
-COPY ./definitions.json /import/
-COPY ./rabbitmq.conf /etc/rabbitmq/
+COPY ./configs/rabbitmq/definitions.json /import/
+COPY ./configs/rabbitmq/rabbitmq.conf /etc/rabbitmq/

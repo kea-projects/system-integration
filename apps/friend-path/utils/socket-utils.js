@@ -1,90 +1,55 @@
+import jwt_decode from "jwt-decode";
+import { getUserFriends } from "./amqp-utils.js";
 import chalk from "chalk";
 
-export const getAllUsers = () => users;
+export const getSocketUser = (socket) => {
+  const token = socket.handshake.auth.token;
+  const decodedToken = jwt_decode(token);
 
-export const getUserByEmail = (userEmail) => {
-  return users.filter((user) => user.email === userEmail)[0];
+  return decodedToken["sub"];
 };
 
-export const registerUser = (userData) => {
-  const updatedUsers = users.map((user) => {
-    if (user.email === userData.email) {
-      user.username = userData.username;
-      user.password = userData.password;
-      user.id = userData.id;
-      user.status = "Online";
-      console.log(chalk.yellowBright("Registered user:"), user);
-    }
-    return user;
-  });
+export const emitStatusUpdate = async (socket, io) => {
+  const statusList = [
+    {
+      email: getSocketUser(socket),
+      status: "online",
+    },
+  ];
 
-  fs.writeFileSync("users.json", JSON.stringify(updatedUsers), "utf-8");
+  getUserFriends(
+    getSocketUser(socket),
+    async (response) => {
+      const friendsList = JSON.parse(response.content.toString());
+      for (const friend of friendsList) {
+        let status = friend.isRegistered ? "offline" : "not-registered";
+
+        if (await userIsConnected(friend.email, io)) {
+          status = "online";
+        }
+
+        statusList.push({ email: friend.email, status });
+      }
+
+      console.log(
+        chalk.yellowBright("Message:"),
+        chalk.redBright(JSON.stringify(statusList)),
+        chalk.yellowBright("sent to socket:"),
+        chalk.redBright(getSocketUser(socket)),
+        chalk.yellowBright("from user:"),
+        chalk.redBright(getSocketUser(socket))
+      );
+      socket.emit("statusUpdate", statusList);
+    },
+    () => null
+  );
 };
 
-export const createUser = (userData, onSuccess, onFail) => {
-  if (!isEmailUsed(userData.email)) {
-    const newUser = {
-      email: userData.email,
-      status: "Offline",
-      username: userData.username,
-      password: userData.password,
-      id: null,
-    };
+const userIsConnected = async (email, io) => {
+  const sockets = await io.fetchSockets();
 
-    users.push(newUser);
-    fs.writeFileSync("users.json", JSON.stringify(users), "utf-8");
-    console.log(chalk.yellowBright("Created user:"), newUser);
-
-    if (onSuccess) {
-      onSuccess(newUser);
-    }
-  } else {
-    if (onFail) {
-      onFail();
-    }
-  }
-};
-
-export const loginUser = (userData, onSuccess, onFail) => {
-  let loginFailed = true;
-  const updatedUsers = users.map((user) => {
-    if (user.email === userData.email && user.password === userData.password) {
-      user.id = userData.id;
-      user.status = "Online";
-      console.log(chalk.yellowBright("Logged in user:"), user);
-      loginFailed = false;
-    }
-    return user;
-  });
-
-  if (loginFailed) {
-    if (onFail) {
-      onFail();
-    }
-  } else {
-    fs.writeFileSync("users.json", JSON.stringify(updatedUsers), "utf-8");
-    if (onSuccess) {
-      onSuccess();
-    }
-  }
-};
-
-export const disconnectUser = (userId) => {
-  const updatedUsers = users.map((user) => {
-    if (user.id === userId) {
-      user.id = null;
-      user.status = "Offline";
-      console.log(chalk.yellowBright("Disconnected user:"), user);
-    }
-    return user;
-  });
-
-  fs.writeFileSync("users.json", JSON.stringify(updatedUsers), "utf-8");
-};
-
-export const isEmailUsed = (userEmail) => {
-  for (const user of users) {
-    if (user.email === userEmail) {
+  for (const socket of sockets) {
+    if (getSocketUser(socket) === email) {
       return true;
     }
   }

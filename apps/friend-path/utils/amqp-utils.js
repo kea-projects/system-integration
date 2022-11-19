@@ -9,31 +9,77 @@ const user = process.env.RABBITMQ_USER || "guest";
 const password = process.env.RABBITMQ_PASSWORD || "guest";
 const vhost = process.env.RABBITMQ_VHOST || "";
 
+/** Invites the email to the user's friends list
+ *  Message structure:
+ *  {
+ *    "invitee": "string",
+ *    "invited": "string"
+ *   }
+ */
 export const sendInvite = (message, onSuccess, onError) => {
-  publishMessage(message, inviteExchange, onSuccess, onError);
+  publishMessage(JSON.stringify(message), inviteExchange, onSuccess, onError);
 };
 
-export const userHasBeenInvited = (message, onSuccess, onError) => {
-  message = 4;
+/** Checks if the user has invited the given email address
+ *  Message structure:
+ *  {
+ *    "invitee": "string",
+ *    "invited": "string"
+ *   }
+ *
+ *  Response structure:
+ *  "number" -> 0 || 1
+ */
+export const checkUserIsInvited = (message, onSuccess, onError) => {
   callProcedure(
-    message,
+    JSON.stringify(message),
     userExchange,
-    "fib",
-    (response) => {
-      onSuccess(response);
-    },
+    "user.check.invited",
+    (response) => onSuccess(response),
     onError
   );
 };
 
-export const test = (message, onSuccess, onError) => {
+/** Checks if the token is valid or not.
+ *  Message structure:
+ *  "string"
+ *
+ *  Response structure:
+ *  "number" -> 0 || 1
+ */
+export const checkTokenIsValid = (message, onSuccess, onError) => {
   callProcedure(
     message,
     userExchange,
-    "game",
-    (response) => {
-      onSuccess(response);
-    },
+    "token.check.valid",
+    (response) => onSuccess(response),
+    onError
+  );
+};
+
+/** Gets the list of the given user's friends.
+ *  Message structure:
+ *  "string"
+ *
+ *  Response structure:
+ *  [
+ *    {
+ *      "email": "string",
+ *      "isRegistered": "boolean"
+ *    },
+ *    {
+ *      ...
+ *    },
+ *    ...
+ *  ]
+ *
+ */
+export const getUserFriends = (message, onSuccess, onError) => {
+  callProcedure(
+    message,
+    userExchange,
+    "user.get.friends",
+    (response) => onSuccess(response),
     onError
   );
 };
@@ -73,7 +119,7 @@ const callProcedure = (message, exchange, topic, onSuccess, onError) => {
                   chalk.yellowBright("on topic:"),
                   chalk.blueBright(`${topic}.response`)
                 );
-                onSuccess(response.content.toString());
+                onSuccess(response);
                 setTimeout(function () {
                   connection.close();
                 }, 500);
@@ -82,16 +128,11 @@ const callProcedure = (message, exchange, topic, onSuccess, onError) => {
             { noAck: true }
           );
 
-          channel.publish(
-            exchange,
-            `${topic}.request`,
-            Buffer.from(message.toString()),
-            {
-              persistent: true,
-              replyTo: queue.queue,
-              correlationId: correlationId,
-            }
-          );
+          channel.publish(exchange, `${topic}.request`, Buffer.from(message), {
+            persistent: true,
+            replyTo: queue.queue,
+            correlationId: correlationId,
+          });
 
           console.log(
             chalk.yellowBright("Message:"),
