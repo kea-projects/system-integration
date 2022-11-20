@@ -1,35 +1,72 @@
 #!/bin/env python
-from typing import Any
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, status
+from model.objects import LoginObject, SignupObject, InviteObject, ValidateObject
 from fastapi.middleware.cors import CORSMiddleware
 from config.secrets import get_env, validate_envs
-from model.objects import LoginObject, SignupObject, InviteObject
 from utility.rabbitmq import RabbitMqConnection
 from utility.logger import log
 import uvicorn
+import json
+
+from utility.result import Err
 
 
 server = FastAPI()
 
 
+@server.post("/auth/validate")
+def validate_route(validate_obj: ValidateObject, response: Response):
+    log.info(f"/auth/validate has been called with: '{validate_obj.__dict__}'")
+    rmq = RabbitMqConnection()
+
+    message = json.dumps(validate_obj.__dict__)
+    ok_reply = {'ok': 'validated'}
+    err_reply = {'error': 'someError', 'detail': 'Some detail info here'}
+
+    result = rmq.publish_message_and_receive_response(
+        queue="validate-token",
+        message=message,
+        response=err_reply,
+    )
+
+    if result.is_ok():
+        data: dict = result.data()
+        if data.get("ok"):
+            return {"ok": "authorized"}
+        else:
+            reason: Err = result.data()
+            response.status_code = status.HTTP_401_UNAUTHORIZED
+            return reason
+    else:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return result.err()
+
+
+
+
 @server.post("/auth/login")
 def login_route(login_obj: LoginObject, response: Response):
     log.info(f"/auth/login has been called with: '{login_obj.__dict__}'")
-    hello_connection = RabbitMqConnection("localhost")
-    result = hello_connection.publish_message("hello", login_obj)
-    
-    # send login information to user-service
-    if result.is_err():
-        response.status_code = 500
-        return {"error": result.error, "detail": result.detail}
+    rmq = RabbitMqConnection()
 
-    result = hello_connection.consume_message(queue="hello")
-    # get token or error from user-service
+    message = json.dumps(login_obj.__dict__)
+    reply = {"token": "a3e99738-1ebb-45d6-9e0f-fdb6ff8f47a6"}
+    result = rmq.publish_message_and_receive_response(
+        queue="login-user",
+        message=message,
+        response=reply,
+    )
 
-    print(result)
-    # process response
-
-    return {"token": "token"} or {"error": "error", "detail": "detail"}
+    if result.is_ok():
+        data: dict = result.data()
+        if data.get("token"):
+            return {"token": data.get("token")}
+        else:
+            response.status_code = status.HTTP_401_UNAUTHORIZED
+            return {"error": "unauthorized"}
+    else:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return result.err()
 
 
 @server.post("/auth/signup")
@@ -58,8 +95,7 @@ if __name__ == "__main__":
     port = int(get_env("AUTHENTICATION_PATH_PORT"))
     host = get_env("AUTHENTICATION_PATH_HOST")
     will_reload = bool(int(get_env("RELOAD_UVICORN")))
-    
-    
+
     origins = [f"http://{host}:{port}"]
     server.add_middleware(
         CORSMiddleware,
