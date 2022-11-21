@@ -1,0 +1,103 @@
+/* FRIENDPANE STYLE */
+
+#title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#content-wrapper {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 15px;
+}
+
+#invitation-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  margin-bottom: 30px;
+}
+
+#invitation-input {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding-right: 50px;
+}
+
+#invitation-button {
+  padding: 5px 30px;
+}
+
+.friendpane-entry {
+  background-color: whitesmoke;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin: 7px;
+}
+
+.user-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.user-status-icon {
+  display: flex;
+}
+
+.user-name {
+  margin: 0px 5px !important;
+}
+
+.not-registered {
+  background-color: #ffc107;
+  color: white;
+}
+
+.online {
+  background-color: #198754;
+  color: white;
+}
+
+.offline {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* LOGIN/REGISTRATION STYLE */
+
+#login-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  padding: 20px 15px;
+}
+
+#email-input,
+#password-input,
+#register-input {
+  flex-direction: column;
+  width: 100%;
+  padding-right: 50px;
+}
+
+#email-input {
+  display: flex;
+}
+
+#password-input,
+#register-input {
+  display: none;
+}
+
+#continue-button {
+  padding: 5px 30px;
+}
