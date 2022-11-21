@@ -1,0 +1,36 @@
+[
+  {
+    "email": "cristi@email.com",
+    "invites": [
+      {
+        "email": "alex@email.com",
+        "isRegistered": true
+      },
+      {
+        "email": "jan@email.com",
+        "isRegistered": false
+      },
+      {
+        "email": "teo@email.com",
+        "isRegistered": false
+      },
+      {
+        "email": "teo@email.com",
+        "isRegistered": true
+      }
+    ]
+  },
+  {
+    "email": "teo@email.com",
+    "invites": [
+      {
+        "email": "alex@email.com",
+        "isRegistered": true
+      },
+      {
+        "email": "teo@email.com",
+        "isRegistered": false
+      }
+    ]
+  }
+]
