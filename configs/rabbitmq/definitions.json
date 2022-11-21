@@ -1,0 +1,104 @@
+{
+  "bindings": [],
+  "exchanges": [],
+  "global_parameters": [],
+  "parameters": [],
+  "permissions": [
+    {
+      "configure": ".*",
+      "read": ".*",
+      "user": "friend-path",
+      "vhost": "si",
+      "write": ".*"
+    },
+    {
+      "configure": ".*",
+      "read": ".*",
+      "user": "guest",
+      "vhost": "/",
+      "write": ".*"
+    },
+    {
+      "configure": ".*",
+      "read": ".*",
+      "user": "user-service",
+      "vhost": "si",
+      "write": ".*"
+    },
+    {
+      "configure": ".*",
+      "read": ".*",
+      "user": "email-service",
+      "vhost": "/",
+      "write": ".*"
+    },
+    {
+      "configure": ".*",
+      "read": ".*",
+      "user": "email-service",
+      "vhost": "si",
+      "write": ".*"
+    },
+    {
+      "configure": ".*",
+      "read": ".*",
+      "user": "friend-path",
+      "vhost": "/",
+      "write": ".*"
+    },
+    {
+      "configure": ".*",
+      "read": ".*",
+      "user": "user-service",
+      "vhost": "/",
+      "write": ".*"
+    }
+  ],
+  "policies": [],
+  "queues": [],
+  "rabbit_version": "3.11.3",
+  "rabbitmq_version": "3.11.3",
+  "topic_permissions": [],
+  "users": [
+    {
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "limits": {},
+      "name": "email-service",
+      "password_hash": "PHkNrYflfAlJLuUBoiFUiWLSP6ZnFR9T6moSezE82cbIThCM",
+      "tags": []
+    },
+    {
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "limits": {},
+      "name": "guest",
+      "password_hash": "10ngzITpwR6Jmk1NM58XZ7W1xxBLXMn8QR6vq1yBNpkVRQC+",
+      "tags": ["administrator"]
+    },
+    {
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "limits": {},
+      "name": "friend-path",
+      "password_hash": "08PJIj9kbWODEQQUPGIL7xrmlO1GnF5RKn9/ebNzp++fDAJe",
+      "tags": []
+    },
+    {
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "limits": {},
+      "name": "user-service",
+      "password_hash": "M+KJ3ruQ0nvOhmslE3hX2NUC1QSaav+7tbrJJ0i2XT66W+tT",
+      "tags": []
+    }
+  ],
+  "vhosts": [
+    {
+      "limits": [],
+      "metadata": { "description": "", "tags": "" },
+      "name": "si"
+    },
+    {
+      "limits": [],
+      "metadata": { "description": "Default virtual host", "tags": [] },
+      "name": "/"
+    }
+  ]
+}
