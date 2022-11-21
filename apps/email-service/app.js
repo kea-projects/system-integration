@@ -1,5 +1,7 @@
 import amqp from "amqplib/callback_api.js";
+import chalk from "chalk";
 import "dotenv/config";
+import { sendInviteEmail } from "../utils/email.service.js";
 
 const inviteExchange = "invite";
 const user = process.env.RABBITMQ_USER || "guest";
@@ -43,6 +45,15 @@ amqp.connect(
           (message) => {
             setTimeout(() => {
               console.log(message.content.toString());
+              const { invitee, invited } = message.content;
+              if (invitee && invited) {
+                console.log("Everything is fine I guess, sending an email");
+                sendInviteEmail(invitee, invited);
+              } else {
+                console.warn(
+                  `I can't send the invite email, the needed data seems incorrect!`
+                );
+              }
               // Acknowledge the message to let RabbitMQ know it has been received and consumed, thus it can be deleted.
               // If no ack is sent, RabbitMQ will continuously attempt to send this message until an ack is finally sent.
               channel.ack(message);
@@ -54,3 +65,21 @@ amqp.connect(
     });
   }
 );
+
+// Validate that the required environment variables are present
+if (!process.env.SENDGRID_FROM_DOMAIN) {
+  console.log(
+    chalk.redBright(
+      `[ERROR] The Sendgrid "From" domain is missing from environment variables, shutting down!`
+    )
+  );
+  process.exit(1);
+}
+if (!process.env.SENDGRID_API_KEY) {
+  console.log(
+    chalk.redBright(
+      `[ERROR] The Sendgrid api key is missing from environment variables, shutting down!`
+    )
+  );
+  process.exit(1);
+}
