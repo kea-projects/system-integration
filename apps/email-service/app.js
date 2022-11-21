@@ -1,11 +1,11 @@
 import amqp from "amqplib/callback_api.js";
 import chalk from "chalk";
 import "dotenv/config";
-import { sendInviteEmail } from "../utils/email.service.js";
+import { sendInviteEmail } from "./utils/email.service.js";
 
 const inviteExchange = "invite";
-const user = process.env.RABBITMQ_USER || "guest";
-const password = process.env.RABBITMQ_PASSWORD || "guest";
+const user = process.env.RABBITMQ_EMAIL_USER || "guest";
+const password = process.env.RABBITMQ_EMAIL_PASSWORD || "guest";
 // TODO: present the mock email service.
 
 // Connect to the RabbitMQ server.
@@ -70,7 +70,7 @@ amqp.connect(
 if (!process.env.SENDGRID_FROM_DOMAIN) {
   console.log(
     chalk.redBright(
-      `[ERROR] The Sendgrid "From" domain is missing from environment variables, shutting down!`
+      `[ERROR] Email Service - The Sendgrid "From" domain is missing from environment variables, shutting down!`
     )
   );
   process.exit(1);
@@ -78,8 +78,10 @@ if (!process.env.SENDGRID_FROM_DOMAIN) {
 if (!process.env.SENDGRID_API_KEY) {
   console.log(
     chalk.redBright(
-      `[ERROR] The Sendgrid api key is missing from environment variables, shutting down!`
+      `[ERROR] Email Service - The Sendgrid api key is missing from environment variables, shutting down!`
     )
   );
   process.exit(1);
 }
+
+console.log(chalk.yellowBright("Email Service has started"));

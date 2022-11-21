@@ -82,7 +82,18 @@ services:
       retries: 3
       start_period: 30s
   
-      
+  email-service:
+    container_name: email-service
+    depends_on:
+      - rabbitmq
+    build:
+      context: .
+      dockerfile: ./configs/email-service/email-service.dockerfile
+    environment:
+      - SENDGRID_API_KEY=$SENDGRID_API_KEY
+      - SENDGRID_FROM_DOMAIN=$SENDGRID_FROM_DOMAIN
+    networks:
+      - docker-net
 
 
 # ---------------------------------
