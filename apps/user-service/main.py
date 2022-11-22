@@ -1,19 +1,12 @@
 #!/bin/env python
+from wrapper.friend_path import does_email_invite_exist
 from config.database import DB_CONNECTION
 from utility.functions import initialize_db
 from model.User import User
 from model.Invite import Invite
 from config.secrets import validate_envs
-
-# TEST TODO
-from utility.amqp import subscribe
-
-import sys
-
-# TODO DELETE SUN
-def process_trash(message):
-    print(message)
-    return "str".encode('utf-8')
+from utility import rabbitmq
+from sys import exit
 
 
 def main():
@@ -21,10 +14,12 @@ def main():
     result = initialize_db(DB_CONNECTION, [User, Invite])
     if result.is_err():
         print(f"DB Connection Failed! Reason: {result.err()}\nExiting...")
-        sys.exit(2)
+        exit(2)
 
-    subscribe("test", process_trash)
-    sys.exit(0)
+    rabbitmq.subscribe("user.check.invited", does_email_invite_exist)
+
+
+    exit(0)
 
 
 main()
