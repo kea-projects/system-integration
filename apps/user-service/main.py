@@ -13,7 +13,7 @@ import sys
 # TODO DELETE SUN
 def process_trash(message):
     print(message)
-    return "str"
+    return "str".encode('utf-8')
 
 
 def main():
