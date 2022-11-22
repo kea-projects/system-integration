@@ -250,6 +250,26 @@ const mutationType = new graphql.GraphQLObjectType({
 
                 return productImage.save();
             },
+            resolve: (root, args) => {
+                return new Promise((resolve, reject) => {
+                    //raw SQLite to insert a new post in post table
+                    database.run('INSERT INTO ProductImages (product_id, image_url, alt_text, additional_info) VALUES (?,?,?,?);', [args.product_id, args.image_url, args.alt_text, args.additional_info], (err) => {
+                        if(err) {
+                            reject(null);
+                        }
+                        database.get("SELECT last_insert_rowid() as id", (err, row) => {
+                            
+                            resolve({
+                                id: row["id"],
+                                product_id: args.product_id,
+                                image_url: args.image_url,
+                                alt_text: args.alt_text,
+                                additional_info: args.additional_info,
+                            });
+                        });
+                    });
+                })
+            },
         },
 
         updateProductImage: {
