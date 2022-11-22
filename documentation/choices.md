@@ -38,6 +38,9 @@ authentication would be a large problem with a hosted server. We therefore
 decided to use SFTP as it would allow only those that posses the correct
 username and password to use our server.
 
+# CDN
+We have chosen [Sirv](https://sirv.com/) as our CDN. This was decided due to its ease of integration,
+speed of development, previous experience with it, and its generous free plan. 
 
 # Email Service
 
