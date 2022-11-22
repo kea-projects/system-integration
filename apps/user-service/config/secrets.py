@@ -8,7 +8,8 @@ _external_envs = dotenv_values("../../.env")
 
 _secrets = {
     "PASSWORD_MIN_LENGTH": _external_envs.get("PASSWORD_MIN_LENGTH") or os.environ.get("PASSWORD_MIN_LENGTH"),
-    "JWT_SECRET": _external_envs.get("JWT_SECRET") or os.environ.get('JWT_SECRET'),
+    "EMAIL_JWT_SECRET": _external_envs.get("EMAIL_JWT_SECRET") or os.environ.get('EMAIL_JWT_SECRET'),
+    "AUTH_JWT_SECRET": _external_envs.get("AUTH_JWT_SECRET") or os.environ.get('AUTH_JWT_SECRET'),
     "POSTGRES_USER": _external_envs.get("POSTGRES_USER") or os.environ.get('POSTGRES_USER'),
     "POSTGRES_PASSWORD": _external_envs.get("POSTGRES_PASSWORD") or os.environ.get('POSTGRES_PASSWORD'),
     "POSTGRES_DB": _external_envs.get("POSTGRES_DB") or os.environ.get('POSTGRES_DB'),

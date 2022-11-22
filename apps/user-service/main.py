@@ -1,5 +1,5 @@
 #!/bin/env python
-from wrapper.friend_path import does_email_invite_exist
+from wrapper.friend_path import check_user_is_invited
 from config.database import DB_CONNECTION
 from utility.functions import initialize_db
 from model.User import User
@@ -16,8 +16,7 @@ def main():
         print(f"DB Connection Failed! Reason: {result.err()}\nExiting...")
         exit(2)
 
-    rabbitmq.subscribe("user.check.invited", does_email_invite_exist)
-
+    rabbitmq.subscribe("user.check.invited", check_user_is_invited)
 
     exit(0)
 

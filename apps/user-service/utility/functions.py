@@ -10,7 +10,9 @@ from config.secrets import get_env
 M = TypeVar("M", bound=type(Model))
 
 
-def initialize_db(db_connection: PostgresqlExtDatabase, models: list[M], delete_schema: bool = False) -> Err[OperationalError] | Ok[str]:
+def initialize_db(
+    db_connection: PostgresqlExtDatabase, models: list[M], delete_schema: bool = False
+) -> Err[OperationalError] | Ok[str]:
     print("Initializing DB ...")
 
     try:
@@ -20,7 +22,7 @@ def initialize_db(db_connection: PostgresqlExtDatabase, models: list[M], delete_
 
     if delete_schema is True:
         db_connection.drop_tables(models)
-    
+
     db_connection.create_tables(models)
 
     print("Initialization completed.")
@@ -36,6 +38,7 @@ def is_valid_email(email: str) -> bool:
     else:
         return False
 
+
 def bool_to_str(result: bool):
     if result:
         return "0"
@@ -49,7 +52,7 @@ import bcrypt
 class Password:
     @staticmethod
     def validate_password_len(password: str) -> Err[str] | Ok[str]:
-        password_min_len = int(get_env('PASSWORD_MIN_LENGTH'))
+        password_min_len = int(get_env("PASSWORD_MIN_LENGTH"))
 
         if len(password) < password_min_len:
             return Err(
@@ -85,9 +88,11 @@ from jwt import ImmatureSignatureError, ExpiredSignatureError, InvalidSignatureE
 class Token:
     @staticmethod
     def generate_for_email(from_email: str, to_email: str) -> str | None:
-        JWT_SECRET = get_env('JWT_SECRET')  # isolate import to where it is used
+        EMAIL_JWT_SECRET = get_env(
+            "EMAIL_JWT_SECRET"
+        )  # isolate import to where it is used
 
-        if len(JWT_SECRET) < 1:
+        if len(EMAIL_JWT_SECRET) < 1:
             return None
 
         payload = {}
@@ -100,16 +105,57 @@ class Token:
         payload["from_email"] = from_email
         payload["to_email"] = to_email
 
-        token = jwt.encode(payload, JWT_SECRET, algorithm="HS256")
+        token = jwt.encode(payload, EMAIL_JWT_SECRET, algorithm="HS256")
 
         return token
 
     @staticmethod
-    def decode_email_token(token: str) -> Err | Ok:
-        JWT_SECRET = get_env('JWT_SECRET')  # isolate import to where it is used
+    def decode_for_email(token: str) -> Err | Ok:
+        # isolate import to where it is used
+        EMAIL_JWT_SECRET = get_env("EMAIL_JWT_SECRET")
 
         try:
-            decoded_token = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+            decoded_token = jwt.decode(token, EMAIL_JWT_SECRET, algorithms=["HS256"])
+        except ExpiredSignatureError as error:  # Token expired
+            return Err("ExpiredSignatureError", error.args[0])
+        except InvalidSignatureError as error:  # Token has been tampered
+            return Err("InvalidSignatureError", error.args[0])
+        except ImmatureSignatureError as error:  # token not valid yet
+            return Err("ImmatureSignatureError", error.args[0])
+
+        return Ok(decoded_token)
+
+    @staticmethod
+    def generate_for_auth(user_email: str) -> str | None:
+        # isolate import to where it is used
+        AUTH_JWT_SECRET = get_env("AUTH_JWT_SECRET")
+
+        if len(AUTH_JWT_SECRET) < 1:
+            return None
+
+        #TODO: check that user_email has a real account
+
+        payload = {}
+
+        current_datetime = datetime.now()
+        # Issued at: Current timestamp (Unix epoch) - 2 seconds in case it is checked immediately after creation
+        payload["iat"] = datetime.timestamp(current_datetime - timedelta(seconds=1))
+        # Expiration: Current timestamp (Unix epoch) + 7 days
+        payload["exp"] = datetime.timestamp(current_datetime + timedelta(days=7))
+        payload["sub"] = user_email
+
+        token = jwt.encode(payload, AUTH_JWT_SECRET, algorithm="HS256")
+
+        return token
+
+    @staticmethod
+    def decode_for_auth(token: str) -> Err | Ok:
+        AUTH_JWT_SECRET = get_env(
+            "AUTH_JWT_SECRET"
+        )  # isolate import to where it is used
+
+        try:
+            decoded_token = jwt.decode(token, AUTH_JWT_SECRET, algorithms=["HS256"])
         except ExpiredSignatureError as error:  # Token expired
             return Err("ExpiredSignatureError", error.args[0])
         except InvalidSignatureError as error:  # Token has been tampered

@@ -1,6 +1,6 @@
 import json
 import uuid
-from peewee import UUIDField, CharField, IntegrityError
+from peewee import UUIDField, CharField, IntegrityError, BooleanField
 from config.database import DB_CONNECTION
 from model.BaseModel import BaseModel
 from model.User import User
@@ -16,6 +16,7 @@ class Invite(BaseModel):  # type: ignore
     from_email = CharField(max_length=50, null=False)
     to_email = CharField(max_length=50, null=False)
     token = CharField(max_length=512, null=False)  # Expiration is in the token
+    is_registered = BooleanField(default=False, null=False)
 
     def __str__(self) -> str:
         return f"{{ 'invite_id': {self.invite_id}, 'from_email': {self.from_email}, 'to_email': {self.to_email}, 'token': {self.token} }}"
