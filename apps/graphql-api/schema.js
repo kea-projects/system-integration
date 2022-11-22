@@ -148,7 +148,7 @@ const mutationType = new graphql.GraphQLObjectType({
     name: "mutation",
     fields: {
         // add product additional info
-        addProduct: {
+        createProduct: {
             type: ProductType,
             args: {
                 product_name: { type: graphql.GraphQLString },
@@ -231,7 +231,7 @@ const mutationType = new graphql.GraphQLObjectType({
         },
 
         // add product additional info
-        addProductImage: {
+        createProductImage: {
             type: ProductImageType,
             args: {
                 id: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt) },
@@ -239,16 +239,6 @@ const mutationType = new graphql.GraphQLObjectType({
                 image_url: { type: graphql.GraphQLString },
                 alt_text: { type: graphql.GraphQLString },
                 additional_info: { type: graphql.GraphQLString },
-            },
-            resolve(parent, args) {
-                const productImage = new ProductImage({
-                    product_id: args.product_id,
-                    image_url: args.image_url,
-                    alt_text: args.alt_text,
-                    additional_info: args.additional_info,
-                });
-
-                return productImage.save();
             },
             resolve: (root, args) => {
                 return new Promise((resolve, reject) => {
@@ -306,6 +296,75 @@ const mutationType = new graphql.GraphQLObjectType({
                             reject(err);
                         }
                         resolve(`ProductImage #${id} deleted`);                    
+                    });
+                })
+            },
+        },
+
+        // add product additional info
+        addProductAdditionalInfo: {
+            type: ProductAdditionalInfoType,
+            args: {
+                id: { type: new graphql.GraphQLNonNull(graphql.GraphQLID) },
+                product_id: { type: new graphql.GraphQLNonNull(graphql.GraphQLID) },
+                choices: { type: graphql.GraphQLID },
+                additional_info: { type: graphql.GraphQLString },
+            },
+            resolve: (root, args) => {
+                return new Promise((resolve, reject) => {
+                    //raw SQLite to insert a new post in post table
+                    database.run('INSERT INTO ProductAdditionalInfos (product_id, choices, additional_info) VALUES (?,?,?);', [args.product_id, args.choices, args.additional_info], (err) => {
+                        if(err) {
+                            reject(null);
+                        }
+                        database.get("SELECT last_insert_rowid() as id", (err, row) => {
+                            
+                            resolve({
+                                id: row["id"],
+                                product_id: args.product_id,
+                                image_url: args.image_url,
+                                alt_text: args.alt_text,
+                                additional_info: args.additional_info,
+                            });
+                        });
+                    });
+                })
+            },
+        },
+
+        updateProductAdditionalInfo: {
+            type: ProductAdditionalInfoType,
+            args: {
+                id: { type: new graphql.GraphQLNonNull(graphql.GraphQLID) },
+                product_id: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt) },
+                choices: { type: graphql.GraphQLString },
+                additional_info: { type: graphql.GraphQLString },
+            },
+            resolve: (root, args) => {
+                return new Promise((resolve, reject) => {
+                    database.run(`UPDATE ProductAdditionalInfo SET product_id = (?), choices = (?), additional_info = (?) WHERE product_image_id = (?);`, [args.product_id, args.choices, args.additional_info, args.id], (err) => {
+                        if(err) {
+                            reject(err);
+                        }
+                        resolve(`ProductAdditionalInfo #${id} updated`);
+                    })
+                });
+            },
+        },
+
+        // delete product additional info
+        deleteProductAdditionalInfo: {
+            type: ProductAdditionalInfoType,
+            args: {
+                id: { type: new graphql.GraphQLNonNull(graphql.GraphQLID) },
+            },
+            resolve(parent, args) {
+                return new Promise((resolve, reject) => {
+                    database.run('DELETE from ProductAdditionalInfo WHERE id =(?);', [id], (err) => {
+                        if(err) {
+                            reject(err);
+                        }
+                        resolve(`ProductAdditionalInfo #${id} deleted`);                    
                     });
                 })
             },
