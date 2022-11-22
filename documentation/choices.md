@@ -47,3 +47,6 @@ the disk space and performance needed to store and serve files.
 This increases the potential cost of hosting the system, but it can also reduce it since the
 host machines can be optimized towards just hosting the services.
 
+# CDN
+We have chosen [Sirv](https://sirv.com/) as our CDN. This was decided due to its ease of integration,
+speed of development, previous experience with it, and its generous free plan.

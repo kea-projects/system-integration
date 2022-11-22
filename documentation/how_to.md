@@ -16,3 +16,7 @@ The partner group also needs a way to access the data, which is done through URL
 The implementation process consisted of figuring out the best library for communicating with Azure, the third party system we chose, and then implementing it.
 The next step was creating the endpoints needed to access this integration. The endpoint for uploading files has proven to be the most challenging part
 but due to a large amount of code examples and guides existing for NodeJs it was completed swiftly as well.
+
+# CDN
+Sign up & log in to [Sirv](https://sirv.com/). Upload the picture to the its storage, choose access options, filters etc, and obtain the resource url.
+Add it to the nginx conf.d file at desired route and proxy it to the url, for example `/cdn/nice-logo-bro`.
