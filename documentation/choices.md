@@ -38,3 +38,8 @@ authentication would be a large problem with a hosted server. We therefore
 decided to use SFTP as it would allow only those that posses the correct
 username and password to use our server.
 
+
+# Email Service
+
+The email service is deployed as a serverless function on Azure using Azure functions.
+This is due to the email service not needing to be online at all times.
