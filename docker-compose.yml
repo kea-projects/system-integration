@@ -21,6 +21,7 @@ version: "3"
 services:
   gateway: # NGINX
     container_name: gateway
+    restart: always
     build:
       context: .
       dockerfile: ./configs/gateway/gateway-dockerfile
@@ -30,7 +31,6 @@ services:
       - 80:80 # http
       - 3000:3000 # SFTP server
       # - 443:443
-    restart: always
 
   sftp-server:
     container_name: sftp-server
@@ -49,6 +49,7 @@ services:
 
   rabbitmq:
     container_name: rabbitmq
+    restart: always
     build:
       context: .
       dockerfile: ./configs/rabbitmq/rabbitmq.dockerfile
@@ -61,6 +62,7 @@ services:
 
   friend-path:
     container_name: friend-path
+    restart: always
     depends_on:
       - rabbitmq
     build:
@@ -73,6 +75,7 @@ services:
       - RABBITMQ_PASSWORD=$RABBITMQ_PASSWORD
       - RABBITMQ_INVITE_EXCHANGE=$RABBITMQ_INVITE_EXCHANGE
       - RABBITMQ_USER_EXCHANGE=$RABBITMQ_USER_EXCHANGE
+      - EMAIL_AZURE_FUNCTION_URL=$EMAIL_AZURE_FUNCTION_URL
     networks:
       - docker-net
     healthcheck:
@@ -81,19 +84,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
-  
-  email-service:
-    container_name: email-service
-    depends_on:
-      - rabbitmq
-    build:
-      context: .
-      dockerfile: ./configs/email-service/email-service.dockerfile
-    environment:
-      - SENDGRID_API_KEY=$SENDGRID_API_KEY
-      - SENDGRID_FROM_DOMAIN=$SENDGRID_FROM_DOMAIN
-    networks:
-      - docker-net
 
 
 # ---------------------------------

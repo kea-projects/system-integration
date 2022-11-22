@@ -1,6 +1,6 @@
 import amqp from "amqplib/callback_api.js";
-import { v4 as uuid } from "uuid";
 import chalk from "chalk";
+import { v4 as uuid } from "uuid";
 
 const host = process.env.RABBITMQ_HOST || "localhost";
 const inviteExchange = process.env.RABBITMQ_INVITE_EXCHANGE || "invite";
@@ -8,17 +8,6 @@ const userExchange = process.env.RABBITMQ_USER_EXCHANGE || "friend-user-rpc";
 const user = process.env.RABBITMQ_USER || "guest";
 const password = process.env.RABBITMQ_PASSWORD || "guest";
 const vhost = process.env.RABBITMQ_VHOST || "";
-
-/** Invites the email to the user's friends list
- *  Message structure:
- *  {
- *    "invitee": "string",
- *    "invited": "string"
- *   }
- */
-export const sendInvite = (message, onSuccess, onError) => {
-  publishMessage(JSON.stringify(message), inviteExchange, onSuccess, onError);
-};
 
 /** Checks if the user has invited the given email address
  *  Message structure:
