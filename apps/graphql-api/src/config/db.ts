@@ -1,11 +1,9 @@
-import mongoose from "mongoose";
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
 
-const connectDB = async () => {
-  const conn = await mongoose.connect(process.env.MONGO_URI || 'nope');
-
-  console.log(`MongoDB Connected: ${conn.connection.host}`);
-};
-
-mongoose.set("debug", true);
+const connectDB = open({
+  filename: './data/db.sqlite',
+  driver: sqlite3.Database
+})
 
 export default connectDB;
