@@ -1,7 +1,7 @@
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 
-const database = await open({ filename: 'database.db', driver: sqlite3.Database })
+const database = await open({ filename: 'database.db', driver: sqlite3.Database });
 
 export async function initDatabase() {
     database.exec(`

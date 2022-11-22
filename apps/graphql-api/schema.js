@@ -190,7 +190,7 @@ const mutationType = new graphql.GraphQLObjectType({
         updateProduct: {
             type: ProductType,
             args: {
-                product_id: { type: graphql.GraphQLNonNull(graphql.GraphQLID) },
+                product_id: { type: new graphql.GraphQLNonNull(graphql.GraphQLID) },
                 product_name: { type: graphql.GraphQLString },
                 product_sub_title: { type: graphql.GraphQLString },
                 product_description: { type: graphql.GraphQLString },
@@ -224,7 +224,68 @@ const mutationType = new graphql.GraphQLObjectType({
                         if(err) {
                             reject(err);
                         }
-                        resolve(`Post #${id} deleted`);                    
+                        resolve(`Product #${id} deleted`);                    
+                    });
+                })
+            },
+        },
+
+        // add product additional info
+        addProductImage: {
+            type: ProductImageType,
+            args: {
+                id: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt) },
+                product_id: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt) },
+                image_url: { type: graphql.GraphQLString },
+                alt_text: { type: graphql.GraphQLString },
+                additional_info: { type: graphql.GraphQLString },
+            },
+            resolve(parent, args) {
+                const productImage = new ProductImage({
+                    product_id: args.product_id,
+                    image_url: args.image_url,
+                    alt_text: args.alt_text,
+                    additional_info: args.additional_info,
+                });
+
+                return productImage.save();
+            },
+        },
+
+        updateProductImage: {
+            type: ProductImageType,
+            args: {
+                id: { type: new graphql.GraphQLNonNull(graphql.GraphQLID) },
+                product_id: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt) },
+                image_url: { type: graphql.GraphQLString },
+                alt_text: { type: graphql.GraphQLString },
+                additional_info: { type: graphql.GraphQLString },
+            },
+            resolve: (root, args) => {
+                return new Promise((resolve, reject) => {
+                    database.run(`UPDATE ProductImages SET product_id = (?), image_url = (?), alt_text = (?), additional_info = (?) WHERE product_image_id = (?);`, [args.product_id, args.image_url, args.alt_text, args.additional_info, args.id], (err) => {
+                        if(err) {
+                            reject(err);
+                        }
+                        resolve(`ProductImages #${id} updated`);
+                    })
+                });
+            },
+        },
+
+        // delete product image
+        deleteProductImage: {
+            type: ProductImageType,
+            args: {
+                id: { type: new graphql.GraphQLNonNull(graphql.GraphQLID) },
+            },
+            resolve(parent, args) {
+                return new Promise((resolve, reject) => {
+                    database.run('DELETE from ProductImages WHERE id =(?);', [id], (err) => {
+                        if(err) {
+                            reject(err);
+                        }
+                        resolve(`ProductImage #${id} deleted`);                    
                     });
                 })
             },
