@@ -55,6 +55,17 @@ services:
       - ftp-uploads:/home/$SFTP_USERNAME/upload
     command: "$SFTP_USERNAME:$SFTP_PASSWORD:1001"
 
+  rabbitmq:
+    container_name: rabbitmq
+    build:
+      context: .
+      dockerfile: ./configs/rabbitmq/rabbitmq.dockerfile
+    networks:
+      - docker-net
+    ports:
+      # Exposing the port for the mock email and user services to be able 
+      # connect to RabbitMQ until they are fully implemented
+      - 5672:5672
   user-service:
     container_name: user-service
     build:
@@ -77,6 +88,32 @@ services:
       - POSTGRES_DB=$POSTGRES_DB
     networks: [user-service-net]
     ports: [5432:5432]
+
+  friend-path:
+    container_name: friend-path
+    depends_on:
+      - rabbitmq
+    build:
+      context: .
+      dockerfile: ./configs/friend-path/friend-path.dockerfile
+    environment:
+      - RABBITMQ_HOST=$RABBITMQ_HOST
+      - RABBITMQ_VHOST=$RABBITMQ_VHOST
+      - RABBITMQ_USER=$RABBITMQ_USER
+      - RABBITMQ_PASSWORD=$RABBITMQ_PASSWORD
+      - RABBITMQ_INVITE_EXCHANGE=$RABBITMQ_INVITE_EXCHANGE
+      - RABBITMQ_USER_EXCHANGE=$RABBITMQ_USER_EXCHANGE
+    networks:
+      - docker-net
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost/friend/health"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+  
+      
+
 
 # ---------------------------------
 # ------------ NETWORK ------------
