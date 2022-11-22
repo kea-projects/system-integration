@@ -6,11 +6,81 @@ import { sendInviteEmail } from "./utils/email.service.js";
 const inviteExchange = "invite";
 const user = process.env.RABBITMQ_EMAIL_USER || "guest";
 const password = process.env.RABBITMQ_EMAIL_PASSWORD || "guest";
-// TODO: present the mock email service.
+const RABBITMQ_HOST = process.env.RABBITMQ_HOST || "localhost";
+const RABBITMQ_VHOST = process.env.RABBITMQ_VHOST || "si";
 
+// Validate that the required environment variables are present
+if (!process.env.SENDGRID_FROM_DOMAIN) {
+  console.log(
+    chalk.redBright(
+      `[ERROR] Email Service - The Sendgrid "From" domain is missing from environment variables, shutting down!`
+    )
+  );
+  process.exit(1);
+}
+if (!process.env.SENDGRID_API_KEY) {
+  console.log(
+    chalk.redBright(
+      `[ERROR] Email Service - The Sendgrid api key is missing from environment variables, shutting down!`
+    )
+  );
+  process.exit(1);
+}
+
+if (!process.env.RABBITMQ_EMAIL_USER) {
+  console.log(
+    chalk.redBright(
+      `[ERROR] Email Service - The RabbitMq user is missing from environment variables, shutting down!`
+    )
+  );
+  process.exit(1);
+}
+
+if (!process.env.RABBITMQ_EMAIL_PASSWORD) {
+  console.log(
+    chalk.redBright(
+      `[ERROR] Email Service - The RabbitMq password is missing from environment variables, shutting down!`
+    )
+  );
+  process.exit(1);
+}
+
+if (!process.env.RABBITMQ_EMAIL_PASSWORD) {
+  console.log(
+    chalk.redBright(
+      `[ERROR] Email Service - The RabbitMq password is missing from environment variables, shutting down!`
+    )
+  );
+  process.exit(1);
+}
+
+if (!process.env.RABBITMQ_HOST) {
+  console.log(
+    chalk.redBright(
+      `[ERROR] Email Service - The RABBITMQ_HOST is missing from environment variables, shutting down!`
+    )
+  );
+  process.exit(1);
+}
+
+if (!process.env.RABBITMQ_VHOST) {
+  console.log(
+    chalk.redBright(
+      `[ERROR] Email Service - The RABBITMQ_VHOST is missing from environment variables, shutting down!`
+    )
+  );
+  process.exit(1);
+}
+
+console.log("user", process.env.RABBITMQ_EMAIL_USER);
+console.log("password", process.env.RABBITMQ_EMAIL_PASSWORD);
+console.log(
+  "url",
+  `amqp://${user}:${password}@${RABBITMQ_HOST}/${RABBITMQ_VHOST}`
+);
 // Connect to the RabbitMQ server.
 amqp.connect(
-  `amqp://${user}:${password}@localhost/si`,
+  `amqp://${user}:${password}@${RABBITMQ_HOST}/${RABBITMQ_VHOST}`,
   (error0, connection) => {
     if (error0) {
       console.error("Error0", error0);
@@ -45,6 +115,7 @@ amqp.connect(
           (message) => {
             setTimeout(() => {
               console.log(message.content.toString());
+              console.log(message.content);
               const { invitee, invited } = message.content;
               if (invitee && invited) {
                 console.log("Everything is fine I guess, sending an email");
@@ -65,23 +136,4 @@ amqp.connect(
     });
   }
 );
-
-// Validate that the required environment variables are present
-if (!process.env.SENDGRID_FROM_DOMAIN) {
-  console.log(
-    chalk.redBright(
-      `[ERROR] Email Service - The Sendgrid "From" domain is missing from environment variables, shutting down!`
-    )
-  );
-  process.exit(1);
-}
-if (!process.env.SENDGRID_API_KEY) {
-  console.log(
-    chalk.redBright(
-      `[ERROR] Email Service - The Sendgrid api key is missing from environment variables, shutting down!`
-    )
-  );
-  process.exit(1);
-}
-
 console.log(chalk.yellowBright("Email Service has started"));
