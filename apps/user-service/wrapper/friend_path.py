@@ -4,10 +4,13 @@ import json
 
 
 def does_email_invite_exist(raw_data):
-    data = json.loads(raw_data)
+    data: dict = json.loads(raw_data)
 
-    from_email = data["invitee"]
-    to_email = data["invited"]
+    from_email = data.get("invitee")
+    to_email = data.get("invited")
+
+    if from_email is None or to_email is None:
+        return bool_to_str(False)
 
     result = Invite.has_invited_other(from_email, to_email)
 
