@@ -20,6 +20,10 @@ export const sendInvite = (message, onSuccess, onError) => {
   publishMessage(JSON.stringify(message), inviteExchange, onSuccess, onError);
 };
 
+export const sendTest = (message, onSuccess) => {
+  callProcedure(message, userExchange, "test", onSuccess, () => {console.log(1)})
+};
+
 /** Checks if the user has invited the given email address
  *  Message structure:
  *  {

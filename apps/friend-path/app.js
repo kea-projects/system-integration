@@ -5,7 +5,11 @@ import cors from "cors";
 import "dotenv/config";
 import chalk from "chalk";
 
-import { sendInvite, checkUserIsInvited } from "./utils/amqp-utils.js";
+import {
+  sendInvite,
+  checkUserIsInvited,
+  sendTest,
+} from "./utils/amqp-utils.js";
 import { getSocketUser, emitStatusUpdate } from "./utils/socket-utils.js";
 import { validateEmail } from "./utils/validators.js";
 import { getAuthUser } from "./utils/auth-utils.js";
@@ -33,6 +37,12 @@ io.use(validateSocketToken);
 // ---- Endpoints ----
 app.get("/friend/health", (_, res) => {
   res.send({ message: "Up and running!" });
+});
+
+app.get("/friend/test", (_, res) => {
+  sendTest("test", (message) => {
+    res.send(message);
+  });
 });
 
 app.post("/friend/invite", validateToken, (req, res) => {

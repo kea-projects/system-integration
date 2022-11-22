@@ -7,15 +7,15 @@ _envs = dotenv_values()
 _external_envs = dotenv_values("../../.env")
 
 _secrets = {
-    "PASSWORD_MIN_LENGTH": _envs.get("PASSWORD_MIN_LENGTH") or os.environ.get("PASSWORD_MIN_LENGTH"),
-    "JWT_SECRET": _envs.get("JWT_SECRET") or os.environ.get('JWT_SECRET'),
+    "PASSWORD_MIN_LENGTH": _external_envs.get("PASSWORD_MIN_LENGTH") or os.environ.get("PASSWORD_MIN_LENGTH"),
+    "JWT_SECRET": _external_envs.get("JWT_SECRET") or os.environ.get('JWT_SECRET'),
     "POSTGRES_USER": _external_envs.get("POSTGRES_USER") or os.environ.get('POSTGRES_USER'),
     "POSTGRES_PASSWORD": _external_envs.get("POSTGRES_PASSWORD") or os.environ.get('POSTGRES_PASSWORD'),
     "POSTGRES_DB": _external_envs.get("POSTGRES_DB") or os.environ.get('POSTGRES_DB'),
     "POSTGRES_HOST": _external_envs.get("POSTGRES_HOST") or os.environ.get('POSTGRES_HOST'),
     "POSTGRES_PORT": _external_envs.get("POSTGRES_PORT") or os.environ.get('POSTGRES_PORT'),
-    "RABBITMQ_DEFAULT_USER": _external_envs.get("RABBITMQ_DEFAULT_USER") or os.environ.get('RABBITMQ_DEFAULT_USER'),
-    "RABBITMQ_DEFAULT_PASS": _external_envs.get("RABBITMQ_DEFAULT_PASS") or os.environ.get('RABBITMQ_DEFAULT_PASS'),
+    "RABBITMQ_USER_SERVICE_USER": _external_envs.get("RABBITMQ_USER_SERVICE_USER") or os.environ.get('RABBITMQ_USER_SERVICE_USER'),
+    "RABBITMQ_USER_SERVICE_PASSWORD": _external_envs.get("RABBITMQ_USER_SERVICE_PASSWORD") or os.environ.get('RABBITMQ_USER_SERVICE_PASSWORD'),
 }
 
 
