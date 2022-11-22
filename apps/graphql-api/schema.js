@@ -20,12 +20,7 @@ const ProductImageType = new graphql.GraphQLObjectType({
     name: "ProductImage",
     fields: () => ({
         product_image_id: { type: graphql.GraphQLID },
-        product_id: { 
-            type: ProductType,
-            resolve(parent, args) {
-                return Product.findById(parent.product_id)
-            }
-        },
+        product_id: { type: graphql.GraphQLInt },
         image_url: { type: graphql.GraphQLString },
         alt_text: { type: graphql.GraphQLString },
         additional_info: { type: graphql.GraphQLString },
@@ -36,12 +31,7 @@ const ProductAdditionalInfoType = new graphql.GraphQLObjectType({
     name: "ProductAdditionalInfo",
     fields: () => ({
         product_additional_info_id: { type: graphql.GraphQLID },
-        product_id: { 
-            type: ProductType,
-            resolve(parent, args) {
-                return Product.findById(parent.product_id)
-            }
-        },
+        product_id: { type: graphql.GraphQLInt },
         choices: { type: graphql.GraphQLString },
         additional_info: { type: graphql.GraphQLString },
     }),
@@ -180,7 +170,7 @@ const mutationType = new graphql.GraphQLObjectType({
                         database.get("SELECT last_insert_rowid() as id", (err, row) => {
                             
                             resolve({
-                                id: row["id"],
+                                product_id: row["id"],
                                 product_name: args.product_name,
                                 product_sub_title: args.product_sub_title,
                                 product_description: args.product_description,
@@ -191,6 +181,50 @@ const mutationType = new graphql.GraphQLObjectType({
                                 overall_rating: args.overall_rating,
                             });
                         });
+                    });
+                })
+            },
+        },
+
+        // Update product
+        updateProduct: {
+            type: ProductType,
+            args: {
+                product_id: { type: graphql.GraphQLNonNull(graphql.GraphQLID) },
+                product_name: { type: graphql.GraphQLString },
+                product_sub_title: { type: graphql.GraphQLString },
+                product_description: { type: graphql.GraphQLString },
+                main_category: { type: graphql.GraphQLString },
+                sub_category: { type: graphql.GraphQLString },
+                price: { type: graphql.GraphQLInt },
+                link: { type: graphql.GraphQLString },
+                overall_rating: { type: graphql.GraphQLString },
+            },
+            resolve: (root, args) => {
+                return new Promise((resolve, reject) => {
+                    database.run(`UPDATE Products SET product_name = (?), product_sub_title = (?), product_description = (?), main_category = (?), sub_category = (?), price = (?), link = (?), overall_rating = (?) WHERE product_id = (?);`, [args.product_name, args.product_name, args.product_sub_title, args.product_description, args.main_category, args.sub_category, args.price, args.link, args.overall_rating, args.product_id], (err) => {
+                        if(err) {
+                            reject(err);
+                        }
+                        resolve(`Product #${id} updated`);
+                    })
+                });
+            },
+        },
+
+        // delete product
+        deleteProduct: {
+            type: ProductType,
+            args: {
+                id: { type: new graphql.GraphQLNonNull(graphql.GraphQLID) },
+            },
+            resolve(parent, args) {
+                return new Promise((resolve, reject) => {
+                    database.run('DELETE from Products WHERE id =(?);', [id], (err) => {
+                        if(err) {
+                            reject(err);
+                        }
+                        resolve(`Post #${id} deleted`);                    
                     });
                 })
             },
