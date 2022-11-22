@@ -1,5 +1,5 @@
-import Product from "../../models/Product";
-import ProductType from "./ProductType";
+import Product from "../../models/Product.js";
+import ProductType from "./ProductType.js";
 import {
     GraphQLObjectType,
     GraphQLID,
@@ -9,7 +9,7 @@ import {
 const ProductAdditionalInfoType = new GraphQLObjectType({
     name: "ProductAdditionalInfo",
     fields: () => ({
-        id: { type: GraphQLID },
+        product_additional_info_id: { type: GraphQLID },
         product_id: { 
             type: ProductType,
             resolve(parent, args) {

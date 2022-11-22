@@ -1,9 +1,9 @@
-import Product from "../models/Product";
-import ProductAdditionalInfo from "../models/ProductAdditionalInfo";
-import ProductImage from "../models/ProductImage";
-import ProductType from "./types/ProductType";
-import ProductAdditionalInfoType from "./types/ProductAdditionalInfoType";
-import ProductImageType from "./types/ProductImageType";
+import Product from "../models/Product.js";
+import ProductAdditionalInfo from "../models/ProductAdditionalInfo.js";
+import ProductImage from "../models/ProductImage.js";
+import ProductType from "./types/ProductType.js";
+import ProductAdditionalInfoType from "./types/ProductAdditionalInfoType.js";
+import ProductImageType from "./types/ProductImageType.js";
 
 import {
     GraphQLObjectType,
@@ -15,7 +15,7 @@ import {
 
 // MUTATIONS
 const mutation = new GraphQLObjectType({
-    name: "Mutation",
+    name: "mutation",
     fields: {
         // add product additional info
         addProductAdditionalInfo: {
