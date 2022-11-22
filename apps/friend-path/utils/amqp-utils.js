@@ -104,6 +104,7 @@ const callProcedure = (message, exchange, topic, onSuccess, onError) => {
         channel.assertQueue("", { exclusive: true }, (error2, queue) => {
           if (error2) {
             console.error("Error2", error2);
+            onError();
           }
 
           channel.bindQueue(queue.queue, exchange, `${topic}.response`);
@@ -128,20 +129,29 @@ const callProcedure = (message, exchange, topic, onSuccess, onError) => {
             { noAck: true }
           );
 
-          channel.publish(exchange, `${topic}.request`, Buffer.from(message), {
-            persistent: true,
-            replyTo: queue.queue,
-            correlationId: correlationId,
-          });
-
-          console.log(
-            chalk.yellowBright("Message:"),
-            chalk.blueBright(message),
-            chalk.yellowBright("sent to exchange:"),
-            chalk.green(exchange),
-            chalk.yellowBright("on topic:"),
-            chalk.blueBright(`${topic}.request`)
-          );
+          try {
+            channel.publish(
+              exchange,
+              `${topic}.request`,
+              Buffer.from(message),
+              {
+                persistent: true,
+                replyTo: queue.queue,
+                correlationId: correlationId,
+              }
+            );
+            console.log(
+              chalk.yellowBright("Message:"),
+              chalk.blueBright(message),
+              chalk.yellowBright("sent to exchange:"),
+              chalk.green(exchange),
+              chalk.yellowBright("on topic:"),
+              chalk.blueBright(`${topic}.request`)
+            );
+          } catch (error) {
+            console.error("Error", error);
+            onError();
+          }
         });
       });
     }
@@ -173,9 +183,14 @@ const publishMessage = (message, exchange, onSuccess, onError) => {
         // Publish the message to all the queues of the given exchange.
         // The `persistent` attribute makes it so that the message will be saved until it is consumed,
         // so it will not be lost if the RabbitMQ server crashes.
-        channel.publish(exchange, "", Buffer.from(message), {
-          persistent: true,
-        });
+        try {
+          channel.publish(exchange, "", Buffer.from(message), {
+            persistent: true,
+          });
+        } catch (error) {
+          console.error("Error", error);
+          onError();
+        }
 
         // Execute the callback once the message has been published.
         console.log(
