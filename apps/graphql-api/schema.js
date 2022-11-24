@@ -108,6 +108,7 @@ const queryType = new graphql.GraphQLObjectType({
                 });
             },
         },
+        
         // PRODUCT IMAGES
         ProductImages: {
             type: new graphql.GraphQLList(ProductImageType),
@@ -242,7 +243,6 @@ const mutationType = new graphql.GraphQLObjectType({
             },
             resolve: (root, args) => {
                 return new Promise((resolve, reject) => {
-                    //raw SQLite to insert a new post in post table
                     database.run('INSERT INTO ProductImages (product_id, image_url, alt_text, additional_info) VALUES (?,?,?,?);', [args.product_id, args.image_url, args.alt_text, args.additional_info], (err) => {
                         if(err) {
                             reject(null);
