@@ -1,7 +1,7 @@
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 
-const database = await open({ filename: 'database.db', driver: sqlite3.Database });
+export const database = await open({ filename: 'database.db', driver: sqlite3.Database });
 
 export async function initDatabase() {
     database.exec(`
@@ -23,16 +23,18 @@ export async function initDatabase() {
             product_id integer,
             image_url text,
             alt_text text,
-            additional_info text
-        )
+            additional_info text,
+            FOREIGN KEY (product_id) REFERENCES Products(product_id)
+        );
     `);
     database.exec(`
         CREATE TABLE IF NOT EXISTS ProductAdditionalInfos (
             id integer PRIMARY KEY,
             product_id integer,
             choices text,
-            additional_info text
-        )
+            additional_info text,
+            FOREIGN KEY (product_id) REFERENCES Products(product_id)
+        );
     `);
 };
 
@@ -68,18 +70,24 @@ export async function addDataToDatabase() {
         overall_rating: 'test3',
     }
 
-    // const result = await database.run(`INSERT INTO Products (product_name, product_sub_title, product_description, main_category, sub_category, price, link, overall_rating) VALUES (?,?,?,?,?,?,?,?)`, [args.product_name, args.product_sub_title, args.product_description, args.main_category, args.sub_category, args.price, args.link, args.overall_rating]);
-    // const result1 = await database.run(`INSERT INTO Products (product_name, product_sub_title, product_description, main_category, sub_category, price, link, overall_rating) VALUES (?,?,?,?,?,?,?,?)`, [argsOne.product_name, argsOne.product_sub_title, argsOne.product_description, args.main_category, argsOne.sub_category, argsOne.price, argsOne.link, argsOne.overall_rating]);
-    // const result2 = await database.run(`INSERT INTO Products (product_name, product_sub_title, product_description, main_category, sub_category, price, link, overall_rating) VALUES (?,?,?,?,?,?,?,?)`, [argsTwo.product_name, argsTwo.product_sub_title, argsTwo.product_description, argsTwo.main_category, argsTwo.sub_category, args.price, args.link, argsTwo.overall_rating]);
-    // console.log(result, result1, result2);
+    const result = await database.run(`INSERT INTO Products (product_name, product_sub_title, product_description, main_category, sub_category, price, link, overall_rating) VALUES (?,?,?,?,?,?,?,?)`, [args.product_name, args.product_sub_title, args.product_description, args.main_category, args.sub_category, args.price, args.link, args.overall_rating]);
+    const result1 = await database.run(`INSERT INTO Products (product_name, product_sub_title, product_description, main_category, sub_category, price, link, overall_rating) VALUES (?,?,?,?,?,?,?,?)`, [argsOne.product_name, argsOne.product_sub_title, argsOne.product_description, args.main_category, argsOne.sub_category, argsOne.price, argsOne.link, argsOne.overall_rating]);
+    const result2 = await database.run(`INSERT INTO Products (product_name, product_sub_title, product_description, main_category, sub_category, price, link, overall_rating) VALUES (?,?,?,?,?,?,?,?)`, [argsTwo.product_name, argsTwo.product_sub_title, argsTwo.product_description, argsTwo.main_category, argsTwo.sub_category, args.price, args.link, argsTwo.overall_rating]);
+    console.log(result, result1, result2);
 
-    // const result = await database.run(`INSERT INTO ProductImages (product_id, image_url, alt_text, additional_info) VALUES (?,?,?,?)`, ['1', 'imgArgs.image_url', 'imgArgs.alt_text', 'imgArgs.additional_info']);
-    // const result1 = await database.run(`INSERT INTO ProductImages (product_id, image_url, alt_text, additional_info) VALUES (?,?,?,?)`, ['2', 'imgArgs.image_url2', 'imgArgs.alt_text2', 'imgArgs.additional_info2']);
-    // const result2 = await database.run(`INSERT INTO ProductImages (product_id, image_url, alt_text, additional_info) VALUES (?,?,?,?)`, ['3', 'imgArgs.image_url3', 'imgArgs.alt_text3', 'imgArgs.additional_info3']);
-    // console.log(result, result1, result2);
+    const result3 = await database.run(`INSERT INTO ProductImages (product_id, image_url, alt_text, additional_info) VALUES (?,?,?,?)`, ['1', 'imgArgs.image_url', 'imgArgs.alt_text', 'imgArgs.additional_info']);
+    const result4 = await database.run(`INSERT INTO ProductImages (product_id, image_url, alt_text, additional_info) VALUES (?,?,?,?)`, ['2', 'imgArgs.image_url2', 'imgArgs.alt_text2', 'imgArgs.additional_info2']);
+    const result5 = await database.run(`INSERT INTO ProductImages (product_id, image_url, alt_text, additional_info) VALUES (?,?,?,?)`, ['3', 'imgArgs.image_url3', 'imgArgs.alt_text3', 'imgArgs.additional_info3']);
+    console.log(result3, result4, result5);
 
-    // const result = await database.run(`INSERT INTO ProductAdditionalInfos (product_id, choices, additional_info) VALUES (?,?,?)`, ['1', 'choices', 'additional info stuff']);
-    // const result1 = await database.run(`INSERT INTO ProductAdditionalInfos (product_id, choices, additional_info) VALUES (?,?,?)`, ['2', 'choices2', 'additional info stuff2']);
-    // const result2 = await database.run(`INSERT INTO ProductAdditionalInfos (product_id, choices, additional_info) VALUES (?,?,?)`, ['3', 'choices3', 'additional info stuff3']);
-    // console.log(result, result1, result2);
+    const result6 = await database.run(`INSERT INTO ProductAdditionalInfos (product_id, choices, additional_info) VALUES (?,?,?)`, ['1', 'choices', 'additional info stuff']);
+    const result7 = await database.run(`INSERT INTO ProductAdditionalInfos (product_id, choices, additional_info) VALUES (?,?,?)`, ['2', 'choices2', 'additional info stuff2']);
+    const result8 = await database.run(`INSERT INTO ProductAdditionalInfos (product_id, choices, additional_info) VALUES (?,?,?)`, ['3', 'choices3', 'additional info stuff3']);
+    console.log(result6, result7, result8);
 };
+
+export async function dropAllTables() {
+    await database.exec(`DROP TABLE ProductAdditionalInfos;`);
+    await database.exec(`DROP TABLE ProductImages;`);
+    await database.exec(`DROP TABLE Products;`);
+}
