@@ -27,7 +27,7 @@ module.exports = async function (context, req) {
     to: invited,
     from: process.env.SENDGRID_FROM_DOMAIN,
     subject: `You've got mail!`,
-    html: `<string>${invitee} wants to be your friend!</strong>`,
+    html: `<strong>${invitee} wants to be your friend!</strong>`,
   };
 
   sgMail
