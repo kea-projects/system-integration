@@ -20,17 +20,26 @@ const app = express();
 app.use(express.static("public"));
 app.use(express.json());
 
-app.get("/", (req, res) => {
+app.get("/rss", (req, res) => {
   res.type("text/xml").send(feed.xml());
 });
 
-app.put("/", (req, res) => {
+app.put("/rss", (req, res) => {
   if (!req.body || !req.body.title) {
     res.status(400).send({ message: "The body has to have a title field" });
     return;
   }
   feed.item({ title: req.body.title, guid: uuidv4() });
   res.status(201).send({ message: "Item added to the feed" });
+});
+
+app.all("*", (req, res) => {
+  res.status(418).send({
+    endpoints: {
+      getFeed: `GET /rss`,
+      addToFeed: `PUT /rss - request body contains a title field`,
+    },
+  });
 });
 
 app.listen(PORT, (error) => {
