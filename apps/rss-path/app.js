@@ -33,7 +33,7 @@ app.put("/rss", (req, res) => {
   res.status(201).send({ message: "Item added to the feed" });
 });
 
-app.all("*", (req, res) => {
+app.all("/rss*", (req, res) => {
   res.status(418).send({
     endpoints: {
       getFeed: `GET /rss`,
