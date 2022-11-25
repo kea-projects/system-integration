@@ -59,7 +59,7 @@ picsRouter.get("/:picId", async (req, res) => {
 picsRouter.post("/", async (req, res) => {
   const form = new formidable.IncomingForm({
     multiples: false, // have to accept multiple so that the formidable is aware there are multiple, and allows me to delete them all. yeah, I know, great logic
-    maxFileSize: 10 * 1024 * 1024, // 10 MB // Causes the files[""] to be an empty object. Logical
+    maxFileSize: 10 * 1024 * 1024, // 10 MB
     uploadDir: dirname(fileURLToPath(import.meta.url)) + "/temp", // Where the files should be saved
   });
 
