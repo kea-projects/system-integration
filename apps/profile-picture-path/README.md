@@ -1,6 +1,6 @@
 # Profile Picture Azure Integration
 
-Give picture, picture is uploaded to cloud, we give back URL to access it.
+This service allows the users to fetch URLs for pictures stored on Azure, as well as upload, update and delete them.
 
 Done with Azure storage Accounts, NodeJs and Express.
 
