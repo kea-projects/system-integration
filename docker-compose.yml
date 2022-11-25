@@ -81,9 +81,14 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
-  
-      
 
+  rss-path:
+    container_name: rss-path
+    build:
+      context: .
+      dockerfile: ./configs/rss-path/rss-path.dockerfile
+    networks:
+      - docker-net
 
 # ---------------------------------
 # ------------ NETWORK ------------
