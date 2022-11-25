@@ -60,6 +60,19 @@ services:
       # connect to RabbitMQ until they are fully implemented
       - 5672:5672
 
+  pictures-server:
+    container_name: pictures-server
+    restart: always
+    build:
+      context: .
+      dockerfile: ./configs/profile-picture-path/profile-pics.dockerfile
+    environment:
+      - AZURE_CONNECTION_STRING=$AZURE_CONNECTION_STRING
+      - AZURE_STORAGE_ACCOUNT_NAME=$AZURE_STORAGE_ACCOUNT_NAME
+      - AZURE_CONTAINER_NAME=$AZURE_CONTAINER_NAME
+    networks:
+      - docker-net
+
   friend-path:
     container_name: friend-path
     restart: always
@@ -87,6 +100,7 @@ services:
 
   rss-path:
     container_name: rss-path
+    restart: always
     build:
       context: .
       dockerfile: ./configs/rss-path/rss-path.dockerfile

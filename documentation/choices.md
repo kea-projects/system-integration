@@ -38,6 +38,15 @@ authentication would be a large problem with a hosted server. We therefore
 decided to use SFTP as it would allow only those that posses the correct
 username and password to use our server.
 
+# Picture Storage
+We decided to use Azure Storage Accounts to store images. This allows us to decouple
+access to images from our actual system, since we can provide URLs that lead directly to Azure.
+This also reduces the strain on the host machine(s), since they no longer require
+the disk space and performance needed to store and serve files.
+
+This increases the potential cost of hosting the system, but it can also reduce it since the
+host machines can be optimized towards just hosting the services.
+
 # CDN
 We have chosen [Sirv](https://sirv.com/) as our CDN. This was decided due to its ease of integration,
 speed of development, previous experience with it, and its generous free plan. 
