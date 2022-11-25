@@ -50,7 +50,7 @@ picsRouter.get("/:picId", async (req, res) => {
  *
  * Requirements:
  * - One file max
- * - One File minimum
+ * - One file minimum
  * - Has to be an image (mimetype includes `image/`)
  * - Under 10 MB
  *
