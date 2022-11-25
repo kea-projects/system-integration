@@ -57,7 +57,6 @@ app.get("/pictures", (_req, res) => {
       requirements: ":picId path param has to be a valid UUIDv4 string",
       returns: "204 No Content or 404 Not Found",
     },
-    docs: "https://bit.ly/3uTw3UC",
   });
 });
 
