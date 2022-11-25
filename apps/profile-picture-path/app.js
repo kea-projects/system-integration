@@ -97,7 +97,7 @@ server.listen(PORT, (error) => {
   }
 
   console.log(
-    chalk.yellowBright("Server has started on p̷̡̙̙͇̮̖̮̩̯̹̹͎̟̌̈̎̎͌̈́̽̐̾̊̅͘͘͠͠o̶̡̡͎̰͍̳̼̟͓̺̱͒̅̔̈̐̚͜ͅr̴̛͍̽̈́̂̏͘ţ̷̰͉͚̪̖͉͚̌́̃̑̌͆̇:"),
+    chalk.yellowBright(`Server has started on '${PORT}'`),
     chalk.redBright(PORT)
   );
 });
