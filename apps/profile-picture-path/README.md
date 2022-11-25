@@ -12,4 +12,4 @@ Use `npm install` to install the app.
 
 Use `npm start` to run the app.
 
-Call `GET localhost:8080/` to get a list of endpoints and their info.
+Call `GET localhost:8080/pictures` to get a list of endpoints and their info.
