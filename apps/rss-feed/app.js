@@ -24,6 +24,15 @@ app.get("/", (req, res) => {
   res.type("text/xml").send(feed.xml());
 });
 
+app.put("/", (req, res) => {
+  if (!req.body || !req.body.title) {
+    res.status(400).send({ message: "The body has to have a title field" });
+    return;
+  }
+  feed.item({ title: req.body.title, guid: uuidv4() });
+  res.status(201).send({ message: "Item added to the feed" });
+});
+
 app.listen(PORT, (error) => {
   if (error) {
     console.error(error);
