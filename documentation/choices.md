@@ -41,3 +41,8 @@ username and password to use our server.
 # CDN
 We have chosen [Sirv](https://sirv.com/) as our CDN. This was decided due to its ease of integration,
 speed of development, previous experience with it, and its generous free plan. 
+
+# Email Service
+
+The email service is deployed as a serverless function on Azure using Azure functions.
+This is due to the email service not needing to be online at all times.

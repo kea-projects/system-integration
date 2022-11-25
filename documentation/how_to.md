@@ -7,3 +7,7 @@ This document should contain the following:
 # CDN
 Sign up & log in to [Sirv](https://sirv.com/). Upload the picture to the its storage, choose access options, filters etc, and obtain the resource url.
 Add it to the nginx conf.d file at desired route and proxy it to the url, for example `/cdn/nice-logo-bro`.
+
+## Azure serverless function for email service
+
+[Information is located here](./../apps/email-service/README.md)
