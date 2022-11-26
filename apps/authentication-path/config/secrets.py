@@ -10,6 +10,11 @@ _secrets = {
     "RELOAD_UVICORN": _envs.get("RELOAD_UVICORN") or os.environ.get("RELOAD_UVICORN"),
     "AUTHENTICATION_PATH_PORT": _envs.get("AUTHENTICATION_PATH_PORT") or os.environ.get("AUTHENTICATION_PATH_PORT"),
     "AUTHENTICATION_PATH_HOST": _envs.get("AUTHENTICATION_PATH_HOST") or os.environ.get("AUTHENTICATION_PATH_HOST"),
+    "RABBITMQ_USER_SERVICE_USER": _external_envs.get("RABBITMQ_USER_SERVICE_USER") or os.environ.get('RABBITMQ_USER_SERVICE_USER'),
+    "RABBITMQ_USER_SERVICE_PASSWORD": _external_envs.get("RABBITMQ_USER_SERVICE_PASSWORD") or os.environ.get('RABBITMQ_USER_SERVICE_PASSWORD'),
+    "RABBITMQ_USER_EXCHANGE": _external_envs.get('RABBITMQ_USER_EXCHANGE') or os.environ.get('RABBITMQ_USER_EXCHANGE'),
+    "RABBITMQ_VHOST": _external_envs.get("RABBITMQ_VHOST") or os.environ.get('RABBITMQ_VHOST'),
+    "RABBITMQ_HOST": _external_envs.get("RABBITMQ_HOST") or os.environ.get('RABBITMQ_HOST'),
 }
 
 

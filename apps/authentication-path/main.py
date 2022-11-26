@@ -12,12 +12,12 @@ from model.objects import (
 )
 from fastapi.middleware.cors import CORSMiddleware
 from config.secrets import get_env, validate_envs
-from utility.rabbitmq import RabbitMqConnection
+from utility.rabbitmq import RabbitMqRpcClient
 from utility.logger import log
 import uvicorn
 import json
-
-from utility.result import Err, Ok
+from  utility import rabbitmq
+from utility.result import Err, Ok, Result
 
 
 server = FastAPI()
@@ -26,17 +26,10 @@ server = FastAPI()
 @server.post("/auth/validate", response_model=ValidateRes)
 def validate_route(validate_obj: ValidateObject, response: Response):
     log.info(f"/auth/validate has been called with: '{validate_obj.__dict__}'")
-    rmq = RabbitMqConnection()
 
     message = json.dumps(validate_obj.__dict__)
     ok_reply = {"ok": "validated"}
     err_reply = {"error": "someError", "detail": "Some detail info here"}
-
-    result = rmq.publish_message_and_receive_response(
-        queue="validate-token",
-        message=message,
-        response=ok_reply,
-    )
 
     if result.is_ok():
         data: dict = result.data()
@@ -54,26 +47,33 @@ def validate_route(validate_obj: ValidateObject, response: Response):
 @server.post("/auth/login", response_model=LoginRes)
 def login_route(login_obj: LoginObject, response: Response):
     log.info(f"/auth/login has been called with: '{login_obj.__dict__}'")
-    rmq = RabbitMqConnection()
 
-    message = json.dumps(login_obj.__dict__)
-    reply = {"token": "a3e99738-1ebb-45d6-9e0f-fdb6ff8f47a6"}
-    result = rmq.publish_message_and_receive_response(
-        queue="login-user",
-        message=message,
-        response=reply,
-    )
 
-    if result.is_ok():
-        data: dict = result.data()
-        if data.get("token"):
-            return {"token": data.get("token")}
-        else:
-            response.status_code = status.HTTP_401_UNAUTHORIZED
-            return {"error": "unauthorized"}
+
+
+
+
+
+    rpc_token_generate = RabbitMqRpcClient("user.generate.token")
+    print("RPC call started")
+    token = rpc_token_generate.call("some@email.com")
+    print("RPC call ended")
+
+    print("result of rpc call: ", token)
+
+
+    result = {}
+    if type(result) == Result:
+        if result.is_ok():
+            data: dict = result.data()
+            if data.get("token"):
+                return {"token": data.get("token")}
+            else:
+                response.status_code = status.HTTP_401_UNAUTHORIZED
+                return {"error": "unauthorized"}
     else:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-        return result.__dict__
+        return {"token": "no data"}
 
 
 @server.post("/auth/signup", response_model=SignupRes)
@@ -84,7 +84,9 @@ def signup_route(signup_obj: SignupObject, response: Response):
     message = json.dumps(signup_obj.__dict__)
     reply = {}
     if signup_obj.email == "taken@email.com":
-        reply = Err("IntegrityError", f"Email '{signup_obj.email}' is is already signed up").__dict__
+        reply = Err(
+            "IntegrityError", f"Email '{signup_obj.email}' is is already signed up"
+        ).__dict__
     else:
         reply = Ok(signup_obj.__dict__).__dict__
 
@@ -118,7 +120,6 @@ def accept_invite_route(invite_obj: InviteObject, response: Response):
     #   if it does - mark it as accepted - SOMEHOW
     #   return - ????????
 
-
     return invite_obj
 
 
@@ -136,7 +137,9 @@ if __name__ == "__main__":
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    print(f"Server will run on port '{port}' on host '{host}'. Autoreload enabled?: '{will_reload}'.")
+    print(
+        f"Server will run on port '{port}' on host '{host}'. Autoreload enabled?: '{will_reload}'."
+    )
     uvicorn.run(
         "main:server",
         port=port,
