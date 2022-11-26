@@ -26,6 +26,7 @@ def subscribe(topic, callback):
     channel.queue_bind(exchange=EXCHANGE, queue=queue_name, routing_key=f"{topic}.request")
 
     def on_request(ch, method, props, body):
+        print(f"received request with body: '{body}' on exchange: '{method.__dict__['exchange']}'")
         properties = pika.BasicProperties(
                 correlation_id=props.correlation_id,
                 reply_to=props.reply_to
@@ -41,4 +42,5 @@ def subscribe(topic, callback):
     channel.basic_consume(
         queue=queue_name, on_message_callback=on_request, auto_ack=False
     )
+    print("channel.start_consuming being called")
     channel.start_consuming()

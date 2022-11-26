@@ -25,7 +25,7 @@ def generate_auth_token(raw_data: bytes):
             f"The raw data '{raw_data}' was unable to be parsed to string.",
         ).__dict__
         return json.dumps(error)
-    result = Token.generate_for_auth(email).__dict__
+    result = Token.generate_for_auth(email)
     return json.dumps(result)
 
 
