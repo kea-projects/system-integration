@@ -133,7 +133,7 @@ class Token:
         if len(AUTH_JWT_SECRET) < 1:
             return None
 
-        #TODO: check that user_email has a real account
+        #TODO: check that user_email exists
 
         payload = {}
 
@@ -164,3 +164,10 @@ class Token:
             return Err("ImmatureSignatureError", error.args[0])
 
         return Ok(decoded_token)
+
+
+def decode_str_or_none(str: bytes) -> str | None:
+    try:
+        return str.decode('utf-8')
+    except:
+        return None

@@ -17,6 +17,9 @@ _secrets = {
     "POSTGRES_PORT": _external_envs.get("POSTGRES_PORT") or os.environ.get('POSTGRES_PORT'),
     "RABBITMQ_USER_SERVICE_USER": _external_envs.get("RABBITMQ_USER_SERVICE_USER") or os.environ.get('RABBITMQ_USER_SERVICE_USER'),
     "RABBITMQ_USER_SERVICE_PASSWORD": _external_envs.get("RABBITMQ_USER_SERVICE_PASSWORD") or os.environ.get('RABBITMQ_USER_SERVICE_PASSWORD'),
+    "RABBITMQ_USER_EXCHANGE": _external_envs.get('RABBITMQ_USER_EXCHANGE') or os.environ.get('RABBITMQ_USER_EXCHANGE'),
+    "RABBITMQ_VHOST": _external_envs.get("RABBITMQ_VHOST") or os.environ.get('RABBITMQ_VHOST'),
+    "RABBITMQ_HOST": _external_envs.get("RABBITMQ_HOST") or os.environ.get('RABBITMQ_HOST'),
 }
 
 

@@ -1,7 +1,17 @@
 #!/bin/env python
-from wrapper.friend_path import check_token_is_valid, check_user_is_invited, get_user_friends
+from wrapper.auth_path import (
+    decode_auth_token,
+    generate_auth_token,
+    create_new_user,
+    compare_passwords,
+)
+from wrapper.friend_path import (
+    check_token_is_valid,
+    check_user_is_invited,
+    get_user_friends,
+)
 from config.database import DB_CONNECTION
-from utility.functions import initialize_db
+from utility.functions import initialize_db, Token
 from model.User import User
 from model.Invite import Invite
 from config.secrets import validate_envs
@@ -14,6 +24,14 @@ def subscribe_friend_path_rpc():
     rabbitmq.subscribe("token.check.valid", check_token_is_valid)
     rabbitmq.subscribe("user.get.friends", get_user_friends)
 
+
+def subscribe_auth_path_rpc():
+    rabbitmq.subscribe("user.decode.token", decode_auth_token)
+    rabbitmq.subscribe("user.generate.token", generate_auth_token)
+    rabbitmq.subscribe("user.create.account", create_new_user)
+    rabbitmq.subscribe("user.create.pass.compare", compare_passwords)
+
+
 def main():
     validate_envs().data()
     result = initialize_db(DB_CONNECTION, [User, Invite])
@@ -22,6 +40,7 @@ def main():
         exit(2)
 
     subscribe_friend_path_rpc()
+    subscribe_auth_path_rpc()
 
     exit(0)
 

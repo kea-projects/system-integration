@@ -23,6 +23,10 @@ class User(BaseModel):
         if not is_valid_email(email):
             return Err("InvalidEmailError", f"Email '{email}' did not pass validation.")
 
+        password_validation_result = Password.validate_password_len(password)
+        if password_validation_result.is_err():
+            return password_validation_result # type: ignore | can only be Err[str]
+
         hashed_password = Password.hash(password)
 
         try:

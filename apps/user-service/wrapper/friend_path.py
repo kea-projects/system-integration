@@ -1,6 +1,6 @@
 from model.Invite import Invite
 from model.User import User
-from utility.functions import bool_to_str
+from utility.functions import bool_to_str, decode_str_or_none
 from utility.functions import Token
 import json
 
@@ -29,7 +29,10 @@ def check_user_is_invited(raw_data: bytes) -> str:
 
 
 def check_token_is_valid(raw_data: bytes) -> str:
-    token = raw_data.decode("utf-8", errors="ignore")
+    token = decode_str_or_none(raw_data)
+
+    if token is None:
+        return bool_to_str(False)
 
     result = Token.decode_for_auth(token)
 
@@ -37,9 +40,12 @@ def check_token_is_valid(raw_data: bytes) -> str:
 
 
 def get_user_friends(raw_data: bytes) -> str:
-    user_email = raw_data.decode("utf-8", errors="ignore")
+    user_email = decode_str_or_none(raw_data)
 
     friend_list = []
+
+    if user_email is None:
+        return json.dumps(friend_list)
 
     invited_user_list = Invite.get_all_invited(user_email)
     if invited_user_list.is_ok():
