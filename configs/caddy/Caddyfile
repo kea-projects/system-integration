@@ -24,5 +24,9 @@
 # Refer to the Caddy docs for more information:
 # https://caddyserver.com/docs/caddyfile
 gifts.hotdeals.dev {
-        reverse_proxy nginx
+        reverse_proxy system-intergration-caddy-1:80
+}
+
+sftp.gifts.hotdeals.dev, :3000 {
+        reverse_proxy system-intergration-caddy-1:3000
 }
