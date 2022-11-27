@@ -21,7 +21,7 @@ class User(BaseModel):
     @classmethod
     def create_new(cls, email: str, name: str, password: str) -> Err[Any] | Ok["User"]:
         if not is_valid_email(email):
-            return Err("InvalidEmailError", f"Email '{email}' did not pass validation.")
+            return Err("InvalidEmailError", f"Email {email} did not pass validation.")
 
         password_validation_result = Password.validate_password_len(password)
         if password_validation_result.is_err():
@@ -47,7 +47,7 @@ class User(BaseModel):
         if user_obj == None:
             return Err(
                 "UserNotFoundError",
-                f"User with the id of: '{id}' was not found in the database.",
+                f"User with the id of: {id} was not found in the database.",
             )
         else:
             return Ok(user_obj)
@@ -58,10 +58,10 @@ class User(BaseModel):
 
         If a match is found it is returned inside an `Ok` object, otherwise an `Err` is returned"""
         user_obj = cls.get_or_none(cls.email == email)
-        if user_obj == None:
+        if user_obj is None:
             return Err(
                 "UserNotFoundError",
-                f"User with the email of: '{email}' was not found in the database.",
+                f'User with the email of: {email} was not found in the database.',
             )
         else:
             return Ok(user_obj)

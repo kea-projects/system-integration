@@ -22,6 +22,9 @@ if __name__ == '__main__':
 
     function_list = get_partial_function_list()
 
+    res = User.create_new(email="some@email.com", name="bob", password="potatoman")
+    print(res)
+    
     process_list = []
     print("Processes initializing")
     for x, function in enumerate(function_list):

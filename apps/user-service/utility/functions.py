@@ -168,6 +168,6 @@ class Token:
 
 def decode_str_or_none(str: bytes) -> str | None:
     try:
-        return str.decode('utf-8')
+        return str.decode('utf-8').replace('"', "")
     except:
         return None

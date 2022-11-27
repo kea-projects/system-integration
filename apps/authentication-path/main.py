@@ -16,7 +16,7 @@ from utility.rabbitmq import RabbitMqRpcClient
 from utility.logger import log
 import uvicorn
 import json
-from  utility import rabbitmq
+from utility import rabbitmq
 from utility.result import Err, Ok, Result
 
 
@@ -27,53 +27,50 @@ server = FastAPI()
 def validate_route(validate_obj: ValidateObject, response: Response):
     log.info(f"/auth/validate has been called with: '{validate_obj.__dict__}'")
 
-    message = json.dumps(validate_obj.__dict__)
-    ok_reply = {"ok": "validated"}
-    err_reply = {"error": "someError", "detail": "Some detail info here"}
+    log.info("Checking if token is valid")
+    rpc_token_is_valid = RabbitMqRpcClient("user.decode.token").call(validate_obj.token)
 
-    if result.is_ok():
-        data: dict = result.data()
-        if data.get("ok"):
-            return {"ok": "authorized"}
+    if rpc_token_is_valid is not None:
+        if rpc_token_is_valid.get("error"):
+            log.warn(f"Token was not valid. reason: {rpc_token_is_valid['error']}")
+            return {"isValid": False}
         else:
-            reason: Err = result.data()
-            response.status_code = status.HTTP_401_UNAUTHORIZED
-            return reason
+            return {"isValid": True}
     else:
-        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-        return result.__dict__
+        return {"isValid": False}
 
 
-@server.post("/auth/login", response_model=LoginRes)
+@server.post("/auth/login")
 def login_route(login_obj: LoginObject, response: Response):
     log.info(f"/auth/login has been called with: '{login_obj.__dict__}'")
 
+    log.info("Checking if a user with that email exists.")
+    rpc_user_result = RabbitMqRpcClient("user.get.by.email").call(login_obj.email)
+    if rpc_user_result.get("error"):
+        log.warn("The email was not found in the database")
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return rpc_user_result
+    user = rpc_user_result.get("ok")
 
+    log.info("User email was found, comparing the passwords.")
+    rpc_is_match = RabbitMqRpcClient("user.compare.password").call(
+        {"password": login_obj.password, "hashed_password": user["password"]}
+    )
+    if not rpc_is_match:
+        log.warn("The passwords did not match")
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {"error": "unauthorized"}
 
+    log.info("Password was valid, generating token.")
+    rpc_token = RabbitMqRpcClient("user.generate.token").call(user["email"])
 
-
-
-
-    rpc_token_generate = RabbitMqRpcClient("user.generate.token")
-    print("RPC call started")
-    token = rpc_token_generate.call("some@email.com")
-    print("RPC call ended")
-
-    print("result of rpc call: ", token)
-
-
-    result = {}
-    if type(result) == Result:
-        if result.is_ok():
-            data: dict = result.data()
-            if data.get("token"):
-                return {"token": data.get("token")}
-            else:
-                response.status_code = status.HTTP_401_UNAUTHORIZED
-                return {"error": "unauthorized"}
+    if rpc_token:
+        log.info("Returning valid token")
+        return {"token": rpc_token}
     else:
-        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-        return {"token": "no data"}
+        log.error("Unknown error occurred, rejecting auth.")
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {"error": "unauthorized"}
 
 
 @server.post("/auth/signup", response_model=SignupRes)

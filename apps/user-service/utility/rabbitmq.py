@@ -26,7 +26,7 @@ def subscribe(topic, callback):
     channel.queue_bind(exchange=EXCHANGE, queue=queue_name, routing_key=f"{topic}.request")
 
     def on_request(ch, method, props, body):
-        print(f"received request with body: '{body}' on exchange: '{method.__dict__['exchange']}'")
+        print(f"received request with body: '{body}' on exchange: '{method.__dict__['exchange']}' on topic: '{topic}'")
         properties = pika.BasicProperties(
                 correlation_id=props.correlation_id,
                 reply_to=props.reply_to

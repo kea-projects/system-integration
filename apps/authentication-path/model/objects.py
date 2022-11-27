@@ -38,4 +38,4 @@ class ValidateObject(BaseModel):
 
 
 class ValidateRes(BaseModel):
-    status: str
+    isValid: bool
