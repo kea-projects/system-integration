@@ -19,6 +19,21 @@ version: "3"
 # ---------------------------------
 # ------------ GATEWAY ------------
 services:
+  caddy:
+    image: caddy:alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "3000:3000"
+    volumes:
+      - $PWD/Caddyfile:/config/caddy/Caddyfile
+      - $PWD/site:/srv
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - docker-net
+
   gateway: # NGINX
     container_name: gateway
     restart: unless-stopped
@@ -27,9 +42,9 @@ services:
       dockerfile: ./configs/gateway/gateway-dockerfile
     networks:
       - docker-net
-    ports:
-      - 80:80 # http
-      - 3000:3000 # SFTP server
+    #ports:
+      #- 80:80 # http
+      #- 3000:3000 # SFTP server
       # - 443:443
 
   sftp-server:
@@ -117,5 +132,9 @@ networks:
 # ---------------------------------
 # ------------ VOLUMES ------------
 volumes:
+  caddy_data:
+    name: caddy_data
+  caddy_config:
+    name: caddy_config
   ftp-uploads:
     name: ftp-uploads
