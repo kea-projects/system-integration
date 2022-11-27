@@ -16,8 +16,8 @@
 
 #### Docker Compose
 
-Run `docker compose up --build` to run the project
-Follow it up with
+Run `docker compose up --build` to run the services.\
+Follow it up with a docker compose for getting the reverse proxy running (required to access the services)
 
 ```
 docker compose -f docker-compose.caddy.yml up --build
