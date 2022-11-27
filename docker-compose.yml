@@ -21,7 +21,7 @@ version: "3"
 services:
   gateway: # NGINX
     container_name: gateway
-    restart: always
+    restart: unless-stopped
     build:
       context: .
       dockerfile: ./configs/gateway/gateway-dockerfile
@@ -34,6 +34,7 @@ services:
 
   sftp-server:
     container_name: sftp-server
+    restart: unless-stopped
     build:
       context: .
       dockerfile: ./configs/atmoz-sftp/atmoz-sftp-dockerfile
@@ -49,7 +50,7 @@ services:
 
   rabbitmq:
     container_name: rabbitmq
-    restart: always
+    restart: unless-stopped
     build:
       context: .
       dockerfile: ./configs/rabbitmq/rabbitmq.dockerfile
@@ -62,7 +63,7 @@ services:
 
   pictures-server:
     container_name: pictures-server
-    restart: always
+    restart: unless-stopped
     build:
       context: .
       dockerfile: ./configs/profile-picture-path/profile-pics.dockerfile
@@ -75,7 +76,7 @@ services:
 
   friend-path:
     container_name: friend-path
-    restart: always
+    restart: unless-stopped
     depends_on:
       - rabbitmq
     build:
@@ -100,7 +101,7 @@ services:
 
   rss-path:
     container_name: rss-path
-    restart: always
+    restart: unless-stopped
     build:
       context: .
       dockerfile: ./configs/rss-path/rss-path.dockerfile
