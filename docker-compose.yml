@@ -19,21 +19,6 @@ version: "3"
 # ---------------------------------
 # ------------ GATEWAY ------------
 services:
-  caddy:
-    image: caddy:alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-      - "3000:3000"
-    volumes:
-      - $PWD/Caddyfile:/config/caddy/Caddyfile
-      - $PWD/site:/srv
-      - caddy_data:/data
-      - caddy_config:/config
-    networks:
-      - docker-net
-
   gateway: # NGINX
     container_name: gateway
     restart: unless-stopped
