@@ -62,13 +62,18 @@ def generate_auth_token(raw_data: bytes):
 def create_new_user(raw_data: bytes) -> str:
     user_json: dict = json.loads(raw_data)
 
-    email = user_json.get("data")
+    email = user_json.get("email")
     name = user_json.get("name")
     password = user_json.get("password")
 
-    result = User.create_new(email=email, name=name, password=password).__dict__
+    result = User.create_new(email=email, name=name, password=password)
 
-    return json.dumps(result)
+
+    if result.is_ok():
+        response = {"ok": result.data().__dict__["__data__"]}
+    else:
+        response = result.__dict__
+    return json.dumps(response, cls=UUIDEncoder)
 
 
 def compare_passwords(raw_data: bytes) -> str:

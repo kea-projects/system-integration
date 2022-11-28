@@ -21,11 +21,11 @@ class User(BaseModel):
     @classmethod
     def create_new(cls, email: str, name: str, password: str) -> Err[Any] | Ok["User"]:
         if not is_valid_email(email):
-            return Err("InvalidEmailError", f"Email {email} did not pass validation.")
+            return Err("InvalidEmailError", f"Email '{email}' did not pass validation.")
 
         password_validation_result = Password.validate_password_len(password)
         if password_validation_result.is_err():
-            return password_validation_result # type: ignore | can only be Err[str]
+            return password_validation_result  # type: ignore | can only be Err[str]
 
         hashed_password = Password.hash(password)
 
@@ -36,7 +36,11 @@ class User(BaseModel):
                 )
                 return Ok(result)
         except IntegrityError as error:
-            return Err("IntegrityError", error.args[0])
+            "lol".split("DETAIL")
+            return Err(
+                "IntegrityError",
+                error.args[0].split("DETAIL:  ")[1].replace("\n", ""),
+            )
 
     @classmethod
     def get_by_id(cls, id: str) -> Err[str] | Ok["User"]:
@@ -47,7 +51,7 @@ class User(BaseModel):
         if user_obj == None:
             return Err(
                 "UserNotFoundError",
-                f"User with the id of: {id} was not found in the database.",
+                f"User with the id of: '{id}' was not found in the database.",
             )
         else:
             return Ok(user_obj)
@@ -61,7 +65,7 @@ class User(BaseModel):
         if user_obj is None:
             return Err(
                 "UserNotFoundError",
-                f'User with the email of: {email} was not found in the database.',
+                f"User with the email of: '{email}' was not found in the database.",
             )
         else:
             return Ok(user_obj)
@@ -79,7 +83,9 @@ class User(BaseModel):
                 "ValidationError", f"Email '{user_obj.email}' did not pass validation."
             )
 
-        passwd_validation_result = Password.validate_password_len(str(user_obj.password))
+        passwd_validation_result = Password.validate_password_len(
+            str(user_obj.password)
+        )
         if passwd_validation_result.is_err():
             return passwd_validation_result  # type: ignore | can only be an Err[str]
 

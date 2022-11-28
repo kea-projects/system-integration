@@ -1,5 +1,5 @@
 #!/bin/env python
-from fastapi import FastAPI, Response, status
+from fastapi import FastAPI, Response, status, HTTPException
 from model.objects import (
     LoginObject,
     LoginRes,
@@ -15,9 +15,6 @@ from config.secrets import get_env, validate_envs
 from utility.rabbitmq import RabbitMqRpcClient
 from utility.logger import log
 import uvicorn
-import json
-from utility import rabbitmq
-from utility.result import Err, Ok, Result
 
 
 server = FastAPI()
@@ -30,6 +27,8 @@ def validate_route(validate_obj: ValidateObject, response: Response):
     log.info("Checking if token is valid")
     rpc_token_is_valid = RabbitMqRpcClient("user.decode.token").call(validate_obj.token)
 
+    print("Token is: ", rpc_token_is_valid)
+
     if rpc_token_is_valid is not None:
         if rpc_token_is_valid.get("error"):
             log.warn(f"Token was not valid. reason: {rpc_token_is_valid['error']}")
@@ -40,7 +39,7 @@ def validate_route(validate_obj: ValidateObject, response: Response):
         return {"isValid": False}
 
 
-@server.post("/auth/login")
+@server.post("/auth/login", response_model=LoginRes)
 def login_route(login_obj: LoginObject, response: Response):
     log.info(f"/auth/login has been called with: '{login_obj.__dict__}'")
 
@@ -48,8 +47,10 @@ def login_route(login_obj: LoginObject, response: Response):
     rpc_user_result = RabbitMqRpcClient("user.get.by.email").call(login_obj.email)
     if rpc_user_result.get("error"):
         log.warn("The email was not found in the database")
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-        return rpc_user_result
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"{rpc_user_result['detail']}",
+        )
     user = rpc_user_result.get("ok")
 
     log.info("User email was found, comparing the passwords.")
@@ -58,8 +59,10 @@ def login_route(login_obj: LoginObject, response: Response):
     )
     if not rpc_is_match:
         log.warn("The passwords did not match")
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-        return {"error": "unauthorized"}
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"The provided password is incorrect.",
+        )
 
     log.info("Password was valid, generating token.")
     rpc_token = RabbitMqRpcClient("user.generate.token").call(user["email"])
@@ -69,41 +72,35 @@ def login_route(login_obj: LoginObject, response: Response):
         return {"token": rpc_token}
     else:
         log.error("Unknown error occurred, rejecting auth.")
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-        return {"error": "unauthorized"}
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Unauthorized",
+        )
 
 
-@server.post("/auth/signup", response_model=SignupRes)
+@server.post("/auth/signup", status_code=201, response_model=SignupRes)
 def signup_route(signup_obj: SignupObject, response: Response):
     log.info(f"/auth/signup has been called with: '{signup_obj.__dict__}'")
-    rmq = RabbitMqConnection()
 
-    message = json.dumps(signup_obj.__dict__)
-    reply = {}
-    if signup_obj.email == "taken@email.com":
-        reply = Err(
-            "IntegrityError", f"Email '{signup_obj.email}' is is already signed up"
-        ).__dict__
-    else:
-        reply = Ok(signup_obj.__dict__).__dict__
+    log.info(f"Attempting to create a new user with the provided body.")
+    result = RabbitMqRpcClient("user.create.account").call(signup_obj.__dict__)
 
-    result = rmq.publish_message_and_receive_response(
-        queue="login-user",
-        message=message,
-        response=reply,
-    )
-
-    if result.is_ok():
-        data = result.data()
-        if data.get("ok"):
-            response.status_code = status.HTTP_201_CREATED
-            return data.get("ok")
+    if result is not None:
+        if result.get("ok"):
+            log.info("User created successfully.")
+            return result.get("ok")  # SignupRes object
         else:
-            response.status_code = status.HTTP_409_CONFLICT
-            return data
+            log.warn(f"Signup failed: {result['detail']}")
+            raise HTTPException(
+                status_code=400,
+                detail=result["detail"],
+            )
     else:
-        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-        return result.__dict__
+        log.error("RabbitMq did not respond")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unknown error has occurred",
+        )
 
 
 @server.post("/auth/accept-invite", response_model=InviteRes)
