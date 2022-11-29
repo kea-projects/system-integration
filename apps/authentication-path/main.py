@@ -35,8 +35,6 @@ def validate_route(validate_obj: ValidateObject):
     log.info("Checking if token is valid")
     rpc_token_is_valid = RabbitMqRpcClient("user.decode.token").call(validate_obj.token)
 
-    print("Token is: ", rpc_token_is_valid)
-
     if rpc_token_is_valid is not None:
         if rpc_token_is_valid.get("error"):
             log.warn(f"Token was not valid. reason: {rpc_token_is_valid['error']}")
@@ -79,7 +77,9 @@ def login_route(login_obj: LoginObject):
         )
 
     log.info("Password was valid, generating token.")
-    rpc_token = RabbitMqRpcClient("user.generate.token").call(user["email"])
+
+    auth_object = {"email": login_obj.email, "user_id": user["user_id"]}
+    rpc_token = RabbitMqRpcClient("user.generate.token").call(auth_object)
 
     if rpc_token:
         log.info("Returning valid token")

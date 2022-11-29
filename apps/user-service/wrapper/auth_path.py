@@ -47,15 +47,21 @@ def decode_auth_token(raw_data: bytes) -> str:
 
 
 def generate_auth_token(raw_data: bytes):
-    email = decode_str_or_none(raw_data)
+    print("RawData: ", raw_data)
+    message: dict = json.loads(raw_data)
+    print("Auth obj: ", message, " type: ", type(message))
 
-    if email is None:
+    user_id = message.get("user_id")
+    email = message.get("email")
+
+    if email is None or user_id is None:
+        reason = "email" if email is None else "user_id"
         error = Err(
-            "UnparseableByteString",
-            f"The raw data '{raw_data}' was unable to be parsed to string.",
+            "MissingAttribute",
+            f"The auth json is missing the attribute: '{reason}'.",
         ).__dict__
         return json.dumps(error)
-    result = Token.generate_for_auth(email)
+    result = Token.generate_for_auth(email, user_id)
     return json.dumps(result)
 
 
@@ -67,7 +73,6 @@ def create_new_user(raw_data: bytes) -> str:
     password = user_json.get("password")
 
     result = User.create_new(email=email, name=name, password=password)
-
 
     if result.is_ok():
         response = {"ok": result.data().__dict__["__data__"]}

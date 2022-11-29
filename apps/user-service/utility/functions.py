@@ -129,14 +129,12 @@ class Token:
         return Ok(decoded_token)
 
     @staticmethod
-    def generate_for_auth(user_email: str) -> str | None:
+    def generate_for_auth(user_email: str, user_id: str = "") -> str | None:
         # isolate import to where it is used
         AUTH_JWT_SECRET = get_env("AUTH_JWT_SECRET")
 
         if len(AUTH_JWT_SECRET) < 1:
             return None
-
-        #TODO: check that user_email exists
 
         payload = {}
 
@@ -146,6 +144,7 @@ class Token:
         # Expiration: Current timestamp (Unix epoch) + 7 days
         payload["exp"] = datetime.timestamp(current_datetime + timedelta(days=7))
         payload["sub"] = user_email
+        payload["user_id"] = user_id
 
         token = jwt.encode(payload, AUTH_JWT_SECRET, algorithm="HS256")
 
@@ -171,6 +170,6 @@ class Token:
 
 def decode_str_or_none(str: bytes) -> str | None:
     try:
-        return str.decode('utf-8').replace('"', "")
+        return str.decode("utf-8").replace('"', "")
     except:
         return None
