@@ -6,7 +6,7 @@ export const database = await open({ filename: 'database.db', driver: sqlite3.Da
 export async function initDatabase() {
     database.exec(`
         CREATE TABLE IF NOT EXISTS Products (
-            id integer PRIMARY KEY,
+            product_id integer PRIMARY KEY,
             product_name text,
             product_sub_title text,
             product_description text,
@@ -19,7 +19,7 @@ export async function initDatabase() {
     `);
     database.exec(`
         CREATE TABLE IF NOT EXISTS ProductImages (
-            id integer PRIMARY KEY,
+            product_image_id integer PRIMARY KEY,
             product_id integer,
             image_url text,
             alt_text text,
@@ -29,7 +29,7 @@ export async function initDatabase() {
     `);
     database.exec(`
         CREATE TABLE IF NOT EXISTS ProductAdditionalInfos (
-            id integer PRIMARY KEY,
+            product_additional_info_id integer PRIMARY KEY,
             product_id integer,
             choices text,
             additional_info text,

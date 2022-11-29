@@ -23,8 +23,14 @@ app.use("/test", async (req, res) => {
     res.send(data)
 });
 
-app.use("testTwo", async (req, res) => {
-    
+app.use("testThree", async (req, res) => {
+    const result = await database.run(req.body['query']);
+    res(result);
+})
+
+app.use("/testTwo", async (req, res) => {
+    const result = await database.run(`UPDATE Products SET product_name = "updated", product_sub_title = "updated", product_description = "updated", main_category = "updated", sub_category = "updated", price = "2", link = "updated", overall_rating = "updated" WHERE product_id = 1;`);
+    res.send(result);
 })
 
 app.use("/graphql", graphqlHTTP({ schema: schema, graphiql: true}));
