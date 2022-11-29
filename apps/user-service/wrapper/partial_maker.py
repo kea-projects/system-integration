@@ -60,6 +60,12 @@ def get_partial_function_list() -> list:
         rabbitmq.subscribe, "user.get.friends", get_user_friends
     )
 
+    # wishes-service
+    decode_email_token_process = partial(
+        rabbitmq.subscribe, "email.token.decode", get_user_friends
+    )
+    
+
     prepared_functions = [
         # aut-path
         compare_user_password_process,
@@ -72,6 +78,8 @@ def get_partial_function_list() -> list:
         check_user_is_invited_process,
         check_token_is_valid_process,
         get_user_friends_process,
+        # wishes-service
+        decode_email_token_process,
     ]
     return prepared_functions
 
