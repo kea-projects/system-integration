@@ -117,6 +117,11 @@ services:
       context: .
       dockerfile: ./configs/wishes-service/wishes-service.dockerfile
     environment:
+      RABBITMQ_HOST: $RABBITMQ_HOST
+      RABBITMQ_VHOST: $RABBITMQ_VHOST
+      RABBITMQ_USER: $RABBITMQ_USER
+      RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
+      RABBITMQ_USER_EXCHANGE: $RABBITMQ_USER_EXCHANGE
       POSTGRES_HOST: ${WISHES_POSTGRES_HOST:-localhost}
       POSTGRES_PORT: ${WISHES_POSTGRES-PORT:-5432}
       POSTGRES_USER: ${WISHES_POSTGRES_USER:-root}
@@ -139,7 +144,7 @@ services:
     networks:
       - docker-net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      test: ["CMD-SHELL", "pg_isready", "-d", "$WISHES_POSTGRES_DATABASE"]
       interval: 30s
       timeout: 60s
       retries: 5
