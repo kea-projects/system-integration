@@ -1,6 +1,7 @@
 #!/bin/env python
-from fastapi import FastAPI, Response, status, HTTPException
+from fastapi import FastAPI, status, HTTPException
 from model.objects import (
+    HTTPError,
     LoginObject,
     LoginRes,
     SignupObject,
@@ -8,6 +9,7 @@ from model.objects import (
     InviteObject,
     InviteRes,
     ValidateObject,
+    ValidateResError,
     ValidateRes,
 )
 from fastapi.middleware.cors import CORSMiddleware
@@ -20,8 +22,14 @@ import uvicorn
 server = FastAPI()
 
 
-@server.post("/auth/validate", response_model=ValidateRes)
-def validate_route(validate_obj: ValidateObject, response: Response):
+@server.post(
+    "/auth/validate",
+    responses={
+        200: {"model": ValidateRes},
+        401: {"model": ValidateResError},
+    },
+)
+def validate_route(validate_obj: ValidateObject):
     log.info(f"/auth/validate has been called with: '{validate_obj.__dict__}'")
 
     log.info("Checking if token is valid")
@@ -39,8 +47,14 @@ def validate_route(validate_obj: ValidateObject, response: Response):
         return {"isValid": False}
 
 
-@server.post("/auth/login", response_model=LoginRes)
-def login_route(login_obj: LoginObject, response: Response):
+@server.post(
+    "/auth/login",
+    responses={
+        200: {"model": LoginRes},
+        401: {"model": HTTPError},
+    },
+)
+def login_route(login_obj: LoginObject):
     log.info(f"/auth/login has been called with: '{login_obj.__dict__}'")
 
     log.info("Checking if a user with that email exists.")
@@ -78,8 +92,16 @@ def login_route(login_obj: LoginObject, response: Response):
         )
 
 
-@server.post("/auth/signup", status_code=201, response_model=SignupRes)
-def signup_route(signup_obj: SignupObject, response: Response):
+@server.post(
+    "/auth/signup",
+    status_code=201,
+    responses={
+        201: {"model": SignupRes},
+        400: {"model": HTTPError},
+        500: {"model": HTTPError},
+    },
+)
+def signup_route(signup_obj: SignupObject):
     log.info(f"/auth/signup has been called with: '{signup_obj.__dict__}'")
 
     log.info(f"Attempting to create a new user with the provided body.")
@@ -104,7 +126,7 @@ def signup_route(signup_obj: SignupObject, response: Response):
 
 
 @server.post("/auth/accept-invite", response_model=InviteRes)
-def accept_invite_route(invite_obj: InviteObject, response: Response):
+def accept_invite_route(invite_obj: InviteObject):
     log.info(f"/auth/accept-invite has been called with: '{invite_obj.__dict__}'")
 
     # TODO: Figure this one out
