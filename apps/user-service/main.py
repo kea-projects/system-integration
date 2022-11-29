@@ -22,6 +22,7 @@ if __name__ == '__main__':
 
     function_list = get_partial_function_list()
 
+    # TODO: delete
     res = User.create_new(email="some@email.com", name="bob", password="potatoman")
     print(res)
     

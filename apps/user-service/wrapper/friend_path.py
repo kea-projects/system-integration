@@ -55,3 +55,16 @@ def get_user_friends(raw_data: bytes) -> str:
         ]
 
     return json.dumps(friend_list)
+
+def invite(raw_data: bytes) -> str:
+    message:dict = json.loads(raw_data)
+
+    from_email = message.get("invitee") or ""
+    to_email = message.get("invited") or ""
+
+    result = Invite.create_new_invite(from_email=from_email, to_email=to_email)
+
+    if result.is_ok():
+        # TODO: publish message to send-invite-email
+    else:
+        # TODO: do nothing?

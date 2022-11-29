@@ -32,7 +32,9 @@ class Invite(BaseModel):  # type: ignore
 
         try:
             with DB_CONNECTION.atomic():  # HAVE to put this here, or transaction leaks to other queries
-                result: Invite = cls.create(from_email=from_email, to_email=to_email, token=token)
+                result: Invite = cls.create(
+                    from_email=from_email, to_email=to_email, token=token
+                )
                 return Ok(result)
         except IntegrityError as error:
             return Err("IntegrityError", error.args[0])
@@ -43,10 +45,15 @@ class Invite(BaseModel):  # type: ignore
         if own_email_result.is_err():  # own email does not have an account
             return own_email_result  # type: ignore | Can only be type Err[str]
 
-        query_result = cls.get_or_none(Invite.from_email == own_email, Invite.to_email == other_email)
+        query_result = cls.get_or_none(
+            Invite.from_email == own_email, Invite.to_email == other_email
+        )
 
         if query_result is None:
-            return Err("InviteNotFoundError", f"The email '{own_email}' has not invited '{other_email}'",) 
+            return Err(
+                "InviteNotFoundError",
+                f"The email '{own_email}' has not invited '{other_email}'",
+            )
         else:
             return Ok(True)  # Invite exists
 
@@ -66,5 +73,28 @@ class Invite(BaseModel):  # type: ignore
 
         return Ok(query_result)
 
+    @classmethod
+    def set_is_registered(cls, from_email: str, to_email: str, is_registered: bool) -> Err[str] | Ok['Invite']:
+        own_email_result = User.get_by_email(from_email)
+        if own_email_result.is_err():
+            return own_email_result  # type: ignore | Can only be type Err[str]
+
+        query_result: Invite | None = cls.get_or_none(
+            Invite.from_email == from_email, Invite.to_email == to_email
+        )
+
+        if query_result is None:
+            return Err(
+                "InviteNotFoundError",
+                f"The email '{from_email}' has not invited '{to_email}'",
+            )
+        else:
+            invite_obj: Invite = query_result
+            invite_obj.is_registered = is_registered
+
+            # TODO: try except this with appropriate error
+            invite_obj.save()
+            return Ok(invite_obj)
+
     def to_json(self) -> str:
-        return json.dumps(self.__dict__['__data__'], cls=UUIDEncoder)
+        return json.dumps(self.__dict__["__data__"], cls=UUIDEncoder)
