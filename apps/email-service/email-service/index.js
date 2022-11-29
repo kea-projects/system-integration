@@ -6,17 +6,25 @@ module.exports = async function (context, req) {
 
   const invitee = req.body.invitee;
   const invited = req.body.invited;
+  const token = req.body.token;
   if (!invitee) {
     context.res = {
       status: 400,
-      body: { message: "The request body is missing an invitee property" },
+      body: { message: "The message body is missing an invitee property" },
     };
     return;
   }
   if (!invited) {
     context.res = {
       status: 400,
-      body: { message: "The request body is missing an invited property" },
+      body: { message: "The message body is missing an invited property" },
+    };
+    return;
+  }
+  if (!token) {
+    context.res = {
+      status: 400,
+      body: { message: "The message body is missing a token property" },
     };
     return;
   }
@@ -27,7 +35,7 @@ module.exports = async function (context, req) {
     to: invited,
     from: process.env.SENDGRID_FROM_DOMAIN,
     subject: `You've got mail!`,
-    html: `<strong>${invitee} wants to be your friend!</strong>`,
+    html: `<strong>${invitee} wants to be your friend!</strong><br/>Use this token to accept:<br/><i>${token}</i>`,
   };
 
   sgMail
