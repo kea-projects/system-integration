@@ -13,6 +13,7 @@ from wrapper.friend_path import (
     check_user_is_invited,
     check_token_is_valid,
     get_user_friends,
+    invite,
 )
 
 
@@ -73,3 +74,7 @@ def get_partial_function_list() -> list:
         get_user_friends_process,
     ]
     return prepared_functions
+
+
+def get_invite_process_function():
+    return partial(rabbitmq.consume, "invite", invite)

@@ -20,6 +20,7 @@ _secrets = {
     "RABBITMQ_USER_EXCHANGE": _external_envs.get('RABBITMQ_USER_EXCHANGE') or os.environ.get('RABBITMQ_USER_EXCHANGE'),
     "RABBITMQ_VHOST": _external_envs.get("RABBITMQ_VHOST") or os.environ.get('RABBITMQ_VHOST'),
     "RABBITMQ_HOST": _external_envs.get("RABBITMQ_HOST") or os.environ.get('RABBITMQ_HOST'),
+    "EMAIL_AZURE_FUNCTION_URL": _external_envs.get("EMAIL_AZURE_FUNCTION_URL") or os.environ.get('EMAIL_AZURE_FUNCTION_URL'),
 }
 
 

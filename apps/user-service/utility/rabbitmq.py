@@ -44,3 +44,19 @@ def subscribe(topic, callback):
     )
     print("channel.start_consuming being called")
     channel.start_consuming()
+
+
+def consume(exchange: str, callback):
+    credentials = pika.PlainCredentials(RABBITMQ_USERNAME, RABBITMQ_PASSWORD)
+    connection_params = pika.ConnectionParameters(
+        host=RABBITMQ_HOST, virtual_host=RABBITMQ_VHOST, credentials=credentials  # type: ignore
+    ) 
+    connection = pika.BlockingConnection(connection_params)
+
+    channel = connection.channel()
+
+    channel.queue_declare(queue=exchange)
+
+    channel.exchange_declare(exchange=exchange, durable=True)
+
+    channel.basic_consume(queue=exchange, on_message_callback=callback, auto_ack=True)
