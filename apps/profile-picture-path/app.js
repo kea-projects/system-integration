@@ -34,8 +34,9 @@ app.get("/pictures", (_req, res) => {
     },
     uploadPic: {
       method: "POST",
-      route: "/pictures",
-      requirements: "One File, has to be an image, 10MB max",
+      route: "/pictures/:picId",
+      requirements:
+        ":picId path param has to be a valid UUIDv4 string. One File, has to be an image, 10MB max",
       returns: "A URL",
     },
     update: {
