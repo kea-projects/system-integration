@@ -21,7 +21,7 @@ version: "3"
 services:
   gateway: # NGINX
     container_name: gateway
-    restart: always
+    restart: unless-stopped
     build:
       context: .
       dockerfile: ./configs/gateway/gateway.dockerfile
@@ -33,6 +33,7 @@ services:
 
   sftp-server:
     container_name: sftp-server
+    restart: unless-stopped
     build:
       context: .
       dockerfile: ./configs/atmoz-sftp/atmoz-sftp.dockerfile
@@ -46,17 +47,16 @@ services:
 
   rabbitmq:
     container_name: rabbitmq
-    restart: always
+    restart: unless-stopped
     build:
       context: .
       dockerfile: ./configs/rabbitmq/rabbitmq.dockerfile
-    networks:
-      - docker-net
-    ports:
+    #ports:
       # Exposing the port for the mock email and user services to be able 
       # connect to RabbitMQ until they are fully implemented
-      - 5672:5672
+      # - 5672:5672
       # - 8080:15672 # This is the port for the GUI
+    networks: [docker-net]
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 20s
@@ -66,7 +66,7 @@ services:
 
   pictures-server:
     container_name: pictures-server
-    restart: always
+    restart: unless-stopped
     build:
       context: .
       dockerfile: ./configs/profile-picture-path/profile-pics.dockerfile
@@ -74,11 +74,11 @@ services:
       - AZURE_CONNECTION_STRING=$AZURE_CONNECTION_STRING
       - AZURE_STORAGE_ACCOUNT_NAME=$AZURE_STORAGE_ACCOUNT_NAME
       - AZURE_CONTAINER_NAME=$AZURE_CONTAINER_NAME
-    networks:
-      - docker-net
+    networks: [docker-net]
 
   authentication-path:
     container_name: authentication-path
+    restart: unless-stopped
     build:
       context: .
       dockerfile: ./configs/authentication-path/authentication-path.dockerfile
@@ -93,10 +93,10 @@ services:
       - RABBITMQ_USER=$RABBITMQ_USER
       - RABBITMQ_USER_EXCHANGE=$RABBITMQ_USER_EXCHANGE
     networks: [docker-net]
-    restart: always
 
   user-service:
     container_name: user-service
+    restart: unless-stopped
     build:
       context: .
       dockerfile: ./configs/user-service/user-service.dockerfile
@@ -119,10 +119,10 @@ services:
     depends_on: 
       rabbitmq: 
         condition: service_started
-    restart: always
 
   user-service-db:
     container_name: user-service-db
+    restart: unless-stopped
     image: postgres:alpine # docs: https://github.com/docker-library/docs/blob/master/postgres/README.md
     environment:
       - POSTGRES_USER=$USER_SERVICE_POSTGRES_USER
@@ -132,7 +132,7 @@ services:
 
   friend-path:
     container_name: friend-path
-    restart: always
+    restart: unless-stopped
     depends_on:
       - rabbitmq
     build:
@@ -146,8 +146,7 @@ services:
       - RABBITMQ_INVITE_EXCHANGE=$RABBITMQ_INVITE_EXCHANGE
       - RABBITMQ_USER_EXCHANGE=$RABBITMQ_USER_EXCHANGE
       - EMAIL_AZURE_FUNCTION_URL=$EMAIL_AZURE_FUNCTION_URL
-    networks:
-      - docker-net
+    networks: [docker-net]
     healthcheck:
       test: ["CMD", "curl", "http://localhost/friend/health"]
       interval: 1m30s
@@ -157,12 +156,11 @@ services:
 
   rss-path:
     container_name: rss-path
-    restart: always
+    restart: unless-stopped
     build:
       context: .
       dockerfile: ./configs/rss-path/rss-path.dockerfile
-    networks:
-      - docker-net
+    networks: [docker-net]
 
   wishes-service:
     container_name: wishes-service
@@ -184,8 +182,7 @@ services:
       POSTGRES_USER: ${WISHES_POSTGRES_USER:-root}
       POSTGRES_PASSWORD: ${WISHES_POSTGRES_PASSWORD:-root}
       POSTGRES_DATABASE: ${WISHES_POSTGRES_DATABASE:-integration}
-    networks:
-      - docker-net
+    networks: [docker-net]
   
   postgres:
     container_name: sys-postgres
@@ -198,8 +195,7 @@ services:
       PGDATA: /data/postgres
     volumes:
        - postgres:/data/postgres
-    networks:
-      - docker-net
+    networks: [docker-net]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready", "-d", "$WISHES_POSTGRES_DATABASE"]
       interval: 30s
