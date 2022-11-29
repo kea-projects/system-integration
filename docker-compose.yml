@@ -112,6 +112,7 @@ services:
     restart: unless-stopped
     depends_on:
       - sys-postgres
+      - rabbitmq
     build:
       context: .
       dockerfile: ./configs/wishes-service/wishes-service.dockerfile
