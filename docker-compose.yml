@@ -24,7 +24,7 @@ services:
     restart: unless-stopped
     build:
       context: .
-      dockerfile: ./configs/gateway/gateway-dockerfile
+      dockerfile: ./configs/gateway/gateway.dockerfile
     networks: [docker-net]
     #ports:
       #- 80:80 # http
@@ -158,10 +158,7 @@ services:
       context: .
       dockerfile: ./configs/rss-path/rss-path.dockerfile
     networks:
-      - docker-net
-
-    restart: always
-  
+      - docker-net  
       
 # ---------------------------------
 # ------------ NETWORK ------------
