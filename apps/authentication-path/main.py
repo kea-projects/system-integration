@@ -19,7 +19,7 @@ from utility.logger import log
 import uvicorn
 
 
-server = FastAPI()
+server = FastAPI(openapi_url="/auth/openapi.json", docs_url="/auth/docs")
 
 
 @server.post(
