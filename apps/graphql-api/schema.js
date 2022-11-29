@@ -161,7 +161,6 @@ const mutationType = new graphql.GraphQLObjectType({
             ]
           );
           const result = await database.all("SELECT * FROM Products WHERE product_id = ?",[runQuery.lastID]);
-          console.log(result)
           resolve(result[0]);
         });
       },
@@ -183,7 +182,7 @@ const mutationType = new graphql.GraphQLObjectType({
       },
       resolve: async (root, args) => {
         return new Promise(async (resolve, reject) => {
-          const result = await database.run(
+          await database.run(
             `UPDATE Products SET product_name = ?, product_sub_title = ?, product_description = ?, main_category = ?, sub_category = ?, price = ?, link = ?, overall_rating = ? WHERE product_id = ?;`,
             [
               args.product_name,
@@ -200,7 +199,8 @@ const mutationType = new graphql.GraphQLObjectType({
               console.log(err);
             }
           );
-          resolve(result);
+          const result = await database.all("SELECT * FROM Products WHERE product_id = ?",[args.product_id]);
+          resolve(result[0]);
         });
       },
     },
@@ -217,7 +217,7 @@ const mutationType = new graphql.GraphQLObjectType({
             "DELETE from Products WHERE product_id =(?);",
             [args.product_id]
           );
-          resolve(result);
+          resolve('YeetusDeletus');
         });
       },
     },
@@ -233,7 +233,7 @@ const mutationType = new graphql.GraphQLObjectType({
       },
       resolve: (root, args) => {
         return new Promise(async (resolve, reject) => {
-          const result = await database.run(
+          const runQuery = await database.run(
             "INSERT INTO ProductImages (product_id, image_url, alt_text, additional_info) VALUES (?,?,?,?);",
             [
               args.product_id,
@@ -242,7 +242,8 @@ const mutationType = new graphql.GraphQLObjectType({
               args.additional_info,
             ]
           );
-          resolve(result);
+          const result = await database.all("SELECT * FROM ProductImages WHERE product_id = ?",[runQuery.lastID]);
+          resolve(result[0]);
         });
       },
     },
@@ -260,7 +261,7 @@ const mutationType = new graphql.GraphQLObjectType({
       },
       resolve: (root, args) => {
         return new Promise(async (resolve, reject) => {
-          const result = await database.run(
+          await database.run(
             `UPDATE ProductImages SET product_id = (?), image_url = (?), alt_text = (?), additional_info = (?) WHERE product_image_id = (?);`,
             [
               args.product_id,
@@ -270,7 +271,8 @@ const mutationType = new graphql.GraphQLObjectType({
               args.product_image_id,
             ]
           );
-          resolve(result);
+          const result = await database.all("SELECT * FROM ProductImages WHERE product_image_id = ?",[args.product_image_id]);
+          resolve(result[0]);
         });
       },
     },
@@ -285,11 +287,11 @@ const mutationType = new graphql.GraphQLObjectType({
       },
       resolve(parent, args) {
         return new Promise(async (resolve, reject) => {
-          const result = await database.run(
+          await database.run(
             "DELETE from ProductImages WHERE product_image_id =(?);",
             [args.product_image_id]
           );
-          resolve(result);
+          resolve('YeetusDeletus');
         });
       },
     },
@@ -304,11 +306,12 @@ const mutationType = new graphql.GraphQLObjectType({
       },
       resolve: (root, args) => {
         return new Promise(async (resolve, reject) => {
-          const result = await database.run(
+          const runQuery = await database.run(
             "INSERT INTO ProductAdditionalInfos (product_id, choices, additional_info) VALUES (?,?,?);",
             [args.product_id, args.choices, args.additional_info]
           );
-          resolve(result);
+          const result = await database.all(`SELECT * FROM ProductAdditionalInfo WHERE product_additional_info = ?`, [runQuery.lastID])
+          resolve(result[0]);
         });
       },
     },
@@ -325,7 +328,7 @@ const mutationType = new graphql.GraphQLObjectType({
       },
       resolve: (root, args) => {
         return new Promise(async (resolve, reject) => {
-          const result = await database.run(
+          await database.run(
             `UPDATE ProductAdditionalInfo SET product_id = (?), choices = (?), additional_info = (?) WHERE product_image_id = (?);`,
             [
               args.product_id,
@@ -334,7 +337,8 @@ const mutationType = new graphql.GraphQLObjectType({
               args.product_additional_info_id,
             ]
           );
-          resolve(result);
+          const result = await database.all(`SELECT * FROM ProductAdditionalInfo WHERE product_additional_info = ?`, [args.product_additional_info_id])
+          resolve(result[0]);
         });
       },
     },
@@ -353,7 +357,7 @@ const mutationType = new graphql.GraphQLObjectType({
             "DELETE from ProductAdditionalInfo WHERE product_additional_info_id =(?);",
             [args.product_additional_info_id]
           );
-          resolve(result);
+          resolve('YeetusDeletus, there goes your fetus');
         });
       },
     },
