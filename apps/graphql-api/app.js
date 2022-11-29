@@ -2,10 +2,6 @@ import express from 'express';
 import { graphqlHTTP } from 'express-graphql';
 import { initDatabase, addDataToDatabase, dropAllTables } from './databaseSetup.js'
 import { schema } from './schema.js';
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
-
-const database = await open({ filename: 'database.db', driver: sqlite3.Database });
 
 const app = express();
 
