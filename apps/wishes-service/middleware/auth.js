@@ -1,5 +1,7 @@
 import { checkTokenIsValid } from "../utils/amqp-utils.js";
 
+// TODO: CHECK IF IT IS THE CORRECT USE OF FORBIDDEN AND NOT AUTHORIZED
+
 export const validateToken = (req, res, next) => {
   const { authorization } = req.headers;
   const token = authorization ? authorization.split(" ")[1] : null;
