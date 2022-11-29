@@ -6,12 +6,13 @@ RUN pip install poetry
 WORKDIR /service
 
 
-COPY ./apps/user-service/poetry.lock /service/
-COPY ./apps/user-service/pyproject.toml /service/
+COPY ./apps/authentication-path/poetry.lock /service
+COPY ./apps/authentication-path/pyproject.toml /service
 
 RUN poetry config virtualenvs.create false
 RUN poetry install --no-interaction --no-root
 
-COPY ./apps/user-service /service
+COPY ./apps/authentication-path /service
+
 
 entrypoint [ "python", "main.py" ]

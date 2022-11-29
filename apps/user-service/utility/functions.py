@@ -44,9 +44,9 @@ def is_valid_email(email: str) -> bool:
 
 def bool_to_str(result: bool):
     if result:
-        return "0"
-    else:
         return "1"
+    else:
+        return "0"
 
 
 import bcrypt

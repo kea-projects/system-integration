@@ -5,20 +5,16 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 
-import {
-  sendInvite,
-  checkUserIsInvited,
-  sendTest,
-} from "./utils/amqp-utils.js";
+// import {
+//   sendInvite,
+//   sendTest,
+// } from "./utils/amqp-utils.js";
 import { getSocketUser, emitStatusUpdate } from "./utils/socket-utils.js";
 import { validateEmail } from "./utils/validators.js";
 import { getAuthUser } from "./utils/auth-utils.js";
 import { validateToken } from "./middleware/auth.js";
 import { validateSocketToken } from "./middleware/socket-auth.js";
 import { checkUserIsInvited } from "./utils/amqp-utils.js";
-import { getAuthUser } from "./utils/auth-utils.js";
-import { emitStatusUpdate, getSocketUser } from "./utils/socket-utils.js";
-import { validateEmail } from "./utils/validators.js";
 
 // ---- Config ----
 const PORT = process.env.SERVER_PORT || 8080;
@@ -62,6 +58,7 @@ app.post("/friend/invite", validateToken, (req, res) => {
       invited: email,
     },
     (message) => {
+      console.log("Response is: ",message.content);
       const response = Boolean(Number(message.content.toString()));
 
       if (response === true) {

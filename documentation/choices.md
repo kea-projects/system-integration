@@ -44,6 +44,17 @@ access to images from our actual system, since we can provide URLs that lead dir
 This also reduces the strain on the host machine(s), since they no longer require
 the disk space and performance needed to store and serve files.
 
+This increases the potential cost of hosting the system, but it can also reduce it since the
+host machines can be optimized towards just hosting the services.
+
+# CDN
+We have chosen [Sirv](https://sirv.com/) as our CDN. This was decided due to its ease of integration,
+speed of development, previous experience with it, and its generous free plan.
+
+# Email Service
+The email service is deployed as a serverless function on Azure using Azure functions.
+This is due to the email service not needing to be online at all times.
+
 # User-Service
 We decided to implement some core application behavior as an independent
 service that would be callable by any other service via rabbitmq. This allows
@@ -72,15 +83,3 @@ communicate with RabbitMQ, and we found this to be rather complex. However,
 as rabbitmq is the broker, this allows the user-service and RabbitMQ to be
 deployed anywhere. Services ultimately only need to know where rabbitmq is, and
 RabbitMQ knows where all the other services are located.
-
-This increases the potential cost of hosting the system, but it can also reduce it since the
-host machines can be optimized towards just hosting the services.
-
-# CDN
-We have chosen [Sirv](https://sirv.com/) as our CDN. This was decided due to its ease of integration,
-speed of development, previous experience with it, and its generous free plan. 
-
-# Email Service
-
-The email service is deployed as a serverless function on Azure using Azure functions.
-This is due to the email service not needing to be online at all times.

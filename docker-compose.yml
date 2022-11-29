@@ -71,26 +71,57 @@ services:
     networks:
       - docker-net
 
+  authentication-path:
+    container_name: authentication-path
+    build:
+      context: .
+      dockerfile: ./configs/authentication-path/authentication-path.dockerfile
+    environment:
+      - AUTHENTICATION_PATH_PORT=$AUTHENTICATION_PATH_PORT
+      - AUTHENTICATION_PATH_HOST=$AUTHENTICATION_PATH_HOST
+      - RELOAD_UVICORN=$RELOAD_UVICORN
+      - RABBITMQ_USER_SERVICE_USER=$RABBITMQ_USER_SERVICE_USER
+      - RABBITMQ_USER_SERVICE_PASSWORD=$RABBITMQ_USER_SERVICE_PASSWORD
+      - RABBITMQ_HOST=$RABBITMQ_HOST
+      - RABBITMQ_VHOST=$RABBITMQ_VHOST
+      - RABBITMQ_USER=$RABBITMQ_USER
+      - RABBITMQ_USER_EXCHANGE=$RABBITMQ_USER_EXCHANGE
+    networks: [docker-net]
+    depends_on:
+      - user-service-db
+
   user-service:
     container_name: user-service
     build:
       context: .
       dockerfile: ./configs/user-service/user-service.dockerfile
     environment:
-      - POSTGRES_USER=$POSTGRES_USER
-      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-      - POSTGRES_DB=$POSTGRES_DB
+      - PASSWORD_MIN_LENGTH=$PASSWORD_MIN_LENGTH
+      - EMAIL_JWT_SECRET=$EMAIL_JWT_SECRET
+      - AUTH_JWT_SECRET=$AUTH_JWT_SECRET
+      - POSTGRES_USER=$USER_SERVICE_POSTGRES_USER
+      - POSTGRES_PASSWORD=$USER_SERVICE_POSTGRES_PASSWORD
+      - POSTGRES_DB=$USER_SERVICE_POSTGRES_DB
+      - POSTGRES_HOST=$USER_SERVICE_POSTGRES_HOST
+      - POSTGRES_PORT=$USER_SERVICE_POSTGRES_PORT
+      - RABBITMQ_USER_EXCHANGE=$RABBITMQ_USER_EXCHANGE
+      - RABBITMQ_USER_SERVICE_USER=$RABBITMQ_USER_SERVICE_USER
+      - RABBITMQ_USER_SERVICE_PASSWORD=$RABBITMQ_USER_SERVICE_PASSWORD
+      - RABBITMQ_HOST=$RABBITMQ_HOST
+      - RABBITMQ_VHOST=$RABBITMQ_VHOST
+      - EMAIL_AZURE_FUNCTION_URL=$EMAIL_AZURE_FUNCTION_URL
     networks: [docker-net, user-service-net]
     depends_on:
       - user-service-db
+    restart: always
 
   user-service-db:
     container_name: user-service-db
     image: postgres:alpine # docs: https://github.com/docker-library/docs/blob/master/postgres/README.md
     environment:
-      - POSTGRES_USER=$POSTGRES_USER
-      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-      - POSTGRES_DB=$POSTGRES_DB
+      - POSTGRES_USER=$USER_SERVICE_POSTGRES_USER
+      - POSTGRES_PASSWORD=$USER_SERVICE_POSTGRES_PASSWORD
+      - POSTGRES_DB=$USER_SERVICE_POSTGRES_DB
     networks: [user-service-net]
     ports: [5432:5432]
 
