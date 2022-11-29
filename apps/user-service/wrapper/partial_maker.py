@@ -70,8 +70,8 @@ def get_partial_function_list() -> list:
         rabbitmq.subscribe, "email.token.decode", decode_email_token
     )
 
-    test_testing = partial(
-        rabbitmq.consume, "invite", invite
+    send_mail_invite_process = partial(
+        rabbitmq.subscribe, "email.send", invite
     )
 
     prepared_functions = [
@@ -83,17 +83,12 @@ def get_partial_function_list() -> list:
         crate_new_user_process,
         compare_passwords_process,
         set_is_registered_process,
+        send_mail_invite_process,
         # friend-path
         check_user_is_invited_process,
         check_token_is_valid_process,
         get_user_friends_process,
         # wishes-service
-        decode_email_token_process,
-        # testing
-        test_testing
+        decode_email_token_process,        
     ]
     return prepared_functions
-
-
-def get_invite_process_function():
-    return partial(rabbitmq.consume, "invite", invite)

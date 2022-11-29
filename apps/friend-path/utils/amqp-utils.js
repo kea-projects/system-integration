@@ -20,6 +20,22 @@ export const sendInvite = (message, onSuccess, onError) => {
   publishMessage(JSON.stringify(message), inviteExchange, onSuccess, onError);
 };
 
+/**
+ * Sends an email via the user-service that generates a token
+ * 
+ * Response structure:
+ * { "ok": "sent"} OR {"error": "failed to send"}
+ */
+export const sendInviteProcedure = (message, onSuccess, onError) => {
+  callProcedure(
+    JSON.stringify(message),
+    userExchange,
+    "email.send",
+    (response) => onSuccess(response),
+    onError
+  );
+};
+
 /** Checks if the user has invited the given email address
  *  Message structure:
  *  {

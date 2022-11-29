@@ -5,13 +5,12 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 
-import { sendInvite } from "./utils/amqp-utils.js";
-import { getSocketUser, emitStatusUpdate } from "./utils/socket-utils.js";
-import { validateEmail } from "./utils/validators.js";
-import { getAuthUser } from "./utils/auth-utils.js";
 import { validateToken } from "./middleware/auth.js";
 import { validateSocketToken } from "./middleware/socket-auth.js";
-import { checkUserIsInvited } from "./utils/amqp-utils.js";
+import { checkUserIsInvited, sendInviteProcedure } from "./utils/amqp-utils.js";
+import { getAuthUser } from "./utils/auth-utils.js";
+import { emitStatusUpdate, getSocketUser } from "./utils/socket-utils.js";
+import { validateEmail } from "./utils/validators.js";
 
 // ---- Config ----
 const PORT = process.env.SERVER_PORT || 8080;
@@ -36,12 +35,6 @@ app.get("/friend/health", (_, res) => {
   res.send({ message: "Up and running!" });
 });
 
-app.get("/friend/test", (_, res) => {
-  sendTest("test", (message) => {
-    res.send(message);
-  });
-});
-
 app.post("/friend/invite", validateToken, (req, res) => {
   const { email } = req.body;
 
@@ -60,12 +53,12 @@ app.post("/friend/invite", validateToken, (req, res) => {
       if (response === true) {
         res.status(400).send({ message: "Email already invited." });
       } else {
-        sendInvite(
+        sendInviteProcedure(
           {
             invitee: getAuthUser(req),
             invited: email,
           },
-          () => res.send({ message: "User invited!" }),
+          (message) => res.send({ message: "User invited!" }),
           () => res.status(500).send({ message: "An error has ocurred." })
         );
       }

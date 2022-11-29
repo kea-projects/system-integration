@@ -19,7 +19,7 @@ from utility.logger import log
 import uvicorn
 
 
-server = FastAPI()
+server = FastAPI(openapi_url="/auth/openapi.json", docs_url="/auth/docs")
 
 
 @server.post(
@@ -57,7 +57,7 @@ def login_route(login_obj: LoginObject):
 
     log.info("Checking if a user with that email exists.")
     rpc_user_result = RabbitMqRpcClient("user.get.by.email").call(login_obj.email)
-    if rpc_user_result.get("error"):
+    if rpc_user_result is None or rpc_user_result.get("error"):
         log.warn("The email was not found in the database")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -110,7 +110,13 @@ def signup_route(signup_obj: SignupObject):
     if result is not None:
         if result.get("ok"):
             log.info("User created successfully.")
-            return result.get("ok")  # SignupRes object
+            user_object = result.get("ok")
+            import uuid
+            return {
+                "user_id": uuid.UUID(user_object["user_id"]),
+                "email": user_object["email"],
+                "name": user_object["name"],
+            }
         else:
             log.warn(f"Signup failed: {result['detail']}")
             raise HTTPException(
@@ -138,51 +144,53 @@ def accept_invite_route(invite_obj: InviteObject):
     log.info(f"/auth/accept-invite has been called with: '{invite_obj.__dict__}'")
 
     log.info("Validating token.")
-    decoded_token_result = RabbitMqRpcClient("email.token.decode").call(invite_obj.token)
+    decoded_token_result = RabbitMqRpcClient("email.token.decode").call(
+        invite_obj.token
+    )
 
     decoded_token = decoded_token_result.get("ok")
     if decoded_token is None:
         log.warn("Token decoding failed!")
-        raise HTTPException(status_code=400,detail=decoded_token_result['detail'])
+        raise HTTPException(status_code=400, detail=decoded_token_result["detail"])
 
     log.info("Token validated successfully.")
-    from_email = decoded_token.get('from_email')
-    to_email = decoded_token.get('to_email')
+    from_email = decoded_token.get("from_email")
+    to_email = decoded_token.get("to_email")
 
     log.info(f"Checking if '{to_email}' has an account.")
     user_query_result = RabbitMqRpcClient("user.get.by.email").call(to_email)
     if user_query_result.get("error"):
         log.warn(f"The email '{to_email}' does not have an account.")
-        raise HTTPException(status_code=400,detail=user_query_result['detail'])
-
+        raise HTTPException(status_code=400, detail=user_query_result["detail"])
 
     log.info(f"Checking if '{from_email}' has invited '{to_email}'")
-    invite_request = {
-        "invitee": from_email,
-        "invited": to_email
-    }
+    invite_request = {"invitee": from_email, "invited": to_email}
     result = RabbitMqRpcClient("user.check.invited").call(invite_request)
     is_invited = bool(int(result))
 
     if not is_invited:
         log.warn(f"The email '{from_email}' has NOT invited '{to_email}'!")
-        raise HTTPException(status_code=400,detail=f"No invite exists from {from_email} to {to_email}")
+        raise HTTPException(
+            status_code=400, detail=f"No invite exists from {from_email} to {to_email}"
+        )
 
     set_is_registered_payload = {
         "from_email": from_email,
         "to_email": to_email,
-        "is_registered": True
+        "is_registered": True,
     }
     log.info(f"Attempting to update the is_registered bool to: {True}")
-    updated_invite_result = RabbitMqRpcClient("invite.set.registered").call(set_is_registered_payload)
+    updated_invite_result = RabbitMqRpcClient("invite.set.registered").call(
+        set_is_registered_payload
+    )
     updated_invite = updated_invite_result.get("ok")
     if updated_invite:
         log.info("Invite's is_registered attribute updated successfully")
         return {"status": "accepted"}
     else:
-        log.error("Failed to update the 'is_registered' property") 
-        log.error(updated_invite_result['detail']) 
-        raise HTTPException(status_code=400,detail=updated_invite_result['detail'])
+        log.error("Failed to update the 'is_registered' property")
+        log.error(updated_invite_result["detail"])
+        raise HTTPException(status_code=400, detail=updated_invite_result["detail"])
 
 
 if __name__ == "__main__":

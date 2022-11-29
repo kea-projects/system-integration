@@ -69,7 +69,6 @@ class SignupRes(BaseModel):
                 "user_id": "80028aea4d2848b4b2e5d91074f0b85f",
                 "email": "valid8@email.com",
                 "name": "Bobert Rob",
-                "password": "$2b$12$gEUQ0HsGcG4CrpSNfj0M.esa1EfZuvhfmrpMBeI9tsn50jPQlgBQ2",
             }
         }
 
