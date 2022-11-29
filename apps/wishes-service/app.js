@@ -12,7 +12,19 @@ app.use("/wishes", wishesRouter);
 
 app.all("/wishes*", (req, res) => {
   res.status(418).send({
-    endpoints: {},
+    endpoints: {
+      getAll: {
+        method: "GET",
+        route: "/wishes",
+        returns: "A list of wishes",
+      },
+      makeAWish: {
+        method: "POST",
+        route: "/wishes",
+        requirements: "Request Body with productName field, and a bearer token",
+        returns: "A created wish",
+      },
+    },
   });
 });
 
