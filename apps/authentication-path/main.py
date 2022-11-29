@@ -57,7 +57,7 @@ def login_route(login_obj: LoginObject):
 
     log.info("Checking if a user with that email exists.")
     rpc_user_result = RabbitMqRpcClient("user.get.by.email").call(login_obj.email)
-    if rpc_user_result.get("error"):
+    if rpc_user_result is None or rpc_user_result.get("error"):
         log.warn("The email was not found in the database")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
