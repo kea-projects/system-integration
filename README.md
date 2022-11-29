@@ -24,12 +24,12 @@ docker compose -f docker-compose.caddy.yml up --build
 ```
 
 ```sh
-sudo cp configs/caddy/Caddyfile /var/lib/docker/volumes/caddy_config/_data/caddy/Caddyfile
+docker cp configs/caddy/Caddyfile caddy:/config/caddy/Caddyfile
 ```
 and 
 
 ```sh
-docker exec -w /configs/caddy system-integration-caddy-1 caddy reload
+docker exec -w /config/caddy caddy caddy reload
 ```
 
 to reload the config of Caddy, and fully enable HTTPS.

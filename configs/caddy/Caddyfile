@@ -27,6 +27,6 @@ gifts.hotdeals.dev, :80 {
         reverse_proxy gateway:80
 }
 
-sftp.gifts.hotdeals.dev, :3000 {
-        reverse_proxy gateway:3000
+sftp.gifts.hotdeals.dev, :22 {
+        redir gateway:3000
 }
