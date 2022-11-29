@@ -24,9 +24,8 @@ services:
     restart: always
     build:
       context: .
-      dockerfile: ./configs/gateway/gateway-dockerfile
-    networks:
-      - docker-net
+      dockerfile: ./configs/gateway/gateway.dockerfile
+    networks: [docker-net]
     ports:
       - 80:80 # http
       - 3000:3000 # SFTP server
@@ -36,13 +35,11 @@ services:
     container_name: sftp-server
     build:
       context: .
-      dockerfile: ./configs/atmoz-sftp/atmoz-sftp-dockerfile
+      dockerfile: ./configs/atmoz-sftp/atmoz-sftp.dockerfile
     environment:
       - SFTP_USERNAME=$SFTP_USERNAME
-    networks:
-      - docker-net
-    #ports: # only open ports for direct container testing, let gateway reroute otherwise
-    #  - 22:22
+    networks: [docker-net]
+    #ports: [22:22] # only open ports for direct container testing, let gateway reroute otherwise
     volumes:
       - ftp-uploads:/home/$SFTP_USERNAME/upload
     command: "$SFTP_USERNAME:$SFTP_PASSWORD:1001"
@@ -59,6 +56,13 @@ services:
       # Exposing the port for the mock email and user services to be able 
       # connect to RabbitMQ until they are fully implemented
       - 5672:5672
+      # - 8080:15672 # This is the port for the GUI
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   pictures-server:
     container_name: pictures-server
@@ -73,6 +77,59 @@ services:
     networks:
       - docker-net
 
+  authentication-path:
+    container_name: authentication-path
+    build:
+      context: .
+      dockerfile: ./configs/authentication-path/authentication-path.dockerfile
+    environment:
+      - AUTHENTICATION_PATH_PORT=$AUTHENTICATION_PATH_PORT
+      - AUTHENTICATION_PATH_HOST=$AUTHENTICATION_PATH_HOST
+      - RELOAD_UVICORN=$RELOAD_UVICORN
+      - RABBITMQ_USER_SERVICE_USER=$RABBITMQ_USER_SERVICE_USER
+      - RABBITMQ_USER_SERVICE_PASSWORD=$RABBITMQ_USER_SERVICE_PASSWORD
+      - RABBITMQ_HOST=$RABBITMQ_HOST
+      - RABBITMQ_VHOST=$RABBITMQ_VHOST
+      - RABBITMQ_USER=$RABBITMQ_USER
+      - RABBITMQ_USER_EXCHANGE=$RABBITMQ_USER_EXCHANGE
+    networks: [docker-net]
+    restart: always
+
+  user-service:
+    container_name: user-service
+    build:
+      context: .
+      dockerfile: ./configs/user-service/user-service.dockerfile
+    environment:
+      - PASSWORD_MIN_LENGTH=$PASSWORD_MIN_LENGTH
+      - EMAIL_JWT_SECRET=$EMAIL_JWT_SECRET
+      - AUTH_JWT_SECRET=$AUTH_JWT_SECRET
+      - POSTGRES_USER=$USER_SERVICE_POSTGRES_USER
+      - POSTGRES_PASSWORD=$USER_SERVICE_POSTGRES_PASSWORD
+      - POSTGRES_DB=$USER_SERVICE_POSTGRES_DB
+      - POSTGRES_HOST=$USER_SERVICE_POSTGRES_HOST
+      - POSTGRES_PORT=$USER_SERVICE_POSTGRES_PORT
+      - RABBITMQ_USER_EXCHANGE=$RABBITMQ_USER_EXCHANGE
+      - RABBITMQ_USER_SERVICE_USER=$RABBITMQ_USER_SERVICE_USER
+      - RABBITMQ_USER_SERVICE_PASSWORD=$RABBITMQ_USER_SERVICE_PASSWORD
+      - RABBITMQ_HOST=$RABBITMQ_HOST
+      - RABBITMQ_VHOST=$RABBITMQ_VHOST
+      - EMAIL_AZURE_FUNCTION_URL=$EMAIL_AZURE_FUNCTION_URL
+    networks: [docker-net, user-service-net]
+    depends_on: 
+      rabbitmq: 
+        condition: service_started
+    restart: always
+
+  user-service-db:
+    container_name: user-service-db
+    image: postgres:alpine # docs: https://github.com/docker-library/docs/blob/master/postgres/README.md
+    environment:
+      - POSTGRES_USER=$USER_SERVICE_POSTGRES_USER
+      - POSTGRES_PASSWORD=$USER_SERVICE_POSTGRES_PASSWORD
+      - POSTGRES_DB=$USER_SERVICE_POSTGRES_DB
+    networks: [user-service-net]
+
   friend-path:
     container_name: friend-path
     restart: always
@@ -84,8 +141,8 @@ services:
     environment:
       - RABBITMQ_HOST=$RABBITMQ_HOST
       - RABBITMQ_VHOST=$RABBITMQ_VHOST
-      - RABBITMQ_USER=$RABBITMQ_USER
-      - RABBITMQ_PASSWORD=$RABBITMQ_PASSWORD
+      - RABBITMQ_USER=$RABBITMQ_FRIEND_PATH_USER
+      - RABBITMQ_PASSWORD=$RABBITMQ_FRIEND_PATH_PASSWORD
       - RABBITMQ_INVITE_EXCHANGE=$RABBITMQ_INVITE_EXCHANGE
       - RABBITMQ_USER_EXCHANGE=$RABBITMQ_USER_EXCHANGE
       - EMAIL_AZURE_FUNCTION_URL=$EMAIL_AZURE_FUNCTION_URL
@@ -107,11 +164,16 @@ services:
     networks:
       - docker-net
 
+    restart: always
+  
+      
 # ---------------------------------
 # ------------ NETWORK ------------
 networks:
   docker-net:
     name: docker-net
+  user-service-net:
+    name: user-service-net
 
 # ---------------------------------
 # ------------ VOLUMES ------------

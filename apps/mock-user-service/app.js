@@ -58,7 +58,7 @@ subscribe("user.check.invited", (message) => {
 
 subscribe("token.check.valid", (message) => {
   console.log(message.content.toString());
-  return message.content.toString() ===
+  return message.content.toString() === 
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQG5vLmNvbSJ9.2Al_e2IUwudRaUrq5YzvPnmxBnnw5jwb9pBa9BXUnP8"
     ? Buffer.from("0")
     : Buffer.from("1");
