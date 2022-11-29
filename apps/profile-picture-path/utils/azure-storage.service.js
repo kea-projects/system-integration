@@ -1,6 +1,5 @@
 import { BlobServiceClient } from "@azure/storage-blob";
 import chalk from "chalk";
-import { v4 as uuidv4 } from "uuid";
 
 const azureConnectionString = process.env.AZURE_CONNECTION_STRING;
 const storageAccountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
@@ -42,16 +41,18 @@ export const getPicById = async (id) => {
  * @param {*} fileType the mimetype (file type) as seen by the API (image/jpg etc).
  * @returns URL of the uploaded file.
  */
-export const uploadPic = async (filepath, fileType) => {
+export const uploadPic = async (filepath, fileType, id) => {
   // prepare the data for upload
-  const id = uuidv4() + "." + fileType.replace("image/", "");
+  const idWithExtension = id + "." + fileType.replace("image/", "");
 
   const containerClient = storageClient.getContainerClient(containerName);
   await containerClient.createIfNotExists();
 
   const options = { blobHTTPHeaders: { blobContentType: fileType } };
-  await containerClient.getBlockBlobClient(id).uploadFile(filepath, options);
-  const url = createResourceUrl(id);
+  await containerClient
+    .getBlockBlobClient(idWithExtension)
+    .uploadFile(filepath, options);
+  const url = createResourceUrl(idWithExtension);
   console.log(chalk.green(`[INFO] New file uploaded at ${url}`));
   return {
     url: url,

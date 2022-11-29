@@ -56,7 +56,22 @@ picsRouter.get("/:picId", async (req, res) => {
  *
  * @returns a url to the uploaded file.
  */
-picsRouter.post("/", async (req, res) => {
+picsRouter.post("/:picId", async (req, res) => {
+  // verify the path param
+  const id = req.params.picId;
+  if (!id || !uuidValidate(id)) {
+    res.status(400).send({
+      status: 400,
+      message: "Invalid picture Id, must be a valid UUIDv4",
+    });
+    return;
+  }
+  const foundPic = await getPicById(id);
+  if (foundPic !== null) {
+    res.status(403).send({ error: 403, message: "Forbidden" });
+    return;
+  }
+
   const form = new formidable.IncomingForm({
     multiples: false, // have to accept multiple so that the formidable is aware there are multiple, and allows me to delete them all. yeah, I know, great logic
     maxFileSize: 10 * 1024 * 1024, // 10 MB
@@ -110,7 +125,7 @@ picsRouter.post("/", async (req, res) => {
         filesArr.push(files[""].filepath);
         res
           .status(201)
-          .send(await uploadPic(files[""].filepath, files[""].mimetype));
+          .send(await uploadPic(files[""].filepath, files[""].mimetype, id));
       }
     } catch (exception) {
       console.log(
