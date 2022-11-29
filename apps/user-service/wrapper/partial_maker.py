@@ -8,13 +8,15 @@ from wrapper.auth_path import (
     decode_auth_token,
     generate_auth_token,
     get_user_by_email,
+    set_is_registered_to_invite,
 )
 from wrapper.friend_path import (
-    check_user_is_invited,
+    check_user_is_invited_bool,
     check_token_is_valid,
     get_user_friends,
     invite,
 )
+from wrapper.wishes_service import decode_email_token
 
 
 def get_partial_function_list() -> list:
@@ -48,10 +50,13 @@ def get_partial_function_list() -> list:
     compare_passwords_process = partial(
         rabbitmq.subscribe, "user.create.pass.compare", compare_passwords
     )
+    set_is_registered_process = partial(
+        rabbitmq.subscribe, "invite.set.registered", set_is_registered_to_invite
+    )
 
     # friend-path
     check_user_is_invited_process = partial(
-        rabbitmq.subscribe, "user.check.invited", check_user_is_invited
+        rabbitmq.subscribe, "user.check.invited", check_user_is_invited_bool
     )
     check_token_is_valid_process = partial(
         rabbitmq.subscribe, "token.check.valid", check_token_is_valid
@@ -62,9 +67,12 @@ def get_partial_function_list() -> list:
 
     # wishes-service
     decode_email_token_process = partial(
-        rabbitmq.subscribe, "email.token.decode", get_user_friends
+        rabbitmq.subscribe, "email.token.decode", decode_email_token
     )
-    
+
+    test_testing = partial(
+        rabbitmq.consume, "invite", invite
+    )
 
     prepared_functions = [
         # aut-path
@@ -74,12 +82,15 @@ def get_partial_function_list() -> list:
         generate_auth_token_process,
         crate_new_user_process,
         compare_passwords_process,
+        set_is_registered_process,
         # friend-path
         check_user_is_invited_process,
         check_token_is_valid_process,
         get_user_friends_process,
         # wishes-service
         decode_email_token_process,
+        # testing
+        test_testing
     ]
     return prepared_functions
 

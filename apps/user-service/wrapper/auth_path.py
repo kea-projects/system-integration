@@ -1,3 +1,4 @@
+from model.Invite import Invite
 from utility.functions import Token, decode_str_or_none, Password
 from utility.result import Err, Ok, Result
 from utility.serializers import UUIDEncoder
@@ -18,6 +19,25 @@ def compare_user_password(raw_data: bytes) -> str:
 def get_user_by_email(raw_data: bytes) -> str:
     email = decode_str_or_none(raw_data)
     result = User.get_by_email(email)
+
+    if result.is_ok():
+        response = {"ok": result.data().__dict__["__data__"]}
+    else:
+        response = result.__dict__
+    return json.dumps(response, cls=UUIDEncoder)
+
+
+def set_is_registered_to_invite(raw_data: bytes) -> str:
+    message = json.loads(raw_data)
+
+    from_email = (message.get("from_email"),)
+    to_email = (message.get("to_email"),)
+    is_registered = message.get("is_registered")
+
+    result = Invite.set_is_registered(
+        from_email=from_email, to_email=to_email, is_registered=is_registered
+    )
+    print(result)
 
     if result.is_ok():
         response = {"ok": result.data().__dict__["__data__"]}

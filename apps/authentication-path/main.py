@@ -125,18 +125,64 @@ def signup_route(signup_obj: SignupObject):
         )
 
 
-@server.post("/auth/accept-invite", response_model=InviteRes)
+@server.post(
+    "/auth/accept-invite",
+    status_code=202,
+    responses={
+        202: {"model": InviteRes},
+        400: {"model": HTTPError},
+        412: {"model": HTTPError},
+    },
+)
 def accept_invite_route(invite_obj: InviteObject):
     log.info(f"/auth/accept-invite has been called with: '{invite_obj.__dict__}'")
 
-    # TODO: Figure this one out
-    # Send the request over to user-service
-    ## On the user-service:
-    #   Check if an invite of invite_obj exists
-    #   if it does - mark it as accepted - SOMEHOW
-    #   return - ????????
+    log.info("Validating token.")
+    decoded_token_result = RabbitMqRpcClient("email.token.decode").call(invite_obj.token)
 
-    return invite_obj
+    decoded_token = decoded_token_result.get("ok")
+    if decoded_token is None:
+        log.warn("Token decoding failed!")
+        raise HTTPException(status_code=400,detail=decoded_token_result['detail'])
+
+    log.info("Token validated successfully.")
+    from_email = decoded_token.get('from_email')
+    to_email = decoded_token.get('to_email')
+
+    log.info(f"Checking if '{to_email}' has an account.")
+    user_query_result = RabbitMqRpcClient("user.get.by.email").call(to_email)
+    if user_query_result.get("error"):
+        log.warn(f"The email '{to_email}' does not have an account.")
+        raise HTTPException(status_code=400,detail=user_query_result['detail'])
+
+
+    log.info(f"Checking if '{from_email}' has invited '{to_email}'")
+    invite_request = {
+        "invitee": from_email,
+        "invited": to_email
+    }
+    result = RabbitMqRpcClient("user.check.invited").call(invite_request)
+    is_invited = bool(int(result))
+
+    if not is_invited:
+        log.warn(f"The email '{from_email}' has NOT invited '{to_email}'!")
+        raise HTTPException(status_code=400,detail=f"No invite exists from {from_email} to {to_email}")
+
+    set_is_registered_payload = {
+        "from_email": from_email,
+        "to_email": to_email,
+        "is_registered": True
+    }
+    log.info(f"Attempting to update the is_registered bool to: {True}")
+    updated_invite_result = RabbitMqRpcClient("invite.set.registered").call(set_is_registered_payload)
+    updated_invite = updated_invite_result.get("ok")
+    if updated_invite:
+        log.info("Invite's is_registered attribute updated successfully")
+        return {"status": "accepted"}
+    else:
+        log.error("Failed to update the 'is_registered' property") 
+        log.error(updated_invite_result['detail']) 
+        raise HTTPException(status_code=400,detail=updated_invite_result['detail'])
 
 
 if __name__ == "__main__":

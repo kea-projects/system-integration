@@ -75,13 +75,11 @@ class SignupRes(BaseModel):
 
 
 class InviteObject(BaseModel):
-    from_email: str
-    to_email: str
     token: str
 
 
 class InviteRes(BaseModel):
-    status_question_mark: str
+    status: str
 
 
 class ValidateObject(BaseModel):
