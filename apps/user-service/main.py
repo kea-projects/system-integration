@@ -3,14 +3,12 @@ from config.database import DB_CONNECTION
 from utility.functions import initialize_db
 from model.User import User
 from model.Invite import Invite
-from config.secrets import get_env, validate_envs
+from config.secrets import validate_envs
 from sys import exit
 
 import multiprocessing
-from utility.rabbitmq import consume
-from wrapper.friend_path import invite
 
-from wrapper.partial_maker import get_invite_process_function, get_partial_function_list
+from wrapper.partial_maker import get_partial_function_list
 
 
 if __name__ == "__main__":
@@ -41,11 +39,7 @@ if __name__ == "__main__":
 
     for process in process_list:
         process.start()
-    # consume_invite_process_function = get_invite_process_function()
-    # consume_invite_process = multiprocessing.Process(target=consume_invite_process_function, name="consume-invite")
-    # consume_invite_process.start()
+
     print("Threads running")
-    # consume("invite", invite)
-    # print("done")
 
     exit(0)

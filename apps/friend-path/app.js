@@ -5,7 +5,7 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 
-import { sendInvite } from "./utils/amqp-utils.js";
+import { sendInviteProcedure } from "./utils/amqp-utils.js";
 import { getSocketUser, emitStatusUpdate } from "./utils/socket-utils.js";
 import { validateEmail } from "./utils/validators.js";
 import { getAuthUser } from "./utils/auth-utils.js";
@@ -60,12 +60,12 @@ app.post("/friend/invite", validateToken, (req, res) => {
       if (response === true) {
         res.status(400).send({ message: "Email already invited." });
       } else {
-        sendInvite(
+        sendInviteProcedure(
           {
             invitee: getAuthUser(req),
             invited: email,
           },
-          () => res.send({ message: "User invited!" }),
+          (message) => res.send({ message: "User invited!" }),
           () => res.status(500).send({ message: "An error has ocurred." })
         );
       }

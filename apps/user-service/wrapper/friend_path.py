@@ -1,6 +1,5 @@
 from config.secrets import get_env
 from model.Invite import Invite
-from model.User import User
 from utility.functions import bool_to_str, decode_str_or_none
 from utility.functions import Token
 import json
@@ -59,9 +58,9 @@ def get_user_friends(raw_data: bytes) -> str:
     return json.dumps(friend_list)
 
 
-def invite(ch, method, properties, body) -> None:
-    message: dict = json.loads(body)
-    print("BODY IS: ", body)
+def invite(raw_data: bytes) -> str:
+    message: dict = json.loads(raw_data)
+    print("BODY IS: ", message)
     from_email = message.get("invitee")
     to_email = message.get("invited")
 
@@ -76,7 +75,8 @@ def invite(ch, method, properties, body) -> None:
         }
         print("INVITE TOKEN: ", invite_obj.token)
         requests.post(get_env("EMAIL_AZURE_FUNCTION_URL"), json.dumps(request_obj))
+        return json.dumps({"ok": "sent"})
     else:
         print("An error has occurred when creating the invite!")
         print(result.err())
-        pass
+        return json.dumps({"error": "failed to send"})
