@@ -1,6 +1,6 @@
 import amqp from "amqplib/callback_api.js";
-import { v4 as uuid } from "uuid";
 import chalk from "chalk";
+import { v4 as uuid } from "uuid";
 
 const host = process.env.RABBITMQ_HOST || "localhost";
 const inviteExchange = process.env.RABBITMQ_INVITE_EXCHANGE || "invite";
@@ -18,10 +18,6 @@ const vhost = process.env.RABBITMQ_VHOST || "";
  */
 export const sendInvite = (message, onSuccess, onError) => {
   publishMessage(JSON.stringify(message), inviteExchange, onSuccess, onError);
-};
-
-export const sendTest = (message, onSuccess) => {
-  callProcedure(message, userExchange, "test", onSuccess, () => {console.log(1)})
 };
 
 /** Checks if the user has invited the given email address

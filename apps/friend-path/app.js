@@ -1,9 +1,9 @@
+import chalk from "chalk";
+import cors from "cors";
+import "dotenv/config";
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-import cors from "cors";
-import "dotenv/config";
-import chalk from "chalk";
 
 import {
   sendInvite,
@@ -15,6 +15,10 @@ import { validateEmail } from "./utils/validators.js";
 import { getAuthUser } from "./utils/auth-utils.js";
 import { validateToken } from "./middleware/auth.js";
 import { validateSocketToken } from "./middleware/socket-auth.js";
+import { checkUserIsInvited } from "./utils/amqp-utils.js";
+import { getAuthUser } from "./utils/auth-utils.js";
+import { emitStatusUpdate, getSocketUser } from "./utils/socket-utils.js";
+import { validateEmail } from "./utils/validators.js";
 
 // ---- Config ----
 const PORT = process.env.SERVER_PORT || 8080;
@@ -63,14 +67,24 @@ app.post("/friend/invite", validateToken, (req, res) => {
       if (response === true) {
         res.status(400).send({ message: "Email already invited." });
       } else {
-        sendInvite(
-          {
+        if (!process.env.EMAIL_AZURE_FUNCTION_URL) {
+          res.status(500).send({
+            message:
+              "We are unable to perform an email invite at this moment. PLease try again later.",
+          });
+        }
+        fetch(process.env.EMAIL_AZURE_FUNCTION_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
             invitee: getAuthUser(req),
             invited: email,
-          },
-          () => res.send({ message: "User invited!" }),
-          () => res.status(500).send({ message: "An error has ocurred." })
-        );
+          }),
+        });
+
+        res.send({ message: "User invited!" });
       }
     },
     () => res.status(500).send({ message: "An error has ocurred." })
