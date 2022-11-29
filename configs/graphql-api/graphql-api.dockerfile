@@ -11,7 +11,7 @@ WORKDIR /app
 COPY ./apps/graphql-api /app/
 
 # Install dependencies
-RUN ["npm", "ci"]
+RUN npm install --only-production --force
 
 # Run the app
 ENTRYPOINT [ "npm", "start" ]
