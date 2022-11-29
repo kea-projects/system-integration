@@ -1,12 +1,18 @@
 import chalk from "chalk";
+import cors from "cors";
 import "dotenv/config";
 import express from "express";
 import { initDatabase } from "./database/database.service.js";
 import { wishesRouter } from "./routes/wishes.router.js";
 
 const PORT = process.env.SERVER_PORT || 8080;
-const app = express();
+const app = express({
+  cors: {
+    origin: "*",
+  },
+});
 
+app.use(cors());
 app.use(express.json());
 app.use("/wishes", wishesRouter);
 
