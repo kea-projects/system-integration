@@ -81,6 +81,14 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+      
+  graphql-api:
+    container_name: graphql-api
+    build:
+      context: .
+      dockerfile: ./configs/graphql-api/graphql-api.dockerfile
+    networks:
+      - docker-net
   
       
 
