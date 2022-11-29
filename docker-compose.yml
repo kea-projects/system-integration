@@ -116,11 +116,11 @@ services:
       context: .
       dockerfile: ./configs/wishes-service/wishes-service.dockerfile
     environment:
-      POSTGRES_HOST: ${POSTGRES_HOST:-localhost}
-      POSTGRES_PORT: ${POSTGRES-PORT:-5432}
-      POSTGRES_USER: ${POSTGRES_USER:-root}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
-      POSTGRES_DATABASE: ${POSTGRES_DATABASE:-integration}
+      POSTGRES_HOST: ${WISHES_POSTGRES_HOST:-localhost}
+      POSTGRES_PORT: ${WISHES_POSTGRES-PORT:-5432}
+      POSTGRES_USER: ${WISHES_POSTGRES_USER:-root}
+      POSTGRES_PASSWORD: ${WISHES_POSTGRES_PASSWORD:-root}
+      POSTGRES_DATABASE: ${WISHES_POSTGRES_DATABASE:-integration}
     networks:
       - docker-net
   
@@ -129,9 +129,9 @@ services:
     restart: unless-stopped
     image: postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-root}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
-      POSTGRES_DB: ${POSTGRES_DATABASE:-integration}
+      POSTGRES_USER: ${WISHES_POSTGRES_USER:-root}
+      POSTGRES_PASSWORD: ${WISHES_POSTGRES_PASSWORD:-root}
+      POSTGRES_DB: ${WISHES_POSTGRES_DATABASE:-integration}
       PGDATA: /data/postgres
     volumes:
        - postgres:/data/postgres
