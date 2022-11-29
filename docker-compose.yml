@@ -123,7 +123,6 @@ services:
       - POSTGRES_PASSWORD=$USER_SERVICE_POSTGRES_PASSWORD
       - POSTGRES_DB=$USER_SERVICE_POSTGRES_DB
     networks: [user-service-net]
-    ports: [5432:5432]
 
   friend-path:
     container_name: friend-path
