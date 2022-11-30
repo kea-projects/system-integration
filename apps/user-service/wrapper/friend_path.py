@@ -60,7 +60,6 @@ def get_user_friends(raw_data: bytes) -> str:
 
 def invite(raw_data: bytes) -> str:
     message: dict = json.loads(raw_data)
-    print("BODY IS: ", message)
     from_email = message.get("invitee")
     to_email = message.get("invited")
 
@@ -73,8 +72,8 @@ def invite(raw_data: bytes) -> str:
             "invited": to_email,
             "token": invite_obj.token,
         }
-        print("INVITE TOKEN: ", invite_obj.token)
         requests.post(get_env("EMAIL_AZURE_FUNCTION_URL"), json.dumps(request_obj))
+        print("Valid token generated")
         return json.dumps({"ok": "sent"})
     else:
         print("An error has occurred when creating the invite!")

@@ -6,6 +6,7 @@ RUN pip install poetry
 
 WORKDIR /service
 
+ENV PYTHONUNBUFFERED=1
 
 COPY ./apps/user-service/poetry.lock /service/
 COPY ./apps/user-service/pyproject.toml /service/
