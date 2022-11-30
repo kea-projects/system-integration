@@ -216,10 +216,6 @@ networks:
 # ---------------------------------
 # ------------ VOLUMES ------------
 volumes:
-  caddy_data:
-    name: caddy_data
-  caddy_config:
-    name: caddy_config
   ftp-uploads:
     name: ftp-uploads
   postgres:
