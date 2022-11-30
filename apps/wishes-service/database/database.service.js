@@ -54,7 +54,6 @@ export const createWish = async (product_name, user_id) => {
     .catch((err) => {
       console.log(chalk.redBright(`[ERROR] Failed to get a created wish`, err));
     });
-  console.log(result);
   return result.rows[0];
 };
 
