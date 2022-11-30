@@ -39,6 +39,7 @@ services:
       dockerfile: ./configs/atmoz-sftp/atmoz-sftp.dockerfile
     environment:
       - SFTP_USERNAME=$SFTP_USERNAME
+      - SFTP_PASSWORD=$SFTP_PASSWORD
     networks: [docker-net]
     #ports: [22:22] # only open ports for direct container testing, let gateway reroute otherwise
     volumes:
