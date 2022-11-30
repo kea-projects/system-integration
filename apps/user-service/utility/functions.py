@@ -125,6 +125,8 @@ class Token:
             return Err("InvalidSignatureError", error.args[0])
         except ImmatureSignatureError as error:  # token not valid yet
             return Err("ImmatureSignatureError", error.args[0])
+        except:
+            return Err("InternalServerError", "Something unexpected happened during decoding process.")
 
         return Ok(decoded_token)
 
@@ -164,6 +166,8 @@ class Token:
             return Err("InvalidSignatureError", error.args[0])
         except ImmatureSignatureError as error:  # token not valid yet
             return Err("ImmatureSignatureError", error.args[0])
+        except:
+            return Err("InternalServerError", "Something unexpected happened during decoding process.")
 
         return Ok(decoded_token)
 
