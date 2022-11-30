@@ -18,12 +18,6 @@ if __name__ == "__main__":
         print(f"DB Connection Failed! Reason: {result.err()}\nExiting...")
         exit(2)
 
-    User.create_new(email="valid@email.com", name="Bob the great", password="validPassword")
-    User.create_new(email="valid2@email.com", name="Rob the great", password="validPassword")
-
-    result = Invite.create_new_invite(from_email="valid@email.com", to_email="valid2@email.com")
-
-    print(result)
     
     multiprocessing.set_start_method("spawn")
 

@@ -69,7 +69,6 @@ def decode_auth_token(raw_data: bytes) -> str:
 def generate_auth_token(raw_data: bytes):
     print("RawData: ", raw_data)
     message: dict = json.loads(raw_data)
-    print("Auth obj: ", message, " type: ", type(message))
 
     user_id = message.get("user_id")
     email = message.get("email")
