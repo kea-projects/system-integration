@@ -51,7 +51,6 @@ def subscribe(topic, callback):
 
 
 def consume(exchange: str, callback):
-    print("NOTHING PRINTED")
     credentials = pika.PlainCredentials(RABBITMQ_USERNAME, RABBITMQ_PASSWORD)
     connection_params = pika.ConnectionParameters(
         host=RABBITMQ_HOST, virtual_host=RABBITMQ_VHOST, credentials=credentials  # type: ignore
