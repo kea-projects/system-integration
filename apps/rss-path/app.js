@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import cors from "cors";
 import "dotenv/config";
 import express from "express";
 import RSS from "rss";
@@ -15,7 +16,13 @@ const feed = new RSS({
 });
 wishes.forEach((wish) => feed.item({ ...wish, guid: uuidv4() }));
 
-const app = express();
+const app = express({
+  cors: {
+    origin: "*",
+  },
+});
+
+app.use(cors());
 
 app.use(express.json());
 

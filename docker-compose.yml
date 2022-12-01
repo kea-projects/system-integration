@@ -21,12 +21,11 @@ version: "3"
 services:
   gateway: # NGINX
     container_name: gateway
-    restart: always
+    restart: unless-stopped
     build:
       context: .
-      dockerfile: ./configs/gateway/gateway-dockerfile
-    networks:
-      - docker-net
+      dockerfile: ./configs/gateway/gateway.dockerfile
+    networks: [docker-net]
     ports:
       - 80:80 # http
       - 3000:3000 # SFTP server
@@ -34,35 +33,41 @@ services:
 
   sftp-server:
     container_name: sftp-server
+    restart: unless-stopped
     build:
       context: .
-      dockerfile: ./configs/atmoz-sftp/atmoz-sftp-dockerfile
+      dockerfile: ./configs/atmoz-sftp/atmoz-sftp.dockerfile
     environment:
       - SFTP_USERNAME=$SFTP_USERNAME
-    networks:
-      - docker-net
-    #ports: # only open ports for direct container testing, let gateway reroute otherwise
-    #  - 22:22
+      - SFTP_PASSWORD=$SFTP_PASSWORD
+    networks: [docker-net]
+    #ports: [22:22] # only open ports for direct container testing, let gateway reroute otherwise
     volumes:
       - ftp-uploads:/home/$SFTP_USERNAME/upload
     command: "$SFTP_USERNAME:$SFTP_PASSWORD:1001"
 
   rabbitmq:
     container_name: rabbitmq
-    restart: always
+    restart: unless-stopped
     build:
       context: .
       dockerfile: ./configs/rabbitmq/rabbitmq.dockerfile
-    networks:
-      - docker-net
-    ports:
+    #ports:
       # Exposing the port for the mock email and user services to be able 
       # connect to RabbitMQ until they are fully implemented
-      - 5672:5672
+      # - 5672:5672
+      # - 8080:15672 # This is the port for the GUI
+    networks: [docker-net]
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   pictures-server:
     container_name: pictures-server
-    restart: always
+    restart: unless-stopped
     build:
       context: .
       dockerfile: ./configs/profile-picture-path/profile-pics.dockerfile
@@ -70,12 +75,65 @@ services:
       - AZURE_CONNECTION_STRING=$AZURE_CONNECTION_STRING
       - AZURE_STORAGE_ACCOUNT_NAME=$AZURE_STORAGE_ACCOUNT_NAME
       - AZURE_CONTAINER_NAME=$AZURE_CONTAINER_NAME
-    networks:
-      - docker-net
+    networks: [docker-net]
+
+  authentication-path:
+    container_name: authentication-path
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./configs/authentication-path/authentication-path.dockerfile
+    environment:
+      - AUTHENTICATION_PATH_PORT=$AUTHENTICATION_PATH_PORT
+      - AUTHENTICATION_PATH_HOST=$AUTHENTICATION_PATH_HOST
+      - RELOAD_UVICORN=$RELOAD_UVICORN
+      - RABBITMQ_USER_SERVICE_USER=$RABBITMQ_USER_SERVICE_USER
+      - RABBITMQ_USER_SERVICE_PASSWORD=$RABBITMQ_USER_SERVICE_PASSWORD
+      - RABBITMQ_HOST=$RABBITMQ_HOST
+      - RABBITMQ_VHOST=$RABBITMQ_VHOST
+      - RABBITMQ_USER=$RABBITMQ_USER
+      - RABBITMQ_USER_EXCHANGE=$RABBITMQ_USER_EXCHANGE
+    networks: [docker-net]
+
+  user-service:
+    container_name: user-service
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./configs/user-service/user-service.dockerfile
+    environment:
+      - PASSWORD_MIN_LENGTH=$PASSWORD_MIN_LENGTH
+      - EMAIL_JWT_SECRET=$EMAIL_JWT_SECRET
+      - AUTH_JWT_SECRET=$AUTH_JWT_SECRET
+      - POSTGRES_USER=$USER_SERVICE_POSTGRES_USER
+      - POSTGRES_PASSWORD=$USER_SERVICE_POSTGRES_PASSWORD
+      - POSTGRES_DB=$USER_SERVICE_POSTGRES_DB
+      - POSTGRES_HOST=$USER_SERVICE_POSTGRES_HOST
+      - POSTGRES_PORT=$USER_SERVICE_POSTGRES_PORT
+      - RABBITMQ_USER_EXCHANGE=$RABBITMQ_USER_EXCHANGE
+      - RABBITMQ_USER_SERVICE_USER=$RABBITMQ_USER_SERVICE_USER
+      - RABBITMQ_USER_SERVICE_PASSWORD=$RABBITMQ_USER_SERVICE_PASSWORD
+      - RABBITMQ_HOST=$RABBITMQ_HOST
+      - RABBITMQ_VHOST=$RABBITMQ_VHOST
+      - EMAIL_AZURE_FUNCTION_URL=$EMAIL_AZURE_FUNCTION_URL
+    networks: [docker-net, user-service-net]
+    depends_on: 
+      rabbitmq: 
+        condition: service_started
+
+  user-service-db:
+    container_name: user-service-db
+    restart: unless-stopped
+    image: postgres:alpine # docs: https://github.com/docker-library/docs/blob/master/postgres/README.md
+    environment:
+      - POSTGRES_USER=$USER_SERVICE_POSTGRES_USER
+      - POSTGRES_PASSWORD=$USER_SERVICE_POSTGRES_PASSWORD
+      - POSTGRES_DB=$USER_SERVICE_POSTGRES_DB
+    networks: [user-service-net]
 
   friend-path:
     container_name: friend-path
-    restart: always
+    restart: unless-stopped
     depends_on:
       - rabbitmq
     build:
@@ -84,13 +142,12 @@ services:
     environment:
       - RABBITMQ_HOST=$RABBITMQ_HOST
       - RABBITMQ_VHOST=$RABBITMQ_VHOST
-      - RABBITMQ_USER=$RABBITMQ_USER
-      - RABBITMQ_PASSWORD=$RABBITMQ_PASSWORD
+      - RABBITMQ_USER=$RABBITMQ_FRIEND_PATH_USER
+      - RABBITMQ_PASSWORD=$RABBITMQ_FRIEND_PATH_PASSWORD
       - RABBITMQ_INVITE_EXCHANGE=$RABBITMQ_INVITE_EXCHANGE
       - RABBITMQ_USER_EXCHANGE=$RABBITMQ_USER_EXCHANGE
       - EMAIL_AZURE_FUNCTION_URL=$EMAIL_AZURE_FUNCTION_URL
-    networks:
-      - docker-net
+    networks: [docker-net]
     healthcheck:
       test: ["CMD", "curl", "http://localhost/friend/health"]
       interval: 1m30s
@@ -111,21 +168,65 @@ services:
 
   rss-path:
     container_name: rss-path
-    restart: always
+    restart: unless-stopped
     build:
       context: .
       dockerfile: ./configs/rss-path/rss-path.dockerfile
-    networks:
-      - docker-net
+    networks: [docker-net]
+
+  wishes-service:
+    container_name: wishes-service
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - rabbitmq
+    build:
+      context: .
+      dockerfile: ./configs/wishes-service/wishes-service.dockerfile
+    environment:
+      RABBITMQ_HOST: $RABBITMQ_HOST
+      RABBITMQ_VHOST: $RABBITMQ_VHOST
+      RABBITMQ_USER: $RABBITMQ_USER
+      RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
+      RABBITMQ_USER_EXCHANGE: $RABBITMQ_USER_EXCHANGE
+      POSTGRES_HOST: ${WISHES_POSTGRES_HOST:-localhost}
+      POSTGRES_PORT: ${WISHES_POSTGRES_PORT:-5432}
+      POSTGRES_USER: ${WISHES_POSTGRES_USER:-root}
+      POSTGRES_PASSWORD: ${WISHES_POSTGRES_PASSWORD:-root}
+      POSTGRES_DATABASE: ${WISHES_POSTGRES_DATABASE:-integration}
+    networks: [docker-net]
+  
+  postgres:
+    container_name: sys-postgres
+    restart: unless-stopped
+    image: postgres
+    environment:
+      POSTGRES_USER: ${WISHES_POSTGRES_USER:-root}
+      POSTGRES_PASSWORD: ${WISHES_POSTGRES_PASSWORD:-root}
+      POSTGRES_DB: ${WISHES_POSTGRES_DATABASE:-integration}
+      PGDATA: /data/postgres
+    volumes:
+       - postgres:/data/postgres
+    networks: [docker-net]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "$WISHES_POSTGRES_DATABASE"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 10s  
+
 
 # ---------------------------------
 # ------------ NETWORK ------------
 networks:
   docker-net:
     name: docker-net
+  user-service-net:
+    name: user-service-net
 
 # ---------------------------------
 # ------------ VOLUMES ------------
 volumes:
   ftp-uploads:
     name: ftp-uploads
+  postgres:

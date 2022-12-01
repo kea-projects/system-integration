@@ -7,7 +7,7 @@ import { Server } from "socket.io";
 
 import { validateToken } from "./middleware/auth.js";
 import { validateSocketToken } from "./middleware/socket-auth.js";
-import { checkUserIsInvited } from "./utils/amqp-utils.js";
+import { checkUserIsInvited, sendInviteProcedure } from "./utils/amqp-utils.js";
 import { getAuthUser } from "./utils/auth-utils.js";
 import { emitStatusUpdate, getSocketUser } from "./utils/socket-utils.js";
 import { validateEmail } from "./utils/validators.js";
@@ -53,24 +53,14 @@ app.post("/friend/invite", validateToken, (req, res) => {
       if (response === true) {
         res.status(400).send({ message: "Email already invited." });
       } else {
-        if (!process.env.EMAIL_AZURE_FUNCTION_URL) {
-          res.status(500).send({
-            message:
-              "We are unable to perform an email invite at this moment. PLease try again later.",
-          });
-        }
-        fetch(process.env.EMAIL_AZURE_FUNCTION_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
+        sendInviteProcedure(
+          {
             invitee: getAuthUser(req),
             invited: email,
-          }),
-        });
-
-        res.send({ message: "User invited!" });
+          },
+          (message) => res.send({ message: "User invited!" }),
+          () => res.status(500).send({ message: "An error has ocurred." })
+        );
       }
     },
     () => res.status(500).send({ message: "An error has ocurred." })
