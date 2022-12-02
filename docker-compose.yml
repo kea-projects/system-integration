@@ -163,6 +163,10 @@ services:
       dockerfile: ./configs/graphql-api/graphql-api.dockerfile
     networks:
       - docker-net
+    environment:
+      - SFTP_USERNAME=$SFTP_USERNAME
+    volumes:
+      - ftp-uploads:/apps/upload
   
       
 
