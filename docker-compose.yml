@@ -178,7 +178,7 @@ services:
     container_name: wishes-service
     restart: unless-stopped
     depends_on:
-      - postgres
+      - sys-postgres
       - rabbitmq
     build:
       context: .
@@ -196,7 +196,7 @@ services:
       POSTGRES_DATABASE: ${WISHES_POSTGRES_DATABASE:-integration}
     networks: [docker-net]
   
-  postgres:
+  sys-postgres:
     container_name: sys-postgres
     restart: unless-stopped
     image: postgres
@@ -206,14 +206,8 @@ services:
       POSTGRES_DB: ${WISHES_POSTGRES_DATABASE:-integration}
       PGDATA: /data/postgres
     volumes:
-       - postgres:/data/postgres
+       - sys-postgres:/data/postgres
     networks: [docker-net]
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "$WISHES_POSTGRES_DATABASE"]
-      interval: 30s
-      timeout: 60s
-      retries: 5
-      start_period: 10s  
 
 
 # ---------------------------------
@@ -229,4 +223,5 @@ networks:
 volumes:
   ftp-uploads:
     name: ftp-uploads
-  postgres:
+  sys-postgres:
+    name: sys-postgres
