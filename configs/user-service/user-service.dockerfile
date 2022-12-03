@@ -1,5 +1,5 @@
 # Use Bullseye since slim doesn't work due to issues with postgres connection
-FROM python:3.10.7-bullseye
+FROM python:3.10-slim-bullseye
 
 # Install poetry
 RUN pip install poetry
@@ -9,7 +9,7 @@ WORKDIR /service
 ENV PYTHONUNBUFFERED=1
 
 # Required for psycog2 build
-RUN apt-get update && apt-get install libpq-dev python-dev -y
+RUN apt-get update && apt-get install libpq-dev python3-dev gcc -y
 
 COPY ./apps/user-service/poetry.lock /service/
 COPY ./apps/user-service/pyproject.toml /service/
