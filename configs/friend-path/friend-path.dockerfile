@@ -6,6 +6,8 @@ EXPOSE 8080
 # Setting the work direcory for our app.
 WORKDIR /app
 
+RUN apk update && apk add curl
+
 # Copy the source code
 # Note: some files are ignored in the .dockerignore of the app.
 COPY ./apps/friend-path /app/
