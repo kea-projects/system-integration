@@ -25,12 +25,26 @@ services:
     build:
       context: .
       dockerfile: ./configs/gateway/gateway.dockerfile
-    image: systemintegrationdeployment.azurecr.io/gateway
+    image: sideploy.azurecr.io/gateway
     networks: [docker-net]
     ports:
       - 80:80 # http
       - 3000:3000 # SFTP server
       # - 443:443
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: '0.1GB'
+    depends_on:
+      friend-path:
+        condition: service_healthy
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
+
 
   sftp-server:
     container_name: sftp-server
@@ -38,7 +52,7 @@ services:
     build:
       context: .
       dockerfile: ./configs/atmoz-sftp/atmoz-sftp.dockerfile
-    image: systemintegrationdeployment.azurecr.io/sftp-server
+    image: sideploy.azurecr.io/sftp-server
     environment:
       - SFTP_USERNAME=$SFTP_USERNAME
       - SFTP_PASSWORD=$SFTP_PASSWORD
@@ -47,6 +61,16 @@ services:
     volumes:
       - ftp-uploads:/home/$SFTP_USERNAME/upload
     command: "$SFTP_USERNAME:$SFTP_PASSWORD:1001"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: '0.2GB'
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
 
   rabbitmq:
     container_name: rabbitmq
@@ -54,7 +78,7 @@ services:
     build:
       context: .
       dockerfile: ./configs/rabbitmq/rabbitmq.dockerfile
-    image: systemintegrationdeployment.azurecr.io/rabbitmq
+    image: sideploy.azurecr.io/rabbitmq
     #ports:
       # Exposing the port for the mock email and user services to be able 
       # connect to RabbitMQ until they are fully implemented
@@ -67,6 +91,16 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '0.7GB'
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
 
   pictures-server:
     container_name: pictures-server
@@ -74,12 +108,25 @@ services:
     build:
       context: .
       dockerfile: ./configs/profile-picture-path/profile-pics.dockerfile
-    image: systemintegrationdeployment.azurecr.io/pictures-server
+    image: sideploy.azurecr.io/pictures-server
     environment:
       - AZURE_CONNECTION_STRING=$AZURE_CONNECTION_STRING
       - AZURE_STORAGE_ACCOUNT_NAME=$AZURE_STORAGE_ACCOUNT_NAME
       - AZURE_CONTAINER_NAME=$AZURE_CONTAINER_NAME
     networks: [docker-net]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '0.1GB'
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
 
   authentication-path:
     container_name: authentication-path
@@ -87,7 +134,7 @@ services:
     build:
       context: .
       dockerfile: ./configs/authentication-path/authentication-path.dockerfile
-    image: systemintegrationdeployment.azurecr.io/authentication-path
+    image: sideploy.azurecr.io/authentication-path
     environment:
       - AUTHENTICATION_PATH_PORT=$AUTHENTICATION_PATH_PORT
       - AUTHENTICATION_PATH_HOST=$AUTHENTICATION_PATH_HOST
@@ -99,6 +146,19 @@ services:
       - RABBITMQ_USER=$RABBITMQ_USER
       - RABBITMQ_USER_EXCHANGE=$RABBITMQ_USER_EXCHANGE
     networks: [docker-net]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '0.1GB'
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   user-service:
     container_name: user-service
@@ -106,7 +166,7 @@ services:
     build:
       context: .
       dockerfile: ./configs/user-service/user-service.dockerfile
-    image: systemintegrationdeployment.azurecr.io/user-service
+    image: sideploy.azurecr.io/user-service
     environment:
       - PASSWORD_MIN_LENGTH=$PASSWORD_MIN_LENGTH
       - EMAIL_JWT_SECRET=$EMAIL_JWT_SECRET
@@ -123,20 +183,39 @@ services:
       - RABBITMQ_VHOST=$RABBITMQ_VHOST
       - EMAIL_AZURE_FUNCTION_URL=$EMAIL_AZURE_FUNCTION_URL
     networks: [docker-net, user-service-net]
-    depends_on: 
-      rabbitmq: 
-        condition: service_started
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '0.6GB'
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
 
   user-service-db:
     container_name: user-service-db
     restart: unless-stopped
-    # todo: refactor ? # image: systemintegrationdeployment.azurecr.io/user-service-db
     image: postgres:alpine # docs: https://github.com/docker-library/docs/blob/master/postgres/README.md
     environment:
       - POSTGRES_USER=$USER_SERVICE_POSTGRES_USER
       - POSTGRES_PASSWORD=$USER_SERVICE_POSTGRES_PASSWORD
       - POSTGRES_DB=$USER_SERVICE_POSTGRES_DB
     networks: [user-service-net]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.20'
+          memory: '0.3GB'
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
 
   friend-path:
     container_name: friend-path
@@ -146,7 +225,7 @@ services:
     build:
       context: .
       dockerfile: ./configs/friend-path/friend-path.dockerfile
-    image: systemintegrationdeployment.azurecr.io/friend-path
+    image: sideploy.azurecr.io/friend-path
     environment:
       - RABBITMQ_HOST=$RABBITMQ_HOST
       - RABBITMQ_VHOST=$RABBITMQ_VHOST
@@ -157,11 +236,24 @@ services:
       - EMAIL_AZURE_FUNCTION_URL=$EMAIL_AZURE_FUNCTION_URL
     networks: [docker-net]
     healthcheck:
-      test: ["CMD", "curl", "http://localhost/friend/health"]
-      interval: 1m30s
+      test: ["CMD", "curl", "http://localhost:8080/friend/health"]
+      interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '0.1GB'
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
       
   graphql-api:
     container_name: graphql-api
@@ -169,13 +261,26 @@ services:
     build:
       context: .
       dockerfile: ./configs/graphql-api/graphql-api.dockerfile
-    image: systemintegrationdeployment.azurecr.io/graphql-api
+    image: sideploy.azurecr.io/graphql-api
     networks:
       - docker-net
     environment:
       - SFTP_USERNAME=$SFTP_USERNAME
     volumes:
       - ftp-uploads:/apps/upload
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '0.2GB'
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
   
       
 
@@ -185,19 +290,29 @@ services:
     build:
       context: .
       dockerfile: ./configs/rss-path/rss-path.dockerfile
-    image: systemintegrationdeployment.azurecr.io/rss-path
+    image: sideploy.azurecr.io/rss-path
     networks: [docker-net]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '0.2GB'
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
 
   wishes-service:
     container_name: wishes-service
     restart: unless-stopped
     depends_on:
-      - sys-postgres
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
     build:
       context: .
       dockerfile: ./configs/wishes-service/wishes-service.dockerfile
-    image: systemintegrationdeployment.azurecr.io/wishes-service
+    image: sideploy.azurecr.io/wishes-service
     environment:
       RABBITMQ_HOST: $RABBITMQ_HOST
       RABBITMQ_VHOST: $RABBITMQ_VHOST
@@ -210,12 +325,22 @@ services:
       POSTGRES_PASSWORD: ${WISHES_POSTGRES_PASSWORD:-root}
       POSTGRES_DATABASE: ${WISHES_POSTGRES_DATABASE:-integration}
     networks: [docker-net]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '0.1GB'
+
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
   
   sys-postgres:
     container_name: sys-postgres
     restart: unless-stopped
-    # todo: refactor ? # image: systemintegrationdeployment.azurecr.io/user-service-db
-    image: postgres
+    image: postgres:alpine
     environment:
       POSTGRES_USER: ${WISHES_POSTGRES_USER:-root}
       POSTGRES_PASSWORD: ${WISHES_POSTGRES_PASSWORD:-root}
@@ -224,7 +349,16 @@ services:
     volumes:
        - sys-postgres:/data/postgres
     networks: [docker-net]
-
+    deploy:
+      resources:
+        limits:
+          cpus: '0.20'
+          memory: '0.2GB'
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
 
 # ---------------------------------
 # ------------ NETWORK ------------
@@ -239,5 +373,15 @@ networks:
 volumes:
   ftp-uploads:
     name: ftp-uploads
+    driver: azure_file
+    driver_opts:
+      share_name: ftp-uploads
+      storage_account_name: sideploystorage
+      #remotepath: home
   sys-postgres:
     name: sys-postgres
+    driver: azure_file
+    driver_opts:
+      share_name: sys-postgres
+      storage_account_name: sideploystorage
+      #remotepath: home
