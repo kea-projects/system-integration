@@ -185,7 +185,7 @@ services:
     build:
       context: .
       dockerfile: ./configs/rss-path/rss-path.dockerfile
-    image: image: systemintegrationdeployment.azurecr.io/rss-path
+    image: systemintegrationdeployment.azurecr.io/rss-path
     networks: [docker-net]
 
   wishes-service:
@@ -215,7 +215,7 @@ services:
     container_name: sys-postgres
     restart: unless-stopped
     # todo: refactor ? # image: systemintegrationdeployment.azurecr.io/user-service-db
-    image: systemintegrationdeployment.azurecr.io/
+    image: postgres
     environment:
       POSTGRES_USER: ${WISHES_POSTGRES_USER:-root}
       POSTGRES_PASSWORD: ${WISHES_POSTGRES_PASSWORD:-root}
