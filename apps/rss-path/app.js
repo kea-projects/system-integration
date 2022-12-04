@@ -6,7 +6,7 @@ import RSS from "rss";
 import { v4 as uuidv4 } from "uuid";
 import { wishes } from "./constants/wishes.constant.js";
 
-const PORT = process.env.SERVER_PORT || 8080;
+const PORT = process.env.SERVER_PORT || 8084;
 const feed = new RSS({
   title: "The wishes",
   description: "What people wish for",
