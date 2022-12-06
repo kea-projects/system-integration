@@ -20,7 +20,7 @@ echo "[INFO]: Email is: $EMAIL"
 
 # Generate the tokens
 echo "Generating tokens..."
-certbot --nginx -d $DOMAIN_NAME --non-interactive --agree-tos --staging -m $EMAIL
+certbot --nginx -d $DOMAIN_NAME --non-interactive --agree-tos -m $EMAIL
 
 
 # Add cronjob for renewing certs - 30 days

@@ -21,7 +21,7 @@ version: "3"
 services:
   gateway: # NGINX
     container_name: gateway
-    restart: unless-stopped
+    restart: always
     build:
       context: .
       dockerfile: ./configs/gateway/gateway.dockerfile
@@ -30,17 +30,18 @@ services:
     ports:
       - 80:80 # http
       - 3000:3000 # SFTP server
+      - 443:443
       # - 443:443
     deploy:
       resources:
         limits:
           cpus: '0.2'
           memory: '0.1GB'
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 6
-        window: 60s
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 6
+      #   window: 60s
     depends_on:
       friend-path:
         condition: service_started
@@ -49,7 +50,7 @@ services:
 
   sftp-server:
     container_name: sftp-server
-    restart: unless-stopped
+    restart: always
     build:
       context: .
       dockerfile: ./configs/atmoz-sftp/atmoz-sftp.dockerfile
@@ -69,15 +70,15 @@ services:
         limits:
           cpus: '0.2'
           memory: '0.2GB'
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 60s
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
 
   rabbitmq:
     container_name: rabbitmq
-    restart: unless-stopped
+    restart: always
     build:
       context: .
       dockerfile: ./configs/rabbitmq/rabbitmq.dockerfile
@@ -99,15 +100,15 @@ services:
         limits:
           cpus: '0.5'
           memory: '0.7GB'
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 60s
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
 
   pictures-server:
     container_name: pictures-server
-    restart: unless-stopped
+    restart: always
     build:
       context: .
       dockerfile: ./configs/profile-picture-path/profile-pics.dockerfile
@@ -126,15 +127,15 @@ services:
         limits:
           cpus: '0.3'
           memory: '0.1GB'
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 60s
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
 
   authentication-path:
     container_name: authentication-path
-    restart: unless-stopped
+    restart: always
     build:
       context: .
       dockerfile: ./configs/authentication-path/authentication-path.dockerfile
@@ -155,18 +156,18 @@ services:
         limits:
           cpus: '0.3'
           memory: '0.1GB'
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 60s
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
     depends_on:
       rabbitmq:
         condition: service_started
 
   user-service:
     container_name: user-service
-    restart: unless-stopped
+    restart: always
     build:
       context: .
       dockerfile: ./configs/user-service/user-service.dockerfile
@@ -187,9 +188,9 @@ services:
       - RABBITMQ_VHOST=$RABBITMQ_VHOST
       - EMAIL_AZURE_FUNCTION_URL=$EMAIL_AZURE_FUNCTION_URL
     networks: [docker-net, user-service-net]
-    # depends_on:
-    #   rabbitmq:
-    #     condition: service_started
+    depends_on:
+      rabbitmq:
+        condition: service_started
     deploy:
       resources:
         limits:
@@ -203,7 +204,7 @@ services:
 
   user-service-db:
     container_name: user-service-db
-    restart: unless-stopped
+    restart: always
     image: postgres:alpine # docs: https://github.com/docker-library/docs/blob/master/postgres/README.md
     environment:
       - POSTGRES_USER=$USER_SERVICE_POSTGRES_USER
@@ -216,17 +217,18 @@ services:
         limits:
           cpus: '0.30'
           memory: '0.2GB'
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 60s
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
 
   friend-path:
     container_name: friend-path
-    restart: unless-stopped
+    restart: always
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_started
     build:
       context: .
       dockerfile: ./configs/friend-path/friend-path.dockerfile
@@ -247,23 +249,20 @@ services:
     #   timeout: 10s
     #   retries: 3
     #   start_period: 30s
-    depends_on:
-      rabbitmq:
-        condition: service_started
     deploy:
       resources:
         limits:
           cpus: '0.3'
           memory: '0.1GB'
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 60s
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
       
   graphql-api:
     container_name: graphql-api
-    restart: unless-stopped
+    restart: always
     build:
       context: .
       dockerfile: ./configs/graphql-api/graphql-api.dockerfile
@@ -279,11 +278,11 @@ services:
         limits:
           cpus: '0.3'
           memory: '0.2GB'
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 60s
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
     depends_on:
       rabbitmq:
         condition: service_started
@@ -293,7 +292,7 @@ services:
 
   rss-path:
     container_name: rss-path
-    restart: unless-stopped
+    restart: always
     build:
       context: .
       dockerfile: ./configs/rss-path/rss-path.dockerfile
@@ -306,15 +305,15 @@ services:
         limits:
           cpus: '0.5'
           memory: '0.2GB'
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 60s
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
 
   wishes-service:
     container_name: wishes-service
-    restart: unless-stopped
+    restart: always
     depends_on:
       rabbitmq:
         condition: service_started
@@ -340,15 +339,15 @@ services:
         limits:
           cpus: '0.3'
           memory: '0.1GB'
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 60s
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
   
   sys-postgres:
     container_name: sys-postgres
-    restart: unless-stopped
+    restart: always
     image: postgres:alpine
     environment:
       POSTGRES_USER: ${WISHES_POSTGRES_USER:-root}
@@ -363,11 +362,11 @@ services:
         limits:
           cpus: '0.30'
           memory: '0.2GB'
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 60s
+      # restart_policy:
+      #   condition: on-failure
+      #   delay: 5s
+      #   max_attempts: 3
+      #   window: 60s
 
 # ---------------------------------
 # ------------ NETWORK ------------
