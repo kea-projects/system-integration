@@ -16,10 +16,12 @@ version: "3"
 # * `docker compose down -v`
 # This will ensure that the volume is deleted too.
 
+# Startup order: non-rabbitmq services & rabbitmq -> rabbitmq dependent services -> Nginx
+
 # ---------------------------------
 # ------------ GATEWAY ------------
 services:
-  gateway: # NGINX
+  gateway:
     container_name: gateway
     build:
       context: .
@@ -42,7 +44,7 @@ services:
         window: 60s
     depends_on:
       friend-path:
-        condition: service_started
+        condition: service_healthy
 
 
 
@@ -80,7 +82,7 @@ services:
     image: sideploy.azurecr.io/rabbitmq
     networks: [docker-net]
     healthcheck:
-      test: ls
+      test: rabbitmq-diagnostics -q ping
       interval: 20s
       timeout: 5s
       retries: 3
@@ -120,7 +122,7 @@ services:
         window: 60s
     depends_on:
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
 
   authentication-path:
     container_name: authentication-path
@@ -151,7 +153,7 @@ services:
         window: 60s
     depends_on:
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
 
   user-service:
     container_name: user-service
@@ -177,7 +179,7 @@ services:
     networks: [docker-net, user-service-net]
     depends_on:
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
     deploy:
       resources:
         limits:
@@ -243,7 +245,7 @@ services:
         window: 60s
     depends_on:
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
       
   graphql-api:
     container_name: graphql-api
@@ -269,7 +271,7 @@ services:
         window: 60s
     depends_on:
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
 
   
       
@@ -325,7 +327,7 @@ services:
         window: 60s
     depends_on:
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
   
   sys-postgres:
     container_name: sys-postgres
