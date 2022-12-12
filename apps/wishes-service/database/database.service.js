@@ -63,3 +63,17 @@ export const getWishes = async () => {
   });
   return result.rows;
 };
+
+export const deleteWish = async (product_name, user_id) => {
+  const id = uuidv4();
+  const result = await client
+    .query(
+      `DELETE FROM wishes WHERE product_name = $1::text AND user_id = $2::text`,
+      [product_name, user_id]
+    )
+    .catch((err) => {
+      console.log(chalk.redBright(`[ERROR] Failed to delete a wish`, err));
+    });
+  console.log("result");
+  return result;
+};
