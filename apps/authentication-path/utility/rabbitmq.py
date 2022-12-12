@@ -60,7 +60,7 @@ class RabbitMqRpcClient(object):
             ),
             body=json.dumps(n),
         )
-        self.connection.process_data_events(time_limit=2)
+        self.connection.process_data_events(time_limit=10)
 
         if self.response is None:
             return None
