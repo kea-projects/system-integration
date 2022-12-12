@@ -30,6 +30,12 @@ app.all("/wishes*", (req, res) => {
         requirements: "Request Body with productName field, and a bearer token",
         returns: "A created wish",
       },
+      deleteAWish: {
+        method: "DELETE",
+        route: "/wishes",
+        requirements: "Request Body with productName field, and a bearer token",
+        returns: "Http status code 204: No Content",
+      },
     },
   });
 });

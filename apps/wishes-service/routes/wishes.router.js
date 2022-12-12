@@ -45,5 +45,5 @@ wishesRouter.delete("/", validateToken, async (req, res) => {
   }
   const userId = getUserId(req);
   await deleteWish(req.body.productName, userId);
-  res.status(204).send({ message: "Deleted" });
+  res.status(204).send();
 });
