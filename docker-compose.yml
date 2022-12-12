@@ -27,7 +27,7 @@ services:
       dockerfile: ./configs/gateway/gateway.dockerfile
     networks: [docker-net]
     ports:
-      #- 80:80 # http
+      - 80:80 # http
       - 3000:3000 # SFTP server
       # - 443:443
 
