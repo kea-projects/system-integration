@@ -54,6 +54,9 @@ export const createWish = async (product_name, user_id) => {
     .catch((err) => {
       console.log(chalk.redBright(`[ERROR] Failed to get a created wish`, err));
     });
+  console.log(
+    chalk.green(`[INFO] A wish has been created for user: ${user_id}`)
+  );
   return result.rows[0];
 };
 
@@ -62,4 +65,17 @@ export const getWishes = async () => {
     console.log(chalk.redBright(`[ERROR] Failed to fetch wishes`, err));
   });
   return result.rows;
+};
+
+export const deleteWish = async (product_name, user_id) => {
+  const result = await client
+    .query(
+      `DELETE FROM wishes WHERE product_name = $1::text AND user_id = $2::text`,
+      [product_name, user_id]
+    )
+    .catch((err) => {
+      console.log(chalk.redBright(`[ERROR] Failed to delete a wish`, err));
+    });
+  console.log(chalk.green(`[INFO] Deleted a wish of user: ${user_id}`));
+  return result;
 };
