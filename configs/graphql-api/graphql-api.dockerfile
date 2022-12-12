@@ -10,6 +10,8 @@ WORKDIR /app
 # Note: some files are ignored in the .dockerignore of the app.
 COPY ./apps/graphql-api /app/
 
+RUN apk add python3 make gcc libc-dev g++
+RUN npm install sqlite3
 # Install dependencies
 RUN npm install --only-production --force
 
