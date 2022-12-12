@@ -316,7 +316,10 @@ services:
       - POSTGRES_PASSWORD=$USER_SERVICE_POSTGRES_PASSWORD
       - POSTGRES_DB=$USER_SERVICE_POSTGRES_DB
       - PGPORT=5433
+      - PGDATA=/data/postgres
     networks: [user-service-net]
+    volumes:
+      - user-service-db-volume:/data/postgres
     deploy:
       resources:
         limits:
@@ -351,16 +354,14 @@ services:
         max_attempts: 3
         window: 60s
 
-# ---------------------------------
-# ------------ NETWORK ------------
+# ---- Configuration Section ----
+
 networks:
   docker-net:
     name: docker-net
   user-service-net:
     name: user-service-net
 
-# ---------------------------------
-# ------------ VOLUMES ------------
 volumes:
   ftp-uploads:
     name: ftp-uploads
