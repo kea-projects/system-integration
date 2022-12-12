@@ -1,0 +1,307 @@
+version: "3"
+# # INFO
+# All $VARIABLES are currently stored in a .env file on the same level as this
+# document, please remember to populate it.
+#
+# You can test to see if the variables are loading correctly with the command:
+# * `docker compose config`
+# If the variables still have a $ on them then the .env is not being loaded.
+
+# # USAGE
+# The reccomended commands when working with docker compose is to use:
+# * `docker compose up --build`
+# This will force any container with changes to rebuild
+#
+# The reccomended way to take down the containers is with:
+# * `docker compose down -v`
+# This will ensure that the volume is deleted too.
+
+# ---------------------------------
+# ------------ GATEWAY ------------
+services:
+  gateway: # NGINX
+    container_name: gateway
+    restart: always
+    build:
+      context: .
+      dockerfile: ./configs/gateway/gateway.dockerfile
+    image: sideploy.azurecr.io/gateway
+    networks: [docker-net]
+    ports:
+      - 80:80 # http
+      - 3000:3000 # SFTP server
+      - 443:443 # https
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: '0.1GB'
+    depends_on:
+      friend-path:
+        condition: service_started
+
+
+
+  sftp-server:
+    container_name: sftp-server
+    restart: always
+    build:
+      context: .
+      dockerfile: ./configs/atmoz-sftp/atmoz-sftp.dockerfile
+      args:
+        - SFTP_USERNAME=$SFTP_USERNAME
+        - SFTP_PASSWORD=$SFTP_PASSWORD
+    image: sideploy.azurecr.io/sftp-server
+    environment:
+      - SFTP_USERNAME=$SFTP_USERNAME
+      - SFTP_PASSWORD=$SFTP_PASSWORD
+    networks: [docker-net]
+    volumes:
+      - ftp-uploads:/home/$SFTP_USERNAME/upload
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: '0.2GB'
+
+  rabbitmq:
+    container_name: rabbitmq
+    restart: always
+    build:
+      context: .
+      dockerfile: ./configs/rabbitmq/rabbitmq.dockerfile
+    image: sideploy.azurecr.io/rabbitmq
+    networks: [docker-net]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '0.7GB'
+
+  pictures-server:
+    container_name: pictures-server
+    restart: always
+    build:
+      context: .
+      dockerfile: ./configs/profile-picture-path/profile-pics.dockerfile
+    image: sideploy.azurecr.io/pictures-server
+    environment:
+      - AZURE_CONNECTION_STRING=$AZURE_CONNECTION_STRING
+      - AZURE_STORAGE_ACCOUNT_NAME=$AZURE_STORAGE_ACCOUNT_NAME
+      - AZURE_CONTAINER_NAME=$AZURE_CONTAINER_NAME
+      - SERVER_PORT=$PICTURE_SERVER_PORT
+    networks: [docker-net]
+    depends_on:
+      rabbitmq:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '0.1GB'
+
+  authentication-path:
+    container_name: authentication-path
+    restart: always
+    build:
+      context: .
+      dockerfile: ./configs/authentication-path/authentication-path.dockerfile
+    image: sideploy.azurecr.io/authentication-path
+    environment:
+      - AUTHENTICATION_PATH_PORT=$AUTHENTICATION_PATH_PORT
+      - AUTHENTICATION_PATH_HOST=$AUTHENTICATION_PATH_HOST
+      - RELOAD_UVICORN=$RELOAD_UVICORN
+      - RABBITMQ_USER_SERVICE_USER=$RABBITMQ_USER_SERVICE_USER
+      - RABBITMQ_USER_SERVICE_PASSWORD=$RABBITMQ_USER_SERVICE_PASSWORD
+      - RABBITMQ_HOST=$RABBITMQ_HOST
+      - RABBITMQ_VHOST=$RABBITMQ_VHOST
+      - RABBITMQ_USER=$RABBITMQ_USER
+      - RABBITMQ_USER_EXCHANGE=$RABBITMQ_USER_EXCHANGE
+    networks: [docker-net]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '0.1GB'
+    depends_on:
+      rabbitmq:
+        condition: service_started
+
+  user-service:
+    container_name: user-service
+    restart: always
+    build:
+      context: .
+      dockerfile: ./configs/user-service/user-service.dockerfile
+    image: sideploy.azurecr.io/user-service
+    environment:
+      - PASSWORD_MIN_LENGTH=$PASSWORD_MIN_LENGTH
+      - EMAIL_JWT_SECRET=$EMAIL_JWT_SECRET
+      - AUTH_JWT_SECRET=$AUTH_JWT_SECRET
+      - POSTGRES_USER=$USER_SERVICE_POSTGRES_USER
+      - POSTGRES_PASSWORD=$USER_SERVICE_POSTGRES_PASSWORD
+      - POSTGRES_DB=$USER_SERVICE_POSTGRES_DB
+      - POSTGRES_HOST=$USER_SERVICE_POSTGRES_HOST
+      - POSTGRES_PORT=$USER_SERVICE_POSTGRES_PORT
+      - RABBITMQ_USER_EXCHANGE=$RABBITMQ_USER_EXCHANGE
+      - RABBITMQ_USER_SERVICE_USER=$RABBITMQ_USER_SERVICE_USER
+      - RABBITMQ_USER_SERVICE_PASSWORD=$RABBITMQ_USER_SERVICE_PASSWORD
+      - RABBITMQ_HOST=$RABBITMQ_HOST
+      - RABBITMQ_VHOST=$RABBITMQ_VHOST
+      - EMAIL_AZURE_FUNCTION_URL=$EMAIL_AZURE_FUNCTION_URL
+    networks: [docker-net, user-service-net]
+    depends_on:
+      rabbitmq:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '0.6GB'
+
+  user-service-db:
+    container_name: user-service-db
+    restart: always
+    image: postgres:alpine # docs: https://github.com/docker-library/docs/blob/master/postgres/README.md
+    environment:
+      - POSTGRES_USER=$USER_SERVICE_POSTGRES_USER
+      - POSTGRES_PASSWORD=$USER_SERVICE_POSTGRES_PASSWORD
+      - POSTGRES_DB=$USER_SERVICE_POSTGRES_DB
+      - PGPORT=5433
+    networks: [user-service-net]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.30'
+          memory: '0.2GB'
+
+  friend-path:
+    container_name: friend-path
+    restart: always
+    depends_on:
+      rabbitmq:
+        condition: service_started
+    build:
+      context: .
+      dockerfile: ./configs/friend-path/friend-path.dockerfile
+    image: sideploy.azurecr.io/friend-path
+    environment:
+      - SERVER_PORT=$FRIEND_PATH_PORT
+      - RABBITMQ_HOST=$RABBITMQ_HOST
+      - RABBITMQ_VHOST=$RABBITMQ_VHOST
+      - RABBITMQ_USER=$RABBITMQ_FRIEND_PATH_USER
+      - RABBITMQ_PASSWORD=$RABBITMQ_FRIEND_PATH_PASSWORD
+      - RABBITMQ_INVITE_EXCHANGE=$RABBITMQ_INVITE_EXCHANGE
+      - RABBITMQ_USER_EXCHANGE=$RABBITMQ_USER_EXCHANGE
+      - EMAIL_AZURE_FUNCTION_URL=$EMAIL_AZURE_FUNCTION_URL
+    networks: [docker-net]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '0.1GB'
+      
+  graphql-api:
+    container_name: graphql-api
+    restart: always
+    build:
+      context: .
+      dockerfile: ./configs/graphql-api/graphql-api.dockerfile
+    image: sideploy.azurecr.io/graphql-api
+    networks:
+      - docker-net
+    environment:
+      - SFTP_USERNAME=$SFTP_USERNAME
+    volumes:
+      - ftp-uploads:/apps/upload
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '0.2GB'
+    depends_on:
+      rabbitmq:
+        condition: service_started
+
+  
+      
+
+  rss-path:
+    container_name: rss-path
+    restart: always
+    build:
+      context: .
+      dockerfile: ./configs/rss-path/rss-path.dockerfile
+    image: sideploy.azurecr.io/rss-path
+    networks: [docker-net]
+    environment:
+      - SERVER_PORT=$RSS_PATH_PORT
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '0.2GB'
+
+  wishes-service:
+    container_name: wishes-service
+    restart: always
+    depends_on:
+      rabbitmq:
+        condition: service_started
+    build:
+      context: .
+      dockerfile: ./configs/wishes-service/wishes-service.dockerfile
+    image: sideploy.azurecr.io/wishes-service
+    environment:
+      SERVER_PORT: $WISHES_SERVICE_PORT
+      RABBITMQ_HOST: $RABBITMQ_HOST
+      RABBITMQ_VHOST: $RABBITMQ_VHOST
+      RABBITMQ_USER: $RABBITMQ_USER
+      RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
+      RABBITMQ_USER_EXCHANGE: $RABBITMQ_USER_EXCHANGE
+      POSTGRES_HOST: ${WISHES_POSTGRES_HOST:-localhost}
+      POSTGRES_PORT: ${WISHES_POSTGRES_PORT:-5432}
+      POSTGRES_USER: ${WISHES_POSTGRES_USER:-root}
+      POSTGRES_PASSWORD: ${WISHES_POSTGRES_PASSWORD:-root}
+      POSTGRES_DATABASE: ${WISHES_POSTGRES_DATABASE:-integration}
+    networks: [docker-net]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '0.1GB'
+  
+  sys-postgres:
+    container_name: sys-postgres
+    restart: always
+    image: postgres:alpine
+    environment:
+      POSTGRES_USER: ${WISHES_POSTGRES_USER:-root}
+      POSTGRES_PASSWORD: ${WISHES_POSTGRES_PASSWORD:-root}
+      POSTGRES_DB: ${WISHES_POSTGRES_DATABASE:-integration}
+      PGDATA: /data/postgres
+    networks: [docker-net]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.30'
+          memory: '0.2GB'
+
+# ---------------------------------
+# ------------ NETWORK ------------
+networks:
+  docker-net:
+    name: docker-net
+  user-service-net:
+    name: user-service-net
+
+# ---------------------------------
+# ------------ VOLUMES ------------
+volumes:
+  ftp-uploads:
+    name: ftp-uploads
+    driver: azure_file
+    driver_opts:
+      share_name: ftp-uploads
+      storage_account_name: sideployne
+      remotepath: home
