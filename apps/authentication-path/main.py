@@ -20,6 +20,13 @@ import uvicorn
 
 
 server = FastAPI(openapi_url="/auth/openapi.json", docs_url="/auth/docs")
+server.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @server.post(
@@ -112,6 +119,7 @@ def signup_route(signup_obj: SignupObject):
             log.info("User created successfully.")
             user_object = result.get("ok")
             import uuid
+
             return {
                 "user_id": uuid.UUID(user_object["user_id"]),
                 "email": user_object["email"],
@@ -198,15 +206,6 @@ if __name__ == "__main__":
     port = int(get_env("AUTHENTICATION_PATH_PORT"))
     host = get_env("AUTHENTICATION_PATH_HOST")
     will_reload = bool(int(get_env("RELOAD_UVICORN")))
-
-    origins = [f"http://{host}:{port}"]
-    server.add_middleware(
-        CORSMiddleware,
-        allow_origins=origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
     print(
         f"Server will run on port '{port}' on host '{host}'. Autoreload enabled?: '{will_reload}'."
     )

@@ -2,6 +2,10 @@
 # https://github.com/atmoz/sftp/issues/258
 FROM odidev/sftp
 
-COPY ./configs/atmoz-sftp/fix-permissions.sh /etc/sftp.d/fix-permissions.sh
+
+ARG SFTP_USERNAME
+ARG SFTP_PASSWORD
+RUN mkdir -p /etc/sftp
+RUN echo "$SFTP_USERNAME:$SFTP_PASSWORD:1001" > /etc/sftp/users.conf
 
 ENTRYPOINT ["/entrypoint"]

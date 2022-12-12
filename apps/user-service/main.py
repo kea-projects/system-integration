@@ -35,5 +35,3 @@ if __name__ == "__main__":
         process.start()
 
     print("Threads running")
-
-    exit(0)
