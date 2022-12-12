@@ -13,7 +13,7 @@ import { emitStatusUpdate, getSocketUser } from "./utils/socket-utils.js";
 import { validateEmail } from "./utils/validators.js";
 
 // ---- Config ----
-const PORT = process.env.SERVER_PORT || 8080;
+const PORT = process.env.SERVER_PORT || 8082;
 
 const app = express();
 const server = http.createServer(app);

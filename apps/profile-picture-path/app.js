@@ -6,7 +6,7 @@ import http from "http";
 import { picsRouter } from "./routes/pics.controller.js";
 
 // ---- Config ----
-const PORT = process.env.SERVER_PORT || 8080;
+const PORT = process.env.SERVER_PORT || 8083;
 
 const app = express();
 const server = http.createServer(app);

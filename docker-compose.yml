@@ -1,5 +1,5 @@
 version: "3"
-# # INFO
+# # Info
 # All $VARIABLES are currently stored in a .env file on the same level as this
 # document, please remember to populate it.
 #
@@ -7,7 +7,7 @@ version: "3"
 # * `docker compose config`
 # If the variables still have a $ on them then the .env is not being loaded.
 
-# # USAGE
+# # Usage
 # The reccomended commands when working with docker compose is to use:
 # * `docker compose up --build`
 # This will force any container with changes to rebuild
@@ -16,12 +16,24 @@ version: "3"
 # * `docker compose down -v`
 # This will ensure that the volume is deleted too.
 
-# ---------------------------------
-# ------------ GATEWAY ------------
+# # Startup order
+# non-rabbitmq services & rabbitmq -> rabbitmq dependent services -> Nginx
+#
+# Actual order of services waiting:
+# depnds_on: _nothing_ [graphql-api, rabbitmq, rss-path, sftp-server, user-service-db, sys-postgres]
+# depends_on: 'rabbitmq' [authentication-path, friend-path, pictures-server, user-service, wishes-service]
+# depends_on: 'friend_path' [nginx]
+#
+# And so the startup order is: no depends_on -> depends_on rabbitmq -> depends_on friend_path
+# This ensure that no services are started before each of their dependencies are ready
+
+
 services:
-  gateway: # NGINX
+
+# ---- NGINX ----
+
+  gateway:
     container_name: gateway
-    restart: unless-stopped
     build:
       context: .
       dockerfile: ./configs/gateway/gateway.dockerfile
@@ -29,57 +41,25 @@ services:
     ports:
       - 80:80 # http
       - 3000:3000 # SFTP server
-      # - 443:443
+      - 443:443 # https
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: '0.1GB'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 6
+        window: 60s
+    depends_on:
+      friend-path:
+        condition: service_healthy
 
-  sftp-server:
-    container_name: sftp-server
-    restart: unless-stopped
-    build:
-      context: .
-      dockerfile: ./configs/atmoz-sftp/atmoz-sftp.dockerfile
-    environment:
-      - SFTP_USERNAME=$SFTP_USERNAME
-      - SFTP_PASSWORD=$SFTP_PASSWORD
-    networks: [docker-net]
-    #ports: [22:22] # only open ports for direct container testing, let gateway reroute otherwise
-    volumes:
-      - ftp-uploads:/home/$SFTP_USERNAME/upload
-    command: "$SFTP_USERNAME:$SFTP_PASSWORD:1001"
-
-  rabbitmq:
-    container_name: rabbitmq
-    restart: unless-stopped
-    build:
-      context: .
-      dockerfile: ./configs/rabbitmq/rabbitmq.dockerfile
-    #ports:
-      # Exposing the port for the mock email and user services to be able 
-      # connect to RabbitMQ until they are fully implemented
-      # - 5672:5672
-      # - 8080:15672 # This is the port for the GUI
-    networks: [docker-net]
-    healthcheck:
-      test: rabbitmq-diagnostics -q ping
-      interval: 20s
-      timeout: 5s
-      retries: 3
-      start_period: 15s
-
-  pictures-server:
-    container_name: pictures-server
-    restart: unless-stopped
-    build:
-      context: .
-      dockerfile: ./configs/profile-picture-path/profile-pics.dockerfile
-    environment:
-      - AZURE_CONNECTION_STRING=$AZURE_CONNECTION_STRING
-      - AZURE_STORAGE_ACCOUNT_NAME=$AZURE_STORAGE_ACCOUNT_NAME
-      - AZURE_CONTAINER_NAME=$AZURE_CONTAINER_NAME
-    networks: [docker-net]
+# ---- RabbitMQ Dependant Services ----
 
   authentication-path:
     container_name: authentication-path
-    restart: unless-stopped
     build:
       context: .
       dockerfile: ./configs/authentication-path/authentication-path.dockerfile
@@ -94,10 +74,82 @@ services:
       - RABBITMQ_USER=$RABBITMQ_USER
       - RABBITMQ_USER_EXCHANGE=$RABBITMQ_USER_EXCHANGE
     networks: [docker-net]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '0.1GB'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  friend-path:
+    container_name: friend-path
+    build:
+      context: .
+      dockerfile: ./configs/friend-path/friend-path.dockerfile
+    environment:
+      - SERVER_PORT=$FRIEND_PATH_PORT
+      - RABBITMQ_HOST=$RABBITMQ_HOST
+      - RABBITMQ_VHOST=$RABBITMQ_VHOST
+      - RABBITMQ_USER=$RABBITMQ_FRIEND_PATH_USER
+      - RABBITMQ_PASSWORD=$RABBITMQ_FRIEND_PATH_PASSWORD
+      - RABBITMQ_INVITE_EXCHANGE=$RABBITMQ_INVITE_EXCHANGE
+      - RABBITMQ_USER_EXCHANGE=$RABBITMQ_USER_EXCHANGE
+      - EMAIL_AZURE_FUNCTION_URL=$EMAIL_AZURE_FUNCTION_URL
+    networks: [docker-net]
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost:$FRIEND_PATH_PORT/friend/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '0.1GB'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  pictures-server:
+    container_name: pictures-server
+    build:
+      context: .
+      dockerfile: ./configs/profile-picture-path/profile-pics.dockerfile
+    environment:
+      - AZURE_CONNECTION_STRING=$AZURE_CONNECTION_STRING
+      - AZURE_STORAGE_ACCOUNT_NAME=$AZURE_STORAGE_ACCOUNT_NAME
+      - AZURE_CONTAINER_NAME=$AZURE_CONTAINER_NAME
+      - SERVER_PORT=$PICTURE_SERVER_PORT
+    networks: [docker-net]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '0.1GB'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   user-service:
     container_name: user-service
-    restart: unless-stopped
     build:
       context: .
       dockerfile: ./configs/user-service/user-service.dockerfile
@@ -117,62 +169,27 @@ services:
       - RABBITMQ_VHOST=$RABBITMQ_VHOST
       - EMAIL_AZURE_FUNCTION_URL=$EMAIL_AZURE_FUNCTION_URL
     networks: [docker-net, user-service-net]
-    depends_on: 
-      rabbitmq: 
-        condition: service_started
-
-  user-service-db:
-    container_name: user-service-db
-    restart: unless-stopped
-    image: postgres:alpine # docs: https://github.com/docker-library/docs/blob/master/postgres/README.md
-    environment:
-      - POSTGRES_USER=$USER_SERVICE_POSTGRES_USER
-      - POSTGRES_PASSWORD=$USER_SERVICE_POSTGRES_PASSWORD
-      - POSTGRES_DB=$USER_SERVICE_POSTGRES_DB
-    networks: [user-service-net]
-
-  friend-path:
-    container_name: friend-path
-    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '0.6GB'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
     depends_on:
-      - rabbitmq
-    build:
-      context: .
-      dockerfile: ./configs/friend-path/friend-path.dockerfile
-    environment:
-      - RABBITMQ_HOST=$RABBITMQ_HOST
-      - RABBITMQ_VHOST=$RABBITMQ_VHOST
-      - RABBITMQ_USER=$RABBITMQ_FRIEND_PATH_USER
-      - RABBITMQ_PASSWORD=$RABBITMQ_FRIEND_PATH_PASSWORD
-      - RABBITMQ_INVITE_EXCHANGE=$RABBITMQ_INVITE_EXCHANGE
-      - RABBITMQ_USER_EXCHANGE=$RABBITMQ_USER_EXCHANGE
-      - EMAIL_AZURE_FUNCTION_URL=$EMAIL_AZURE_FUNCTION_URL
-    networks: [docker-net]
-    healthcheck:
-      test: ["CMD", "curl", "http://localhost/friend/health"]
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-
-  rss-path:
-    container_name: rss-path
-    restart: unless-stopped
-    build:
-      context: .
-      dockerfile: ./configs/rss-path/rss-path.dockerfile
-    networks: [docker-net]
+      rabbitmq:
+        condition: service_healthy
 
   wishes-service:
     container_name: wishes-service
-    restart: unless-stopped
-    depends_on:
-      - sys-postgres
-      - rabbitmq
     build:
       context: .
       dockerfile: ./configs/wishes-service/wishes-service.dockerfile
     environment:
+      SERVER_PORT: $WISHES_SERVICE_PORT
       RABBITMQ_HOST: $RABBITMQ_HOST
       RABBITMQ_VHOST: $RABBITMQ_VHOST
       RABBITMQ_USER: $RABBITMQ_USER
@@ -184,11 +201,140 @@ services:
       POSTGRES_PASSWORD: ${WISHES_POSTGRES_PASSWORD:-root}
       POSTGRES_DATABASE: ${WISHES_POSTGRES_DATABASE:-integration}
     networks: [docker-net]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '0.1GB'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+# ---- RabbitMQ & Non RabbitMQ Dependant Services  ----
+
+  graphql-api:
+    container_name: graphql-api
+    build:
+      context: .
+      dockerfile: ./configs/graphql-api/graphql-api.dockerfile
+    networks:
+      - docker-net
+    environment:
+      - SFTP_USERNAME=$SFTP_USERNAME
+    volumes:
+      - ftp-uploads:/apps/upload
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '0.2GB'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+
+  rabbitmq:
+    container_name: rabbitmq
+    build:
+      context: .
+      dockerfile: ./configs/rabbitmq/rabbitmq.dockerfile
+    networks: [docker-net]
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '0.7GB'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+
+  rss-path:
+    container_name: rss-path
+    build:
+      context: .
+      dockerfile: ./configs/rss-path/rss-path.dockerfile
+    networks: [docker-net]
+    environment:
+      - SERVER_PORT=$RSS_PATH_PORT
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '0.2GB'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+
+  sftp-server:
+    container_name: sftp-server
+    build:
+      context: .
+      dockerfile: ./configs/atmoz-sftp/atmoz-sftp.dockerfile
+      args:
+        - SFTP_USERNAME=$SFTP_USERNAME
+        - SFTP_PASSWORD=$SFTP_PASSWORD
+    environment:
+      - SFTP_USERNAME=$SFTP_USERNAME
+      - SFTP_PASSWORD=$SFTP_PASSWORD
+    networks: [docker-net]
+    volumes:
+      - ftp-uploads:/home/$SFTP_USERNAME/upload
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: '0.2GB'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+
+# ---- Databases ----
+
+  user-service-db:
+    container_name: user-service-db
+    image: postgres:alpine # docs: https://github.com/docker-library/docs/blob/master/postgres/README.md
+    environment:
+      - POSTGRES_USER=$USER_SERVICE_POSTGRES_USER
+      - POSTGRES_PASSWORD=$USER_SERVICE_POSTGRES_PASSWORD
+      - POSTGRES_DB=$USER_SERVICE_POSTGRES_DB
+      - PGPORT=5433
+      - PGDATA=/data/postgres
+    networks: [user-service-net]
+    volumes:
+      - user-service-db-volume:/data/postgres
+    deploy:
+      resources:
+        limits:
+          cpus: '0.30'
+          memory: '0.2GB'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+
   
   sys-postgres:
     container_name: sys-postgres
-    restart: unless-stopped
-    image: postgres
+    image: postgres:alpine
     environment:
       POSTGRES_USER: ${WISHES_POSTGRES_USER:-root}
       POSTGRES_PASSWORD: ${WISHES_POSTGRES_PASSWORD:-root}
@@ -197,20 +343,31 @@ services:
     volumes:
        - sys-postgres:/data/postgres
     networks: [docker-net]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.30'
+          memory: '0.2GB'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
 
+# ---- Configuration Section ----
 
-# ---------------------------------
-# ------------ NETWORK ------------
 networks:
   docker-net:
     name: docker-net
   user-service-net:
     name: user-service-net
 
-# ---------------------------------
-# ------------ VOLUMES ------------
 volumes:
   ftp-uploads:
     name: ftp-uploads
+
   sys-postgres:
     name: sys-postgres
+
+  user-service-db-volume:
+    name: user-service-db-volume

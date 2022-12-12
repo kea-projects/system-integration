@@ -5,7 +5,7 @@ import express from "express";
 import { initDatabase } from "./database/database.service.js";
 import { wishesRouter } from "./routes/wishes.router.js";
 
-const PORT = process.env.SERVER_PORT || 8080;
+const PORT = process.env.SERVER_PORT || 8085;
 const app = express({
   cors: {
     origin: "*",
