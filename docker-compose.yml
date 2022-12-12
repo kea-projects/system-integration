@@ -27,7 +27,6 @@ services:
     build:
       context: .
       dockerfile: ./configs/gateway/gateway.dockerfile
-    image: sideploy.azurecr.io/gateway
     networks: [docker-net]
     ports:
       - 80:80 # http
@@ -54,7 +53,6 @@ services:
     build:
       context: .
       dockerfile: ./configs/authentication-path/authentication-path.dockerfile
-    image: sideploy.azurecr.io/authentication-path
     environment:
       - AUTHENTICATION_PATH_PORT=$AUTHENTICATION_PATH_PORT
       - AUTHENTICATION_PATH_HOST=$AUTHENTICATION_PATH_HOST
@@ -85,7 +83,6 @@ services:
     build:
       context: .
       dockerfile: ./configs/friend-path/friend-path.dockerfile
-    image: sideploy.azurecr.io/friend-path
     environment:
       - SERVER_PORT=$FRIEND_PATH_PORT
       - RABBITMQ_HOST=$RABBITMQ_HOST
@@ -121,7 +118,6 @@ services:
     build:
       context: .
       dockerfile: ./configs/profile-picture-path/profile-pics.dockerfile
-    image: sideploy.azurecr.io/pictures-server
     environment:
       - AZURE_CONNECTION_STRING=$AZURE_CONNECTION_STRING
       - AZURE_STORAGE_ACCOUNT_NAME=$AZURE_STORAGE_ACCOUNT_NAME
@@ -147,7 +143,6 @@ services:
     build:
       context: .
       dockerfile: ./configs/user-service/user-service.dockerfile
-    image: sideploy.azurecr.io/user-service
     environment:
       - PASSWORD_MIN_LENGTH=$PASSWORD_MIN_LENGTH
       - EMAIL_JWT_SECRET=$EMAIL_JWT_SECRET
@@ -183,7 +178,6 @@ services:
     build:
       context: .
       dockerfile: ./configs/wishes-service/wishes-service.dockerfile
-    image: sideploy.azurecr.io/wishes-service
     environment:
       SERVER_PORT: $WISHES_SERVICE_PORT
       RABBITMQ_HOST: $RABBITMQ_HOST
@@ -218,7 +212,6 @@ services:
     build:
       context: .
       dockerfile: ./configs/graphql-api/graphql-api.dockerfile
-    image: sideploy.azurecr.io/graphql-api
     networks:
       - docker-net
     environment:
@@ -241,7 +234,6 @@ services:
     build:
       context: .
       dockerfile: ./configs/rabbitmq/rabbitmq.dockerfile
-    image: sideploy.azurecr.io/rabbitmq
     networks: [docker-net]
     healthcheck:
       test: rabbitmq-diagnostics -q ping
@@ -265,7 +257,6 @@ services:
     build:
       context: .
       dockerfile: ./configs/rss-path/rss-path.dockerfile
-    image: sideploy.azurecr.io/rss-path
     networks: [docker-net]
     environment:
       - SERVER_PORT=$RSS_PATH_PORT
@@ -288,7 +279,6 @@ services:
       args:
         - SFTP_USERNAME=$SFTP_USERNAME
         - SFTP_PASSWORD=$SFTP_PASSWORD
-    image: sideploy.azurecr.io/sftp-server
     environment:
       - SFTP_USERNAME=$SFTP_USERNAME
       - SFTP_PASSWORD=$SFTP_PASSWORD
