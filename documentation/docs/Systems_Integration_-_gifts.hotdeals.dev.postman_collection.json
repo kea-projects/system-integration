@@ -1,0 +1,606 @@
+{
+	"info": {
+		"_postman_id": "2996147c-e5b6-4b53-a030-10684f64560a",
+		"name": "Systems Integration - gifts.hotdeals.dev",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6628993"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"accessToken\", pm.response.json().token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@gmail.com\",\n    \"password\": \"abcDEF123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{serverUrl}}/auth/login",
+							"host": [
+								"{{serverUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "signup",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@gmail.com\",\n    \"name\": \"Example User\",\n    \"password\": \"abcDEF123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{serverUrl}}/auth/signup",
+							"host": [
+								"{{serverUrl}}"
+							],
+							"path": [
+								"auth",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "accept-invite",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"token-from-invite-email\"\n\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{serverUrl}}/auth/accept-invite",
+							"host": [
+								"{{serverUrl}}"
+							],
+							"path": [
+								"auth",
+								"accept-invite"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Friends",
+			"item": [
+				{
+					"name": "POST Invite",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"example@gmail.com\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{serverUrl}}/friend/invite",
+							"host": [
+								"{{serverUrl}}"
+							],
+							"path": [
+								"friend",
+								"invite"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{serverUrl}}/friend/health",
+							"host": [
+								"{{serverUrl}}"
+							],
+							"path": [
+								"friend",
+								"health"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Profile Pictures",
+			"item": [
+				{
+					"name": "Docs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{serverUrl}}/pictures",
+							"host": [
+								"{{serverUrl}}"
+							],
+							"path": [
+								"pictures"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all pics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{serverUrl}}/pictures/all",
+							"host": [
+								"{{serverUrl}}"
+							],
+							"path": [
+								"pictures",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all pic by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{serverUrl}}/pictures/:picId",
+							"host": [
+								"{{serverUrl}}"
+							],
+							"path": [
+								"pictures",
+								":picId"
+							],
+							"variable": [
+								{
+									"key": "picId",
+									"value": "e8f857a2-4544-4d99-bb3b-7ad8609ba4ce"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELET by Id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{serverUrl}}/pictures/:picId",
+							"host": [
+								"{{serverUrl}}"
+							],
+							"path": [
+								"pictures",
+								":picId"
+							],
+							"variable": [
+								{
+									"key": "picId",
+									"value": "e5042292-13d7-4cac-97bb-3afc102a6d08"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload pic",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "",
+									"description": "Set an image below 10MB. This one won't work for you",
+									"type": "file",
+									"src": "/Users/callibogoryja/Downloads/good horse (1).png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{serverUrl}}/pictures/123e4567-e89b-12d3-a456-426614174006",
+							"host": [
+								"{{serverUrl}}"
+							],
+							"path": [
+								"pictures",
+								"123e4567-e89b-12d3-a456-426614174006"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update pic",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "",
+									"description": "Set an image below 10MB. This one won't work for you",
+									"type": "file",
+									"src": "/O:/SyncData/Pictures/doggos/269778221_1150228752448843_5465733841138416891_n.jpg",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{serverUrl}}/pictures/:picId",
+							"host": [
+								"{{serverUrl}}"
+							],
+							"path": [
+								"pictures",
+								":picId"
+							],
+							"variable": [
+								{
+									"key": "picId",
+									"value": "ffc71a5b-5236-4e33-83ac-de03aed92829"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Wishes",
+			"item": [
+				{
+					"name": "docs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{serverUrl}}/wishes/docs",
+							"host": [
+								"{{serverUrl}}"
+							],
+							"path": [
+								"wishes",
+								"docs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{serverUrl}}/wishes",
+							"host": [
+								"{{serverUrl}}"
+							],
+							"path": [
+								"wishes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productName\": \"Postman Subscription\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{serverUrl}}/wishes",
+							"host": [
+								"{{serverUrl}}"
+							],
+							"path": [
+								"wishes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productName\": \"Postman Subscription\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{serverUrl}}/wishes",
+							"host": [
+								"{{serverUrl}}"
+							],
+							"path": [
+								"wishes"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{accessToken}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Graphql",
+			"item": [
+				{
+					"name": "Get Schema",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "{\n  __schema {\n    queryType {\n      fields {\n        name\n      }\n    }\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{serverUrl}}/graphql",
+							"host": [
+								"{{serverUrl}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Products",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "{\n  Products {\n    product_id\n    product_name\n    product_sub_title\n    product_description\n    main_category\n    sub_category\n    price\n    link\n    overall_rating\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{serverUrl}}/graphql",
+							"host": [
+								"{{serverUrl}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "RSS",
+			"item": [
+				{
+					"name": "Docs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{serverUrl}}/rss/docs",
+							"host": [
+								"{{serverUrl}}"
+							],
+							"path": [
+								"rss",
+								"docs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get RSS feed",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{serverUrl}}/rss",
+							"host": [
+								"{{serverUrl}}"
+							],
+							"path": [
+								"rss"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add item to RSS feed",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Wished for Item\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{serverUrl}}/rss",
+							"host": [
+								"{{serverUrl}}"
+							],
+							"path": [
+								"rss"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "serverUrl",
+			"value": "https://api.gifts.hotdeals.dev",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "changeMe",
+			"type": "string"
+		}
+	]
+}
