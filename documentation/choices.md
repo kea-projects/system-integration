@@ -55,6 +55,11 @@ speed of development, previous experience with it, and its generous free plan.
 The email service is deployed as a serverless function on Azure using Azure functions.
 This is due to the email service not needing to be online at all times.
 
+For the actual email sending we have chosen Sendgrid due to its ease of integration,
+attractive pricing, and previous team experience with it. Thanks to using Sendgrid
+were able to swiftly implement the email sending functionality and focus on more
+complex tasks.
+
 # User-Service
 We decided to implement some core application behavior as an independent
 service that would be callable by any other service via rabbitmq. This allows
@@ -83,3 +88,15 @@ communicate with RabbitMQ, and we found this to be rather complex. However,
 as rabbitmq is the broker, this allows the user-service and RabbitMQ to be
 deployed anywhere. Services ultimately only need to know where rabbitmq is, and
 RabbitMQ knows where all the other services are located.
+
+# RSS feed
+While RSS is a rather simple feature, there is many ways of going around
+how the XML data should be parsed and handled.
+We wanted to keep the application complexity low and fast to develop,
+so we opted for a third-party library that handles the RSS logic,
+and then exposed the data through Express REST endpoints.
+
+# Wishes Service Persistence Layer
+We have decided to use PostgreSQL database for the wishes service for its built-in
+support of UUID as a datatype, extensive documentation and previous experience with
+deploying Postgres databases.
