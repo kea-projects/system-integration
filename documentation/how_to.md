@@ -1,11 +1,9 @@
 # How to
-
 This document should contain the following:
 
 "Thorough how to guide for your own use that explains how you created each part of the system. Do it while you develop."
 
 # Profile Picture Path + Bonus: Implement it
-
 Since the beginning of the project we have been wondering what would be the best way to handle this.
 We were torn between storing it locally on the host machine's file system versus uploading it to a third-party service.
 In the end we have decided the better approach is to use a third-party system, for reasons mentioned in [the choices file](choices.md).
@@ -22,5 +20,55 @@ Sign up & log in to [Sirv](https://sirv.com/). Upload the picture to the its sto
 Add it to the nginx conf.d file at desired route and proxy it to the url, for example `/cdn/nice-logo-bro`.
 
 ## Azure serverless function for email service
-
 [Information is located here](./../apps/email-service/README.md)
+
+# Wishes Service:
+TODO: Kwandes
+
+# SFTP Server
+For our SFTP server we used a docker image called `atmoz/sftp`.
+
+With this image all we have to provide is a user configuration file that
+defines the username that we wish to create within the container, the password
+that would be used to connect to it and the linux user id. We then could use
+that user id to give the docker volume permissions that allowed our user to
+write to the uploads folder through a startup script in the image.
+
+# GraphQL API
+TODO: Teodor
+
+# Friend Path
+TODO: Cris
+
+# Auth Path
+We implemented the Authorization path in python with fast-api. It does not
+store any secrets of the system and is instead calling the user-service with
+RPC calls to validate all data, including decoding and generating tokens.
+
+A lot of effort was put into the fast-api components to be able to generate
+highly accurate openapi docs with relevant example data with both sample 
+queries and responses.
+
+# RSS Feed
+TODO: Kwandes
+
+# User Service
+The user service handles all data relating to users, users' invites and users'
+Authorization.
+
+The auth service is written in python and it defines all the user and invite 
+models and all the functions related to them, as well as all security token
+related behavior. It then spawns threads to listen for requests on predefined
+topics within RabbitMQ, allowing other services to call any one of these at any
+time.
+
+Any other internal service that needs to check wether a user exits, if a token 
+is valid, or to retrieve a list of invites can do so via rabbitmq to this 
+service.
+
+If any external entity wishes to have data on any of these they must go through
+the relevant API's for them, and those API will contact the user-service via
+RabbitMQ.
+
+# RabbitMQ
+TODO: Cris
