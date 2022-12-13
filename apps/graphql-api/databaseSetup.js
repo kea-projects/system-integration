@@ -1,8 +1,9 @@
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
+import fs from "fs";
 
 const SFTP_USERNAME = process.env.SFTP_USERNAME;
-const filename = SFTP_USERNAME ? `/apps/upload/products.db` : "products.db";
+const filename = SFTP_USERNAME ? `/app/upload/products.db` : "products.db";
 
 console.log(`Using the db file: ${filename}`);
 
@@ -10,6 +11,18 @@ export const database = await open({
   filename: filename,
   driver: sqlite3.Database,
 });
+
+fs.chmod("/app/upload", 0o666, (err) => {
+  if (err) console.log("Failed to update permissions: ", err);
+
+  console.log("Permissions updated successfully");
+});
+
+// fs.chown( "/app/upload", 1001, 0, (err) => {
+//   if (err) console.log(err);
+
+//   console.log("Permissions updated successfully");
+// } )
 
 export async function initDatabase() {
   database.exec(`
