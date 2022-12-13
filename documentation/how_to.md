@@ -73,5 +73,9 @@ If any external entity wishes to have data on any of these they must go through
 the relevant API's for them, and those API will contact the user-service via
 RabbitMQ.
 
+## Email Service
+The email service is deployed as a serverless function on Azure using Azure functions.
+
 # RabbitMQ
 TODO: Cris
+
