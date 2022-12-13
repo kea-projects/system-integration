@@ -19,11 +19,10 @@ but due to a large amount of code examples and guides existing for NodeJs it was
 Sign up & log in to [Sirv](https://sirv.com/). Upload the picture to the its storage, choose access options, filters etc, and obtain the resource url.
 Add it to the nginx conf.d file at desired route and proxy it to the url, for example `/cdn/nice-logo-bro`.
 
-## Azure serverless function for email service
-[Information is located here](./../apps/email-service/README.md)
+
 
 # Wishes Service:
-Wishes Service is a simple application that feature a database connection, and a RPC over RabbitMQ connection. Implementation consisted of connecting to the database, definign the schema, and exposing it through the Express endpoints.
+Wishes Service is a simple application that feature a database connection, and a RPC over RabbitMQ connection. Implementation consisted of connecting to the database, defining the schema, and exposing it through the Express endpoints.
 To increase security, the endpoints also require authentication which is performed by sending over the bearer token to user service for validation.
 
 # SFTP Server
@@ -73,9 +72,8 @@ If any external entity wishes to have data on any of these they must go through
 the relevant API's for them, and those API will contact the user-service via
 RabbitMQ.
 
-## Email Service
-The email service is deployed as a serverless function on Azure using Azure functions.
+# Azure serverless function for email service
+[Information is located here](./../apps/email-service/README.md)
 
 # RabbitMQ
 TODO: Cris
-
