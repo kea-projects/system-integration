@@ -12,17 +12,20 @@ export const database = await open({
   driver: sqlite3.Database,
 });
 
-fs.chmod("/app/upload", 0o666, (err) => {
-  if (err) console.log("Failed to update permissions: ", err);
+fs.stat("/app/upload/products.db", (err, stats) => {
+  if (err) console.log(err);
+  console.log("Checking for file permissions...");
+  const groupId = stats.uid
+  console.log("Group id is: ", groupId);
+  if (groupId === 0) {
+    fs.chown( "/app/upload/products.db", 1001, 0, (err) => {
+      if (err) console.log(err);
+    
+      console.log("File permissions updated successfully");
+    } )
+  }
+})
 
-  console.log("Permissions updated successfully");
-});
-
-// fs.chown( "/app/upload", 1001, 0, (err) => {
-//   if (err) console.log(err);
-
-//   console.log("Permissions updated successfully");
-// } )
 
 export async function initDatabase() {
   database.exec(`
