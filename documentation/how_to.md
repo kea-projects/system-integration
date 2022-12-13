@@ -23,7 +23,8 @@ Add it to the nginx conf.d file at desired route and proxy it to the url, for ex
 [Information is located here](./../apps/email-service/README.md)
 
 # Wishes Service:
-TODO: Kwandes
+Wishes Service is a simple application that feature a database connection, and a RPC over RabbitMQ connection. Implementation consisted of connecting to the database, definign the schema, and exposing it through the Express endpoints.
+To increase security, the endpoints also require authentication which is performed by sending over the bearer token to user service for validation.
 
 # SFTP Server
 For our SFTP server we used a docker image called `atmoz/sftp`.
@@ -50,7 +51,9 @@ highly accurate openapi docs with relevant example data with both sample
 queries and responses.
 
 # RSS Feed
-TODO: Kwandes
+We have implemented the RSS feed with a library that handles the rss-specific logic, requiring us to only have to manage
+persistence and access to the data. We didn't need authentication or access to any other service, so the final service is
+just a simple API.
 
 # User Service
 The user service handles all data relating to users, users' invites and users'
