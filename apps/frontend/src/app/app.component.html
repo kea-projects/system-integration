@@ -9,6 +9,9 @@
         />
         <span id="user-email-text">Hello {{ accessInfo?.user?.email }}</span>
       </div>
+      <button class="secondary-btn" (click)="logout()" id="logout-btn">
+        Log Out
+      </button>
     </section>
     <div id="content-wrapper">
       <section id="outlet">

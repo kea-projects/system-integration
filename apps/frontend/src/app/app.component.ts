@@ -32,4 +32,9 @@ export class AppComponent implements OnInit, OnDestroy {
   uploadPicture(): void {
     console.warn(`Called uploadPicture WIP method - NOT IMPLEMENTED!`);
   }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
 }
