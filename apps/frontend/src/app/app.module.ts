@@ -5,6 +5,7 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { FriendsComponent } from './components/friends/friends.component';
 import { LoginComponent } from './pages/login/login.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
 import { ProductsComponent } from './pages/products/products.component';
@@ -17,6 +18,7 @@ import { SignupComponent } from './pages/signup/signup.component';
     LoginComponent,
     SignupComponent,
     ProductsComponent,
+    FriendsComponent,
   ],
   imports: [
     BrowserModule,
