@@ -3,13 +3,17 @@ import { Component, OnInit } from '@angular/core';
 import { IProduct, ProductsService } from '../../services/products.service';
 import { IWishlist, WishlistService } from '../../services/wishlist.service';
 
+interface IExpandedProduct extends IProduct {
+  isWishlisted?: boolean;
+}
+
 @Component({
   selector: 'frontend-products',
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.css'],
 })
 export class ProductsComponent implements OnInit {
-  products: IProduct[] = [];
+  products: IExpandedProduct[] = [];
   wishlist: IWishlist | null = null;
   isLoading = true;
 
@@ -29,6 +33,9 @@ export class ProductsComponent implements OnInit {
       next: (response) => {
         console.log(response.Products);
         this.products = response.Products;
+        if (this.wishlist && this.wishlist?.products.length != 0) {
+          this.markWishlistedItems();
+        }
         this.isLoading = false;
       },
       error: (err: HttpErrorResponse) => {
@@ -43,6 +50,9 @@ export class ProductsComponent implements OnInit {
       next: (response) => {
         console.log('Wishlist of current user', response);
         this.wishlist = response[0];
+        if (this.products.length != 0) {
+          this.markWishlistedItems();
+        }
       },
       error: (err: HttpErrorResponse) => {
         console.error(err);
@@ -59,6 +69,8 @@ export class ProductsComponent implements OnInit {
       next: (response) => {
         this.wishlist = response;
         this.isLoading = false;
+        this.fetchProducts();
+        this.fetchWishlist();
       },
       error: (err: HttpErrorResponse) => {
         console.error(err);
@@ -67,7 +79,31 @@ export class ProductsComponent implements OnInit {
     });
   }
 
-  isInWishlist(item: IProduct): boolean {
-    return this.wishlist!.products.includes(item);
+  removeFromWishlist(product: IProduct) {
+    console.log(`Removing ${product.name} to wishlist`);
+    this.isLoading = true;
+    const products = this.wishlist!.products?.filter(
+      (item) => item.name !== product.name
+    );
+    this.wishlistService.updateWishlist(products).subscribe({
+      next: (response) => {
+        this.wishlist = response;
+        this.isLoading = false;
+        this.fetchProducts();
+        this.fetchWishlist();
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error(err);
+        this.isLoading = false;
+      },
+    });
+  }
+
+  markWishlistedItems(): void {
+    this.products.forEach((product) => {
+      product.isWishlisted = this.wishlist!.products.some(
+        (wishItem) => product.name === wishItem.name
+      );
+    });
   }
 }

@@ -20,10 +20,18 @@
             <strong> Price: {{ product.price }} $$</strong>
           </p>
           <img
+            *ngIf="!product.isWishlisted"
             (click)="addToWishlist(product)"
             src="assets/icons/heart_plus.svg"
-            class="add-to-wishlist-icon"
-            alt="Add to Wishlist"
+            class="wishlist-icon"
+            alt="Add product to Wishlist"
+          />
+          <img
+            *ngIf="product.isWishlisted"
+            (click)="removeFromWishlist(product)"
+            src="assets/icons/heart_minus.svg"
+            class="wishlist-icon"
+            alt="Remove product from Wishlist"
           />
         </div>
       </div>

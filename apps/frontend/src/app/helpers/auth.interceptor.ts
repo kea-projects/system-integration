@@ -35,16 +35,12 @@ export class AuthInterceptor implements HttpInterceptor {
     const accessInfo = this.authService.getAccessInfo();
     if (accessInfo != null) {
       // add the access token as the bearer token for authentication
-      console.log('adding access token to request', accessInfo);
-
       authReq = req.clone({
         headers: req.headers.set(
           TOKEN_HEADER_KEY,
           'Bearer ' + accessInfo.token
         ),
       });
-      console.log(authReq);
-
       return next.handle(authReq);
     } else {
       // basically, do nothing since the request doesn't need to be authenticated
