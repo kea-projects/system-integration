@@ -1,0 +1,37 @@
+<section id="content-wrapper">
+  <div id="nav-buttons">
+    <button class="primary-btn nav-btn" type="button" routerLink="/products">
+      Products
+    </button>
+    <button class="secondary-btn nav-btn" type="button" routerLink="/wishlist">
+      Wished For
+    </button>
+  </div>
+  <ng-container *ngIf="!isLoading">
+    <ng-container *ngFor="let product of products">
+      <div class="product-item">
+        <div class="product-item-info">
+          <h3>{{ product.name }}</h3>
+          <h4>{{ product.subTitle }}</h4>
+          <p>{{ product.description }}</p>
+        </div>
+        <div class="product-item-actions">
+          <p>
+            <strong> Price: {{ product.price }} $$</strong>
+          </p>
+          <img
+            (click)="addToWishlist(product)"
+            src="assets/icons/heart_plus.svg"
+            class="add-to-wishlist-icon"
+            alt="Add to Wishlist"
+          />
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+  <ng-container *ngIf="isLoading">
+    <div class="loading-container">
+      <h2>Loading...</h2>
+    </div>
+  </ng-container>
+</section>

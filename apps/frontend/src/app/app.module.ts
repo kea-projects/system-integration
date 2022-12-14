@@ -5,18 +5,18 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { LoginComponent } from './pages/login/login.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
+import { ProductsComponent } from './pages/products/products.component';
 import { SignupComponent } from './pages/signup/signup.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    DashboardComponent,
     PageNotFoundComponent,
     LoginComponent,
     SignupComponent,
+    ProductsComponent,
   ],
   imports: [
     BrowserModule,

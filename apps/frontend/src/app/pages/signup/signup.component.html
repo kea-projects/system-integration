@@ -1,6 +1,7 @@
+<!-- TODO - add the logo from the CDN -->
 <div *ngIf="isLoggedIn" class="wrapper">
   <h1>You're already logged in. Log out first before you try to sign up</h1>
-  <button class="fancy-btn" style="width: 100%" routerLink="/home">
+  <button class="primary-btn" style="width: 100%" routerLink="/">
     Go Home
   </button>
 </div>
@@ -87,12 +88,7 @@
   <!-- ====== Login in instead and other BS ====== -->
   <hr />
 
-  <button
-    class="secondary-btn"
-    type="button"
-    routerLink="/login"
-    id="login-btn"
-  >
+  <button class="secondary-btn" type="button" routerLink="/" id="login-btn">
     I already have an account, I wanna log in instead! Sorry I forgot...
   </button>
   <br />

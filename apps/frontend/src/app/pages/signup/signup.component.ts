@@ -71,7 +71,7 @@ export class SignupComponent {
           };
           this.authService.saveAccessInfo(response);
           // Redirect the user to the characters page
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['/']);
         },
         error: (err: HttpErrorResponse) => {
           console.error(err);

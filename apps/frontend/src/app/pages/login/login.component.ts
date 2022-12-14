@@ -69,7 +69,7 @@ export class LoginComponent {
         };
         this.authService.saveAccessInfo(response);
         // Redirect the user to the roles' page
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/']);
       },
       error: (err: HttpErrorResponse) => {
         console.error(err);

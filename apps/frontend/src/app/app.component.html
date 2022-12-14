@@ -1,1 +1,15 @@
-<router-outlet></router-outlet>
+<ng-container *ngIf="router.url === '/products' || router.url === '/wishlist'">
+  <div id="page-wrapper">
+    <section id="top-bar"></section>
+    <div id="content-wrapper">
+      <section id="outlet">
+        <router-outlet></router-outlet>
+      </section>
+      <section id="friends-list"></section>
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="router.url !== '/products' && router.url !== '/wishlist'">
+  <router-outlet></router-outlet>
+</ng-container>
