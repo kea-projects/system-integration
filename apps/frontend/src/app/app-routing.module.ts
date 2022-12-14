@@ -5,6 +5,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
 import { ProductsComponent } from './pages/products/products.component';
 import { SignupComponent } from './pages/signup/signup.component';
+import { WishlistComponent } from './pages/wishlist/wishlist.component';
 
 const routes: Routes = [
   {
@@ -18,6 +19,11 @@ const routes: Routes = [
   {
     path: 'products',
     component: ProductsComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'wishlist',
+    component: WishlistComponent,
     canActivate: [AuthGuard],
   },
   { path: '', pathMatch: 'full', redirectTo: 'products' }, // Redirect to dashboard page

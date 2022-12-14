@@ -11,6 +11,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
 import { ProductsComponent } from './pages/products/products.component';
 import { SignupComponent } from './pages/signup/signup.component';
+import { WishlistComponent } from './pages/wishlist/wishlist.component';
 
 @NgModule({
   declarations: [
@@ -19,6 +20,7 @@ import { SignupComponent } from './pages/signup/signup.component';
     LoginComponent,
     SignupComponent,
     ProductsComponent,
+    WishlistComponent,
     FriendsComponent,
   ],
   imports: [
