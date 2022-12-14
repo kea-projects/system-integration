@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { environment as env } from '../../environments/environment';
 
-interface IAccessInfo {
+export interface IAccessInfo {
   token: string;
   user: { userId: string; email: string };
 }

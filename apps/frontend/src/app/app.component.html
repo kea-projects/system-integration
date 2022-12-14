@@ -1,6 +1,15 @@
 <ng-container *ngIf="router.url === '/products' || router.url === '/wishlist'">
   <div id="page-wrapper">
-    <section id="top-bar"></section>
+    <section id="top-bar">
+      <div id="user-info-wrapper">
+        <img
+          (click)="uploadPicture()"
+          src="assets/icons/profile-picture.svg"
+          alt="Profile Picture"
+        />
+        <span id="user-email-text">Hello {{ accessInfo?.user?.email }}</span>
+      </div>
+    </section>
     <div id="content-wrapper">
       <section id="outlet">
         <router-outlet></router-outlet>

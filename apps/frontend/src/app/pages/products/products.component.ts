@@ -26,6 +26,8 @@ export class ProductsComponent implements OnInit {
       },
     });
   }
+
+  // TODO - add wishing functionality
   addToWishlist(product: IProduct) {
     console.warn(`Called addToWishlist WIP method - NOT IMPLEMENTED!`);
     console.log(`Adding ${product.name} to wishlist`);

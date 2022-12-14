@@ -10,6 +10,10 @@
   height: 10vh;
   min-height: 100px;
   width: 100vw;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  justify-items: center;
 }
 
 #content-wrapper {
@@ -31,4 +35,22 @@
   width: 30vw;
   height: 100%;
   min-height: 90vh;
+}
+
+#user-info-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-size: x-large;
+}
+#user-info-wrapper > img {
+  height: 80%;
+  cursor: pointer;
+}
+
+#user-info-wrapper > img:hover {
+  transform: scale(1.05);
+}
+#user-info-wrapper > img:active {
+  transform: scale(1.1);
 }

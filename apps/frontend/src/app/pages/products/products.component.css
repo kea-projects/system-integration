@@ -49,4 +49,12 @@
   margin-left: 15px;
   min-width: 70px;
   height: auto;
+  cursor: pointer;
+}
+
+.add-to-wishlist-icon:hover {
+  transform: scale(1.05);
+}
+.add-to-wishlist-icon:active {
+  transform: scale(1.1);
 }
