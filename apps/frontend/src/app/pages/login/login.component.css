@@ -1,0 +1,76 @@
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  margin-bottom: 40vh;
+  min-width: 300px;
+  padding: 20px;
+  border-radius: 20px;
+}
+
+.input {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-direction: column;
+  padding: 10px;
+  width: 100%;
+}
+
+input {
+  text-decoration: none;
+  background-color: rgba(63, 81, 181, 0.2);
+  color: black;
+  border: none;
+  border-radius: 5px;
+  margin: 2px;
+  padding: 5px;
+  padding-bottom: 2px;
+}
+
+input:focus-visible {
+  outline: none;
+  padding-bottom: 0;
+  border-bottom: 2px rgba(128, 0, 128, 0.5) solid;
+  text-decoration: none;
+  background-color: transparent;
+}
+
+hr {
+  border: 1px purple solid;
+  width: 100%;
+}
+
+#login-btn {
+  font-size: large;
+}
+
+#signup-btn {
+  font-size: medium;
+}
+
+.input-error {
+  font-size: small;
+  color: crimson;
+}
+
+.alert-info {
+  padding: 5px;
+  border-radius: 2px;
+  background-color: rgba(8, 143, 87, 0.5);
+}
+
+.alert-error {
+  padding: 5px;
+  border-radius: 2px;
+  background-color: rgba(162, 1, 1, 0.5);
+}
