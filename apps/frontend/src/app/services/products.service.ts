@@ -20,6 +20,10 @@ export interface IProduct {
 export class ProductsService {
   constructor(private graphqlService: GraphqlService) {}
 
+  /**
+   * Get a list of products.
+   * @returns an observable on an object with the products list.
+   */
   getAll(): Observable<{ Products: IProduct[] }> {
     const query =
       '{Products{category,description,id,name,subTitle,subCategory,price,link,overallRank,}}';

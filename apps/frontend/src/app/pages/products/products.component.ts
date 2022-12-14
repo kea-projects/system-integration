@@ -99,6 +99,9 @@ export class ProductsComponent implements OnInit {
     });
   }
 
+  /**
+   * Set the optional isWhitelisted property on the products to indicate if it is on the wishlist
+   */
   markWishlistedItems(): void {
     this.products.forEach((product) => {
       product.isWishlisted = this.wishlist!.products.some(

@@ -7,6 +7,12 @@ import { environment as env } from '../../environments/environment';
 export class GraphqlService {
   constructor(private http: HttpClient) {}
 
+  /**
+   * Perform a GraphQL query.
+   * @param options the query and the optional variables for it
+   * @example this.graphqlService.query({ query: '{Products{description,name,subTitle,price,}}' });
+   * @returns the query response
+   */
   public query<T>(options: {
     query: string;
     variables?: { [key: string]: any };
