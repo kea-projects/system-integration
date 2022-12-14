@@ -4,11 +4,16 @@ import { AuthGuard } from './helpers/auth.guard';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { LoginComponent } from './pages/login/login.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
+import { SignupComponent } from './pages/signup/signup.component';
 
 const routes: Routes = [
   {
     path: 'login',
     component: LoginComponent,
+  },
+  {
+    path: 'register',
+    component: SignupComponent,
   },
   {
     path: 'dashboard',

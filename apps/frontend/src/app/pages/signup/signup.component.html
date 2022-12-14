@@ -1,6 +1,6 @@
 <div *ngIf="isLoggedIn" class="wrapper">
-  <h1>You're already logged in. Log out first before you try to log in :)</h1>
-  <button class="primary-btn" style="width: 100%" routerLink="/home">
+  <h1>You're already logged in. Log out first before you try to sign up</h1>
+  <button class="fancy-btn" style="width: 100%" routerLink="/home">
     Go Home
   </button>
 </div>
@@ -8,11 +8,12 @@
 <form
   *ngIf="!isLoggedIn"
   (ngSubmit)="onSubmit()"
-  name="loginForm"
+  name="signupForm"
   class="wrapper"
-  [formGroup]="loginForm"
+  [formGroup]="signupForm"
 >
-  <h1>Log In</h1>
+  <h1>Registration</h1>
+
   <div class="input">
     <label for="email">E-mail</label>
     <input
@@ -26,10 +27,30 @@
     <span
       class="input-error"
       *ngIf="
-        this.loginForm.get('email')?.dirty &&
-        this.loginForm.get('email')?.invalid
+        this.signupForm.get('email')?.dirty &&
+        this.signupForm.get('email')?.invalid
       "
       >The email must be a valid email</span
+    >
+  </div>
+
+  <div class="input">
+    <label for="name">Name</label>
+    <input
+      #password
+      type="text"
+      formControlName="name"
+      name="name"
+      id="name"
+      required
+    />
+    <span
+      class="input-error"
+      *ngIf="
+        this.signupForm.get('name')?.dirty &&
+        this.signupForm.get('name')?.invalid
+      "
+      >The name is required</span
     >
   </div>
 
@@ -47,28 +68,32 @@
     <span
       class="input-error"
       *ngIf="
-        this.loginForm.get('password')?.dirty &&
-        this.loginForm.get('password')?.invalid
+        this.signupForm.get('password')?.dirty &&
+        this.signupForm.get('password')?.invalid
       "
       >The password must be minimum 5 characters</span
     >
   </div>
+
   <button
     class="primary-btn"
     type="submit"
-    id="login-btn"
-    [disabled]="loginEnabled()"
+    id="signup-btn"
+    [disabled]="signupEnabled()"
   >
-    Log In
+    Sign up
   </button>
+
+  <!-- ====== Login in instead and other BS ====== -->
   <hr />
+
   <button
     class="secondary-btn"
     type="button"
-    routerLink="/register"
-    id="signup-btn"
+    routerLink="/login"
+    id="login-btn"
   >
-    Sign up
+    I already have an account, I wanna log in instead! Sorry I forgot...
   </button>
   <br />
   <div
