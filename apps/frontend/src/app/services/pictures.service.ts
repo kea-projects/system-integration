@@ -33,4 +33,10 @@ export class PicturesService {
       httpOptions
     );
   }
+
+  uploadPicture(params: { file: File }): Observable<void> {
+    const formData = new FormData();
+    formData.append('file', params.file);
+    return this.http.post<void>(`${env.apiUrl}/user/profile-picture`, formData);
+  }
 }

@@ -2,17 +2,26 @@
   <div id="page-wrapper">
     <section id="top-bar">
       <div id="user-info-wrapper">
+        <!-- hidden html upload image element -->
+        <input
+          style="display: none"
+          #fileUpload
+          type="file"
+          (change)="uploadImage($event)"
+          accept="image/png, image/jpeg, image/svg"
+        />
+        <!-- The actual image that when clicked will open the file selection menu -->
         <img
           *ngIf="!loadedProfilePicture"
           class="profile-picture-img"
-          (click)="uploadPicture()"
+          (click)="fileUpload.click()"
           src="assets/icons/profile-picture.svg"
           alt="Profile Picture"
         />
         <img
           *ngIf="loadedProfilePicture"
           class="profile-picture-img"
-          (click)="uploadPicture()"
+          (click)="fileUpload.click()"
           src="{{ profilePictureImg }}"
           alt="Profile Picture"
         />

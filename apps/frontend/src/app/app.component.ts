@@ -15,6 +15,7 @@ export class AppComponent implements OnInit, OnDestroy {
   autoCheckInterval: any;
   loadedProfilePicture = false;
   profilePictureImg: SafeUrl | null = null;
+  maxFileSize = 1048576; // 1 MB in bytes
 
   constructor(
     readonly router: Router,
@@ -81,6 +82,28 @@ export class AppComponent implements OnInit, OnDestroy {
       reader.readAsDataURL(image);
       this.loadedProfilePicture = true;
     }
+  }
+
+  uploadImage($event: any) {
+    console.log('File', $event.target.files);
+    if (
+      !$event.target.files[0] ||
+      $event.target.files[0].size > this.maxFileSize
+    ) {
+      alert(`Can't upload the selected file: Has to be less than one megabyte`);
+      return;
+    }
+    this.picturesService
+      .uploadPicture({ file: $event.target.files[0] })
+      .subscribe({
+        next: () => {
+          console.log('New profile picture uploaded');
+          this.fetchProfilePicture();
+        },
+        error: (err: HttpErrorResponse) => {
+          console.error(err);
+        },
+      });
   }
 
   logout(): void {
