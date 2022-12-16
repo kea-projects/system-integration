@@ -17,6 +17,12 @@
   border-radius: 20px;
 }
 
+.logo {
+  width: 10vw;
+  min-width: 100px;
+  height: auto;
+}
+
 .input {
   display: flex;
   flex-direction: column;

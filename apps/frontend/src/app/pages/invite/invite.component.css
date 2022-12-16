@@ -26,6 +26,12 @@
   width: 100%;
 }
 
+.logo {
+  width: 10vw;
+  min-width: 100px;
+  height: auto;
+}
+
 input {
   text-decoration: none;
   background-color: rgba(63, 81, 181, 0.2);

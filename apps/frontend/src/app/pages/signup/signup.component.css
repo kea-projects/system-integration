@@ -6,6 +6,12 @@
   height: 100vh;
 }
 
+.logo {
+  width: 10vw;
+  min-width: 100px;
+  height: auto;
+}
+
 .wrapper {
   display: flex;
   align-items: center;
