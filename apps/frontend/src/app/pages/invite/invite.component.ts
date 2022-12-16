@@ -1,16 +1,20 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, HostListener, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'frontend-signup',
-  templateUrl: './signup.component.html',
-  styleUrls: ['./signup.component.css'],
+  selector: 'frontend-invite',
+  templateUrl: './invite.component.html',
+  styleUrls: ['./invite.component.css'],
 })
-export class SignupComponent implements OnInit {
+export class InviteComponent implements OnInit {
   signupForm!: FormGroup;
+
+  email = '';
+  token = '';
+
   /**
    * Small object used to show simple alerts to the user
    */
@@ -22,8 +26,11 @@ export class SignupComponent implements OnInit {
 
   isLoggedIn = false;
 
+  inviteAccepted = true;
+
   constructor(
     private readonly router: Router,
+    private readonly route: ActivatedRoute,
     private readonly authService: AuthService
   ) {}
 
@@ -31,8 +38,17 @@ export class SignupComponent implements OnInit {
    * Initialize the signup form
    */
   ngOnInit(): void {
+    this.email = this.route.snapshot.queryParams['email'];
+    this.token = this.route.snapshot.queryParams['token'];
+    if (!this.email || !this.token) {
+      this.router.navigate(['/']);
+    }
+
     this.signupForm = new FormGroup({
-      email: new FormControl('', [Validators.required, Validators.email]),
+      email: new FormControl({ value: this.email, disabled: true }, [
+        Validators.required,
+        Validators.email,
+      ]),
       name: new FormControl('', [Validators.required]),
       password: new FormControl('', [
         Validators.required,
@@ -56,28 +72,34 @@ export class SignupComponent implements OnInit {
     const password = this.signupForm.get('password')?.value;
     const name = this.signupForm.get('name')?.value;
     this.authService
-      .register({
+      .acceptInvite({
         email,
         username: email,
         name,
         password,
+        token: this.token,
       })
       .subscribe({
         next: (response) => {
-          this.isLoading = false;
+          console.log('Accept Invite request', response);
+
           this.alert = {
-            message: `Signed up as ${email}:${password}`,
+            message: `Accepted invite as ${email}`,
             type: 'info',
           };
-          this.authService.saveAccessInfo(response);
+          this.isLoading = false;
+          this.inviteAccepted = true;
+
+          // TODO - verify that the response is processed as expected
+          // this.authService.saveAccessInfo(response);
           // Redirect the user to the characters page
-          this.router.navigate(['/']);
+          // this.router.navigate(['/']);
         },
         error: (err: HttpErrorResponse) => {
           console.error(err);
           this.isLoading = false;
           this.alert = {
-            message: 'Failed to sign up',
+            message: 'Failed to accept invite',
             type: 'error',
           };
         },

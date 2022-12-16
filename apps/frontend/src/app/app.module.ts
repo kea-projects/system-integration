@@ -7,6 +7,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FriendsComponent } from './components/friends/friends.component';
 import { authInterceptorProviders } from './helpers/auth.interceptor';
+import { InviteComponent } from './pages/invite/invite.component';
 import { LoginComponent } from './pages/login/login.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
 import { ProductsComponent } from './pages/products/products.component';
@@ -19,6 +20,7 @@ import { WishlistComponent } from './pages/wishlist/wishlist.component';
     PageNotFoundComponent,
     LoginComponent,
     SignupComponent,
+    InviteComponent,
     ProductsComponent,
     WishlistComponent,
     FriendsComponent,

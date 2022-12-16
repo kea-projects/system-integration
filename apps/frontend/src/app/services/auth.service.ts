@@ -39,6 +39,24 @@ export class AuthService {
   }
 
   /**
+   * Perform a accept invite request to the API
+   * @param params user credentials
+   * @returns observable of the API request
+   */
+  acceptInvite(params: {
+    email: string;
+    username: string;
+    name: string;
+    password: string;
+    token: string;
+  }): Observable<IAccessInfo> {
+    return this.http.post<IAccessInfo>(
+      `${env.apiUrl}/user/invite/accept`,
+      params
+    );
+  }
+
+  /**
    * Remove the logged in user information from local storage and API
    */
   public logout(): void {

@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './helpers/auth.guard';
+import { InviteComponent } from './pages/invite/invite.component';
 import { LoginComponent } from './pages/login/login.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
 import { ProductsComponent } from './pages/products/products.component';
@@ -15,6 +16,10 @@ const routes: Routes = [
   {
     path: 'register',
     component: SignupComponent,
+  },
+  {
+    path: 'invite',
+    component: InviteComponent,
   },
   {
     path: 'products',
