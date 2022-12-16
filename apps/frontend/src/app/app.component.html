@@ -3,8 +3,17 @@
     <section id="top-bar">
       <div id="user-info-wrapper">
         <img
+          *ngIf="!loadedProfilePicture"
+          class="profile-picture-img"
           (click)="uploadPicture()"
           src="assets/icons/profile-picture.svg"
+          alt="Profile Picture"
+        />
+        <img
+          *ngIf="loadedProfilePicture"
+          class="profile-picture-img"
+          (click)="uploadPicture()"
+          src="{{ profilePictureImg }}"
           alt="Profile Picture"
         />
         <span id="user-email-text">Hello {{ accessInfo?.user?.email }}</span>
