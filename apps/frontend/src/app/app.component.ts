@@ -34,7 +34,7 @@ export class AppComponent implements OnInit, OnDestroy {
         if (event.url.includes('/login') || event.url.includes('/signup')) {
           this.profilePictureImg = null;
           this.loadedProfilePicture = false;
-        } else {
+        } else if (!this.loadedProfilePicture) {
           this.fetchProfilePicture();
         }
       }
