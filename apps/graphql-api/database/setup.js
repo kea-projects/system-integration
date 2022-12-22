@@ -1,33 +1,30 @@
-import sqlite3 from "sqlite3";
-import { open } from "sqlite";
 import fs from "fs";
+import { DatabaseConnection } from "./connection.js"
 
 const SFTP_USERNAME = process.env.SFTP_USERNAME;
 const filename = SFTP_USERNAME ? `/app/upload/products.db` : "products.db";
 
-console.log(`Using the db file: ${filename}`);
-
-export const database = await open({
-  filename: filename,
-  driver: sqlite3.Database,
-});
+console.log(`[INFO]   Using the db file: ${filename}`);
 
 fs.stat("/app/upload/products.db", (err, stats) => {
   if (err) console.log(err);
-  console.log("Checking for file permissions...");
-  const groupId = stats.uid
-  console.log("Group id is: ", groupId);
+  console.log("[DEBUG]  Setting current updatedAt value...");
+  global.productsDbUpdatedAtTime = stats.mtime.toISOString();
+  console.log("[DEBUG]  Set global.productsDbUpdatedAtTime to: ", productsDbUpdatedAtTime);
+  console.log("[DEBUG]  Checking for file permissions...");
+  const groupId = stats.uid;
+  console.log("[DEBUG]  Group id is: ", groupId);
   if (groupId === 0) {
-    fs.chown( "/app/upload/products.db", 1001, 0, (err) => {
+    fs.chown("/app/upload/products.db", 1001, 0, (err) => {
       if (err) console.log(err);
-    
-      console.log("File permissions updated successfully");
-    } )
-  }
-})
 
+      console.log("[DEBUG]  File permissions updated successfully");
+    });
+  }
+});
 
 export async function initDatabase() {
+  const database = await DatabaseConnection.get();
   database.exec(`
         CREATE TABLE IF NOT EXISTS Products (
             product_id integer PRIMARY KEY,
@@ -63,6 +60,7 @@ export async function initDatabase() {
 }
 
 export async function addDataToDatabase() {
+  const database = await DatabaseConnection.get();
   const args = {
     product_name: "test1",
     product_sub_title: "test1",
@@ -165,6 +163,7 @@ export async function addDataToDatabase() {
 }
 
 export async function dropAllTables() {
+  const database = await DatabaseConnection.get();
   await database.exec(`DROP TABLE ProductAdditionalInfos;`);
   await database.exec(`DROP TABLE ProductImages;`);
   await database.exec(`DROP TABLE Products;`);
