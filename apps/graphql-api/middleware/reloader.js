@@ -1,6 +1,18 @@
 import fs from "fs";
 import { DatabaseConnection } from "../database/connection.js";
+import {Request, Response, NextFunction} from "express"
 
+/**
+ * Middleware to reload the DB connection if products.db has been modified.
+ * 
+ * The middleware compares the global updatedAt variable with the one from file
+ * storage. If they do not match, a new connection is created to update it and 
+ * the global variable is updated to the file's current modifiedAt time.
+ * 
+ * @param {Request} req 
+ * @param {Response} res 
+ * @param {NextFunction} next 
+ */
 const reloadOnFileChange = (req, res, next) => {
   console.log("[INFO]   Checking products.db's metadata...");
   fs.stat("/app/upload/products.db", async (err, stats) => {
