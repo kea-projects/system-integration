@@ -6,9 +6,12 @@ import { fixDbPermissions } from "../database/fixPermissions.js";
 /**
  * Middleware to reload the DB connection if products.db has been modified.
  * 
- * The middleware compares the global updatedAt variable with the one from file
- * storage. If they do not match, a new connection is created to update it and 
- * the global variable is updated to the file's current modifiedAt time.
+ * The middleware compares the global `productsDbUpdatedAtTime` variable with 
+ * the one from file storage. If they do not match the following occurs:
+ * * The fixDbPermissions() function is run, to ensure the SFPT server can write to the file.
+ * * The DatabaseConnection is updated to ensure we are reading the updated file.
+ * * The `productsDbUpdatedAtTime` variable is updated to the current file's time.
+ * * The `next()` callback is called
  * 
  * @param {express.Request} req 
  * @param {express.Response} res 

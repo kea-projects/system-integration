@@ -1,5 +1,10 @@
 import fs from "fs";
-
+/**
+ * Function that checks and updates the owner id of the file.
+ * 
+ * If the file does not have the group id of `1001` it will set it to that.
+ * This ensures that the SFTP server is always able to overwrite it.
+ */
 const fixDbPermissions = () => {
   fs.stat("/app/upload/products.db", (err, stats) => {
     if (err)
