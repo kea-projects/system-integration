@@ -1,6 +1,6 @@
 import fs from "fs";
 import { DatabaseConnection } from "../database/connection.js";
-import {Request, Response, NextFunction} from "express"
+import express from "express"
 
 /**
  * Middleware to reload the DB connection if products.db has been modified.
@@ -9,15 +9,14 @@ import {Request, Response, NextFunction} from "express"
  * storage. If they do not match, a new connection is created to update it and 
  * the global variable is updated to the file's current modifiedAt time.
  * 
- * @param {Request} req 
- * @param {Response} res 
- * @param {NextFunction} next 
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ * @param {express.NextFunction} next 
  */
 const reloadOnFileChange = (req, res, next) => {
   console.log("[INFO]   Checking products.db's metadata...");
   fs.stat("/app/upload/products.db", async (err, stats) => {
     if (err) console.log(err);
-
     console.log("[TRACE]  Local update time:  ", stats.mtime.toISOString());
     console.log("[TRACE]  Stored update time: ", global.productsDbUpdatedAtTime);
 
