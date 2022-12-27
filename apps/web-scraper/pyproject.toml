@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "web-scraper"
+version = "0.1.0"
+description = ""
+authors = ["CristiPV <cristi.valentin29@gmail.com>"]
+readme = "README.md"
+packages = [{include = "web_scraper"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+bs4 = "^0.0.1"
+requests = "^2.28.1"
+lxml = "^4.9.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
