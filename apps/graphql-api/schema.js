@@ -1,5 +1,7 @@
 import graphql from "graphql";
-import { database } from "./databaseSetup.js";
+import { DatabaseConnection } from "./database/connection.js";
+
+const database = await DatabaseConnection.get();
 
 const ProductType = new graphql.GraphQLObjectType({
   name: "Product",
@@ -160,7 +162,10 @@ const mutationType = new graphql.GraphQLObjectType({
               args.overall_rating,
             ]
           );
-          const result = await database.all("SELECT * FROM Products WHERE product_id = ?",[runQuery.lastID]);
+          const result = await database.all(
+            "SELECT * FROM Products WHERE product_id = ?",
+            [runQuery.lastID]
+          );
           resolve(result[0]);
         });
       },
@@ -199,7 +204,10 @@ const mutationType = new graphql.GraphQLObjectType({
               console.log(err);
             }
           );
-          const result = await database.all("SELECT * FROM Products WHERE product_id = ?",[args.product_id]);
+          const result = await database.all(
+            "SELECT * FROM Products WHERE product_id = ?",
+            [args.product_id]
+          );
           resolve(result[0]);
         });
       },
@@ -217,7 +225,7 @@ const mutationType = new graphql.GraphQLObjectType({
             "DELETE from Products WHERE product_id =(?);",
             [args.product_id]
           );
-          resolve('YeetusDeletus');
+          resolve("YeetusDeletus");
         });
       },
     },
@@ -242,7 +250,10 @@ const mutationType = new graphql.GraphQLObjectType({
               args.additional_info,
             ]
           );
-          const result = await database.all("SELECT * FROM ProductImages WHERE product_id = ?",[runQuery.lastID]);
+          const result = await database.all(
+            "SELECT * FROM ProductImages WHERE product_id = ?",
+            [runQuery.lastID]
+          );
           resolve(result[0]);
         });
       },
@@ -271,7 +282,10 @@ const mutationType = new graphql.GraphQLObjectType({
               args.product_image_id,
             ]
           );
-          const result = await database.all("SELECT * FROM ProductImages WHERE product_image_id = ?",[args.product_image_id]);
+          const result = await database.all(
+            "SELECT * FROM ProductImages WHERE product_image_id = ?",
+            [args.product_image_id]
+          );
           resolve(result[0]);
         });
       },
@@ -291,7 +305,7 @@ const mutationType = new graphql.GraphQLObjectType({
             "DELETE from ProductImages WHERE product_image_id =(?);",
             [args.product_image_id]
           );
-          resolve('YeetusDeletus');
+          resolve("YeetusDeletus");
         });
       },
     },
@@ -310,7 +324,10 @@ const mutationType = new graphql.GraphQLObjectType({
             "INSERT INTO ProductAdditionalInfos (product_id, choices, additional_info) VALUES (?,?,?);",
             [args.product_id, args.choices, args.additional_info]
           );
-          const result = await database.all(`SELECT * FROM ProductAdditionalInfo WHERE product_additional_info = ?`, [runQuery.lastID])
+          const result = await database.all(
+            `SELECT * FROM ProductAdditionalInfo WHERE product_additional_info = ?`,
+            [runQuery.lastID]
+          );
           resolve(result[0]);
         });
       },
@@ -337,7 +354,10 @@ const mutationType = new graphql.GraphQLObjectType({
               args.product_additional_info_id,
             ]
           );
-          const result = await database.all(`SELECT * FROM ProductAdditionalInfo WHERE product_additional_info = ?`, [args.product_additional_info_id])
+          const result = await database.all(
+            `SELECT * FROM ProductAdditionalInfo WHERE product_additional_info = ?`,
+            [args.product_additional_info_id]
+          );
           resolve(result[0]);
         });
       },
@@ -357,7 +377,7 @@ const mutationType = new graphql.GraphQLObjectType({
             "DELETE from ProductAdditionalInfo WHERE product_additional_info_id =(?);",
             [args.product_additional_info_id]
           );
-          resolve('YeetusDeletus, there goes your fetus');
+          resolve("YeetusDeletus, there goes your fetus");
         });
       },
     },

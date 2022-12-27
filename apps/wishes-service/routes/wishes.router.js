@@ -5,7 +5,7 @@ import {
   getWishes,
 } from "../database/database.service.js";
 import { validateToken } from "../middleware/auth.js";
-import { getUserId } from "../utils/auth-utils.js";
+import { getUserDetails } from "../utils/auth-utils.js";
 
 export const wishesRouter = Router();
 
@@ -28,8 +28,8 @@ wishesRouter.post("/", validateToken, async (req, res) => {
       .send({ message: "The body has to have a productName field" });
     return;
   }
-  const userId = getUserId(req);
-  res.send(await createWish(req.body.productName, userId));
+  const { userId, email } = getUserDetails(req);
+  res.send(await createWish(req.body.productName, userId, email));
 });
 
 /**
@@ -43,7 +43,7 @@ wishesRouter.delete("/", validateToken, async (req, res) => {
       .send({ message: "The body has to have a productName field" });
     return;
   }
-  const userId = getUserId(req);
-  await deleteWish(req.body.productName, userId);
+  const { email } = getUserDetails(req);
+  await deleteWish(req.body.productName, email);
   res.status(204).send();
 });
