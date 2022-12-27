@@ -1,5 +1,5 @@
 import sqlite3
-
+import uuid
 
 class Product():
     def __init__(
@@ -45,10 +45,10 @@ def generate_db(do_reset=True):
         connection.execute('''
                            DROP TABLE IF EXISTS products
                            ''')
-    
+
     connection.execute('''
                        CREATE TABLE IF NOT EXISTS products (
-                         id INTEGER PRIMARY KEY,
+                         id VARCHAR(500) PRIMARY KEY,
                          name TEXT,
                          sub_title TEXT,
                          description TEXT,
@@ -68,6 +68,7 @@ def insert_product(product: Product):
 
     connection.execute('''
                      INSERT INTO products (
+                        id,
                         name,
                         sub_title,
                         description,
@@ -77,8 +78,9 @@ def insert_product(product: Product):
                         link,
                         overall_rank
                      )
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                      ''', (
+                       str(uuid.uuid4()),
                        product.name,
                        product.sub_title,
                        product.description,
