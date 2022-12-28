@@ -26,7 +26,7 @@ export class InviteComponent implements OnInit {
 
   isLoggedIn = false;
 
-  inviteAccepted = true;
+  inviteAccepted = false;
 
   constructor(
     private readonly router: Router,
@@ -77,7 +77,7 @@ export class InviteComponent implements OnInit {
         username: email,
         name,
         password,
-        token: this.token,
+        inviteToken: this.token,
       })
       .subscribe({
         next: (response) => {

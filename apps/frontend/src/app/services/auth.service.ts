@@ -48,12 +48,9 @@ export class AuthService {
     username: string;
     name: string;
     password: string;
-    token: string;
+    inviteToken: string;
   }): Observable<IAccessInfo> {
-    return this.http.post<IAccessInfo>(
-      `${env.apiUrl}/user/invite/accept`,
-      params
-    );
+    return this.http.post<IAccessInfo>(`${env.apiUrl}/auth/signup`, params);
   }
 
   /**
