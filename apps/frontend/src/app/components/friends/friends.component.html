@@ -5,8 +5,16 @@
   <div id="friends-list">
     <ng-container *ngFor="let friend of friends">
       <div class="friend-item">
-        <span>{{ friend.friendEmail }}</span>
-        <span>{{ friend.friendStatus }}</span>
+        <div class="friend-info">
+          <span>{{ friend.friendEmail }}</span>
+          <span>{{ friend.friendStatus }}</span>
+        </div>
+        <img
+          class="unfriend-btn"
+          (click)="unfriend(friend.friendId)"
+          src="assets/icons/person_remove.svg"
+          alt="Unfriend button"
+        />
       </div>
     </ng-container>
   </div>

@@ -18,8 +18,32 @@
 
 .friend-item {
   display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 5px;
+  margin: 5px;
+}
+
+.friend-info {
+  display: flex;
   flex-direction: column;
 
   padding: 5px;
   margin: 5px;
+}
+
+.unfriend-btn {
+  min-height: 20px;
+  width: auto;
+  cursor: pointer;
+}
+
+.unfriend-btn:hover {
+  transform: scale(1.1);
+}
+
+.unfriend-btn:active {
+  transform: scale(1.2);
 }

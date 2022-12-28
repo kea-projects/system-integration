@@ -10,8 +10,8 @@ export class FriendsService {
   constructor(private http: HttpClient) {}
 
   /**
-   * Get the profile picture image as a blob.
-   * @returns observable of the blob object
+   * Get a list of users friends, based on the acesss token.
+   * @returns observable users friends.
    */
   getFriends(): Observable<{
     name: string;
@@ -24,5 +24,14 @@ export class FriendsService {
     }[];
   }> {
     return this.http.get<any>(`${env.apiUrl}/user/user/w-friends`);
+  }
+
+  /**
+   * Delete the given user from the users friend list.
+   */
+  unfriend(friendId: string): Observable<void> {
+    return this.http.delete<any>(`${env.apiUrl}/user/relationship`, {
+      body: { friendId },
+    });
   }
 }

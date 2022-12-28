@@ -36,4 +36,18 @@ export class FriendsComponent implements OnInit {
       },
     });
   }
+
+  unfriend(friendId: string): void {
+    this.isLoading = true;
+    this.friendsService.unfriend(friendId).subscribe({
+      next: (response) => {
+        console.log('response', response);
+        this.fetchFriends();
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error(err);
+        this.isLoading = false;
+      },
+    });
+  }
 }
