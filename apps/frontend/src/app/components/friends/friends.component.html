@@ -2,8 +2,19 @@
   <div id="title">
     <h1>Your Friends</h1>
   </div>
+  <div id="friends-search">
+    <input
+      id="friends-search"
+      placeholder="friends email"
+      type="text"
+      (keyup)="updateSearch($event)"
+    />
+    <button id="invite-btn" class="secondary-btn" (click)="inviteFriend()">
+      Invite
+    </button>
+  </div>
   <div id="friends-list">
-    <ng-container *ngFor="let friend of friends">
+    <ng-container *ngFor="let friend of filteredFriends">
       <div class="friend-item">
         <div class="friend-info">
           <span>{{ friend.friendEmail }}</span>

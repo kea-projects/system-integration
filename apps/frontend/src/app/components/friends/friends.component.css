@@ -16,6 +16,16 @@
   margin: 20px 10px;
 }
 
+#friends-search {
+  width: 80%;
+  text-align: center;
+}
+
+#invite-btn {
+  width: 80%;
+  padding: 1px 2px;
+}
+
 .friend-item {
   display: flex;
   flex-direction: row;
