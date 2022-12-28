@@ -1,6 +1,7 @@
 import sqlite3
 import uuid
 
+
 class Product():
     def __init__(
         self,
@@ -31,11 +32,23 @@ class Product():
           Subcategory: {self.sub_category}
           Price: {self.price}
           Link: {self.link}
-          Overall Rank: {self.overall_rank} 
+          Overall Rank: {self.overall_rank}
+        >'''
+
+    def __str__(self):
+        return f'''
+        < Name: {self.name}
+          Subtitle: {self.sub_title}
+          Description: {self.description}
+          Category: {self.category}
+          Subcategory: {self.sub_category}
+          Price: {self.price}
+          Link: {self.link}
+          Overall Rank: {self.overall_rank}
         >'''
 
 
-TABLE_NAME = "products.db"
+TABLE_NAME = 'sqlite/products.db'
 
 
 def generate_db(do_reset=True):

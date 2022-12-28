@@ -1,11 +1,13 @@
+#!/bin/env python3
+
 import requests
-from pprint import pprint as print
-from database.database import Product, insert_product, generate_db, get_all_products
+from utils.database import (Product, insert_product,
+                            generate_db)
+from utils.config import validate_envs
 from bs4 import BeautifulSoup
 
 
 def scrape_main_page():
-    generate_db()
     response = requests.get(
         "https://www.pricerunner.dk/"
     )
@@ -49,5 +51,12 @@ def scrape_main_page():
                 insert_product(product)
 
 
+def scrape_phone_page():
+    pass
+
+
+validate_envs()
+
+generate_db()
 scrape_main_page()
-print(get_all_products())
+scrape_phone_page()
