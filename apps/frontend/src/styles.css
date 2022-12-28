@@ -34,7 +34,13 @@ html {
 }
 
 .primary-btn:active,
-.secondary-btn:hover {
+.secondary-btn:active {
   background-color: rgba(63, 81, 181, 0.8);
+  box-shadow: 1px 2px 6px grey;
+}
+
+.primary-btn:disabled,
+.secondary-btn:disabled {
+  background-color: grey;
   box-shadow: 1px 2px 6px grey;
 }

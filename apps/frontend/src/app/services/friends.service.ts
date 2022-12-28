@@ -26,6 +26,25 @@ export class FriendsService {
     return this.http.get<any>(`${env.apiUrl}/user/user/w-friends`);
   }
 
+  checkIfUserExists(email: string) {
+    return this.http.get<any>(`${env.apiUrl}/user/user/search`, {
+      params: { searchQuery: email },
+    });
+  }
+
+  inviteByEmail(email: string) {
+    console.log('email', email);
+    return this.http.post<any>(`${env.apiUrl}/user/invite/send`, {
+      friendEmail: email,
+    });
+  }
+
+  inviteById(friendId: string) {
+    return this.http.post<any>(`${env.apiUrl}/user/relationship`, {
+      friendId,
+    });
+  }
+
   /**
    * Delete the given user from the users friend list.
    */

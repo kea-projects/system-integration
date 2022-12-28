@@ -9,7 +9,12 @@
       type="text"
       (keyup)="updateSearch($event)"
     />
-    <button id="invite-btn" class="secondary-btn" (click)="inviteFriend()">
+    <button
+      id="invite-btn"
+      class="secondary-btn"
+      (click)="inviteFriend()"
+      [disabled]="!isValidEmail()"
+    >
       Invite
     </button>
   </div>
