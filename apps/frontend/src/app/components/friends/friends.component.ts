@@ -13,13 +13,16 @@ export class FriendsComponent implements OnInit {
     friendName: string;
     friendEmail: string;
     friendStatus: 'INVITED' | 'REQUESTED' | 'ACCEPTED';
+    requestedBy: string;
   }[] = [];
   filteredFriends: {
     friendId: string;
     friendName: string;
     friendEmail: string;
     friendStatus: 'INVITED' | 'REQUESTED' | 'ACCEPTED';
+    requestedBy: string;
   }[] = [];
+  userId = '';
   isLoading = true;
   searchQuery = '';
 
@@ -33,6 +36,7 @@ export class FriendsComponent implements OnInit {
     this.friendsService.getFriends().subscribe({
       next: (response) => {
         this.friends = response.friends;
+        this.userId = response.userId;
         console.log('Fetch friends response', response);
         this.updateSearch({ target: { value: '' } });
         this.isLoading = false;
@@ -125,5 +129,23 @@ export class FriendsComponent implements OnInit {
       this.friends.filter((friend) => friend.friendEmail.includes(email))
         .length !== 0
     );
+  }
+
+  /**
+   * Check whether the given invite comes from another user and is active.
+   * @params friend the friend information.
+   * @returns whether the invite is active and of the logged in user
+   */
+  isOwnInvite(friend: {
+    friendId: string;
+    friendName: string;
+    friendEmail: string;
+    friendStatus: 'INVITED' | 'REQUESTED' | 'ACCEPTED';
+    requestedBy: string;
+  }): boolean {
+    if (!friend.requestedBy) {
+      return true;
+    }
+    return friend.requestedBy === this.userId;
   }
 }

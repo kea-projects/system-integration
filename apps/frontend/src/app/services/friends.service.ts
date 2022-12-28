@@ -16,11 +16,13 @@ export class FriendsService {
   getFriends(): Observable<{
     name: string;
     email: string;
+    userId: string;
     friends: {
       friendId: string;
       friendName: string;
       friendEmail: string;
       friendStatus: 'INVITED' | 'REQUESTED' | 'ACCEPTED';
+      requestedBy: string;
     }[];
   }> {
     return this.http.get<any>(`${env.apiUrl}/user/user/w-friends`);

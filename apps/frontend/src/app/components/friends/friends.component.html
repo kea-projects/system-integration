@@ -20,16 +20,37 @@
   </div>
   <div id="friends-list">
     <ng-container *ngFor="let friend of filteredFriends">
-      <div class="friend-item">
+      <!-- Invites and friends of this account -->
+      <div class="friend-item" *ngIf="isOwnInvite(friend)">
         <div class="friend-info">
           <span>{{ friend.friendEmail }}</span>
-          <span>{{ friend.friendStatus }}</span>
+          <span>{{
+            friend.friendStatus == "REQUESTED" ? "Awaiting response" : "Friends"
+          }}</span>
         </div>
         <img
-          class="unfriend-btn"
+          class="invite-img-btn"
           (click)="unfriend(friend.friendId)"
           src="assets/icons/person_remove.svg"
           alt="Unfriend button"
+        />
+      </div>
+      <!-- Pending invites from other users -->
+      <div class="friend-item" *ngIf="!isOwnInvite(friend)">
+        <div class="friend-info">
+          <span>{{ friend.friendEmail }}</span>
+          <span>Wants to be your friend</span>
+        </div>
+        <img
+          class="invite-img-btn"
+          (click)="unfriend(friend.friendId)"
+          src="assets/icons/person_add.svg"
+          alt="Deny invite button"
+        />
+        <img
+          class="invite-img-btn"
+          src="assets/icons/person_add_disabled.svg"
+          alt="Accept invite button"
         />
       </div>
     </ng-container>

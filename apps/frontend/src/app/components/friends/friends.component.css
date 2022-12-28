@@ -44,16 +44,16 @@
   margin: 5px;
 }
 
-.unfriend-btn {
+.invite-img-btn {
   min-height: 20px;
   width: auto;
   cursor: pointer;
 }
 
-.unfriend-btn:hover {
+.invite-img-btn:hover {
   transform: scale(1.1);
 }
 
-.unfriend-btn:active {
+.invite-img-btn:active {
   transform: scale(1.2);
 }
