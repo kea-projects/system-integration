@@ -57,13 +57,16 @@ export class FriendsComponent implements OnInit {
 
   inviteFriend(): void {
     if (!this.isValidEmail()) {
-      console.warn('User tried to invite a friend with an invalid email');
+      console.warn('User tried to invite a friend with an invalid email!');
+      return;
+    }
+    if (this.isOnFriendList(this.searchQuery)) {
+      console.warn('User tried to invite an already invited friend!');
       return;
     }
     this.friendsService.checkIfUserExists(this.searchQuery).subscribe({
       next: (response) => {
         console.log('Check user exists response', response);
-        // TODO - check if the user is already a friend
         if (response.length === 0) {
           console.log(`User doesn't exist, sending an email invite`);
           this.friendsService.inviteByEmail(this.searchQuery).subscribe({
@@ -115,5 +118,12 @@ export class FriendsComponent implements OnInit {
 
   isValidEmail(): boolean {
     return this.searchQuery.match(/.+@.+\..+/gm) !== null;
+  }
+
+  isOnFriendList(email: string): boolean {
+    return (
+      this.friends.filter((friend) => friend.friendEmail.includes(email))
+        .length !== 0
+    );
   }
 }

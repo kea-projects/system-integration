@@ -13,7 +13,7 @@
       id="invite-btn"
       class="secondary-btn"
       (click)="inviteFriend()"
-      [disabled]="!isValidEmail()"
+      [disabled]="!isValidEmail() || isOnFriendList(searchQuery)"
     >
       Invite
     </button>
