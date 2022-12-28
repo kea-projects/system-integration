@@ -47,6 +47,13 @@ export class FriendsService {
     });
   }
 
+  updateInvite(friendId: string, status: 'INVITED' | 'ACCEPTED' | 'REQUESTED') {
+    return this.http.put<any>(`${env.apiUrl}/user/relationship`, {
+      friendId,
+      status,
+    });
+  }
+
   /**
    * Delete the given user from the users friend list.
    */

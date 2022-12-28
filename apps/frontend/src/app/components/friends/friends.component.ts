@@ -106,6 +106,20 @@ export class FriendsComponent implements OnInit {
     });
   }
 
+  acceptInvite(friendId: string): void {
+    this.isLoading = true;
+    this.friendsService.updateInvite(friendId, 'ACCEPTED').subscribe({
+      next: (response) => {
+        console.log('Accept invite response', response);
+        this.fetchFriends();
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error(err);
+        this.isLoading = false;
+      },
+    });
+  }
+
   unfriend(friendId: string): void {
     this.isLoading = true;
     this.friendsService.unfriend(friendId).subscribe({

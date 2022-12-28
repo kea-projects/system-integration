@@ -43,14 +43,15 @@
         </div>
         <img
           class="invite-img-btn"
-          (click)="unfriend(friend.friendId)"
+          (click)="acceptInvite(friend.friendId)"
           src="assets/icons/person_add.svg"
-          alt="Deny invite button"
+          alt="Accept invite button"
         />
         <img
           class="invite-img-btn"
+          (click)="unfriend(friend.friendId)"
           src="assets/icons/person_add_disabled.svg"
-          alt="Accept invite button"
+          alt="Deny invite button"
         />
       </div>
     </ng-container>
