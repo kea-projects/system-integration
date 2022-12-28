@@ -1,0 +1,6 @@
+#!/bin/bash
+
+export SFTP_HOST=localhost
+export SFTP_PORT=22
+export SFTP_USERNAME=user
+export SFTP_PASSWORD=pass
