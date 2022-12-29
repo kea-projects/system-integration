@@ -19,7 +19,6 @@ export class FriendsComponent implements OnInit {
     friendEmail: string;
     friendStatus: 'INVITED' | 'REQUESTED' | 'ACCEPTED';
     requestedBy: string;
-    onlineStatus?: 'on' | 'off';
   }[] = [];
   filteredFriends: {
     friendId: string;
@@ -27,8 +26,13 @@ export class FriendsComponent implements OnInit {
     friendEmail: string;
     friendStatus: 'INVITED' | 'REQUESTED' | 'ACCEPTED';
     requestedBy: string;
-    onlineStatus?: 'on' | 'off';
   }[] = [];
+  friendStatuses: {
+    status: 'on' | 'off';
+    userId: String;
+    username: string;
+  }[] = [];
+
   userId = '';
   isLoading = true;
   searchQuery = '';
@@ -163,6 +167,16 @@ export class FriendsComponent implements OnInit {
     );
   }
 
+  isOnline(friendId: string): boolean {
+    let isOnline = false;
+    for (const status of this.friendStatuses) {
+      if (friendId === status.userId && status.status == 'on') {
+        isOnline = true;
+      }
+    }
+    return isOnline;
+  }
+
   /**
    * Check whether the given invite comes from another user and is active.
    * @params friend the friend information.
@@ -193,6 +207,7 @@ export class FriendsComponent implements OnInit {
 
     this.socket.on('friends_status', (event) => {
       console.log('friends_status event', event);
+      this.friendStatuses = event;
     });
 
     this.socket.on('update_user_status', (event) => {

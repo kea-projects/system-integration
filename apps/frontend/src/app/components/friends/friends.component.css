@@ -44,6 +44,10 @@
   margin: 5px;
 }
 
+.online-status {
+  font-size: small;
+}
+
 .invite-img-btn {
   min-height: 20px;
   width: auto;

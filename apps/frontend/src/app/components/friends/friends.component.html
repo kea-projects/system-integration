@@ -27,6 +27,12 @@
           <span>{{
             friend.friendStatus == "REQUESTED" ? "Awaiting response" : "Friends"
           }}</span>
+          <span
+            class="online-status"
+            *ngIf="friend.friendStatus === 'ACCEPTED'"
+          >
+            {{ isOnline(friend.friendId) ? "online" : "offline" }}</span
+          >
         </div>
         <img
           class="invite-img-btn"
