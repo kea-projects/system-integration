@@ -1,5 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { io, Socket } from 'socket.io-client';
+import { environment } from '../../../environments/environment';
+import { AuthService } from '../../services/auth.service';
 import { FriendsService } from '../../services/friends.service';
 
 @Component({
@@ -8,12 +11,15 @@ import { FriendsService } from '../../services/friends.service';
   styleUrls: ['./friends.component.css'],
 })
 export class FriendsComponent implements OnInit {
+  socket: Socket;
+
   friends: {
     friendId: string;
     friendName: string;
     friendEmail: string;
     friendStatus: 'INVITED' | 'REQUESTED' | 'ACCEPTED';
     requestedBy: string;
+    onlineStatus?: 'on' | 'off';
   }[] = [];
   filteredFriends: {
     friendId: string;
@@ -21,13 +27,24 @@ export class FriendsComponent implements OnInit {
     friendEmail: string;
     friendStatus: 'INVITED' | 'REQUESTED' | 'ACCEPTED';
     requestedBy: string;
+    onlineStatus?: 'on' | 'off';
   }[] = [];
   userId = '';
   isLoading = true;
   searchQuery = '';
 
-  constructor(private readonly friendsService: FriendsService) {}
+  constructor(
+    private readonly friendsService: FriendsService,
+    private readonly authService: AuthService
+  ) {
+    this.socket = io(environment.apiUrl, {
+      extraHeaders: {
+        Authorization: `Bearer ${this.authService.getAccessInfo()?.token}`,
+      },
+    });
+  }
   ngOnInit(): void {
+    this.initWebsocket();
     this.fetchFriends();
   }
 
@@ -39,6 +56,7 @@ export class FriendsComponent implements OnInit {
         this.userId = response.userId;
         console.log('Fetch friends response', response);
         this.updateSearch({ target: { value: '' } });
+        this.emitUserConnectedEvent();
         this.isLoading = false;
       },
       error: (err: HttpErrorResponse) => {
@@ -161,5 +179,40 @@ export class FriendsComponent implements OnInit {
       return true;
     }
     return friend.requestedBy === this.userId;
+  }
+
+  // =======================
+  // Socket.io functionality
+
+  initWebsocket() {
+    console.log('Initializing Socket.io connection');
+
+    this.socket.on('connect', () => {
+      console.log('Connected to Socket.io server');
+    });
+
+    this.socket.on('friends_status', (event) => {
+      console.log('friends_status event', event);
+    });
+
+    this.socket.on('update_user_status', (event) => {
+      console.log('update_user_status event', event);
+    });
+
+    this.socket.on('error', (err) => {
+      console.warn('Error on socket.io client', err);
+    });
+  }
+
+  emitUserConnectedEvent() {
+    const preparedFriendsList: any[] = [];
+    this.friends.forEach((friend) => {
+      preparedFriendsList.push({
+        username: friend.friendEmail,
+        userId: friend.friendId,
+        status: friend.friendStatus,
+      });
+    });
+    this.socket.emit(`user_connected`, { friendsList: preparedFriendsList });
   }
 }
