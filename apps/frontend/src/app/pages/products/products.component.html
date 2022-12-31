@@ -9,7 +9,7 @@
   </div>
   <ng-container *ngIf="!isLoading">
     <ng-container *ngFor="let product of products">
-      <div class="product-item">
+      <a class="product-item" href="{{ product.link }}" target="_blank">
         <div class="product-item-info">
           <h3>{{ product.name }}</h3>
           <h4>{{ product.subTitle }}</h4>
@@ -34,7 +34,7 @@
             alt="Remove product from Wishlist"
           />
         </div>
-      </div>
+      </a>
     </ng-container>
   </ng-container>
   <ng-container *ngIf="isLoading">

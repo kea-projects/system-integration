@@ -31,7 +31,7 @@ export class ProductsComponent implements OnInit {
     this.isLoading = true;
     this.productsService.getAll().subscribe({
       next: (response) => {
-        console.log(response.Products);
+        console.log('Products', response.Products);
         this.products = response.Products;
         if (this.wishlist && this.wishlist?.products.length != 0) {
           this.markWishlistedItems();
