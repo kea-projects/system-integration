@@ -117,11 +117,11 @@ run with asynchronous calls to various services, allowing for multiple actions
 to be executed at once.
 
 Once we started to implement it however, we realized that what we had in mind
-was simply not possible, as our API endpoints required a response to return to
-the users. This make us pivot to using the RPC functionality that RabbitMQ 
-provides. While this was initially hard to implement. It made the developer
+was simply not possible, as our API required a response to return to
+the users. This made us pivot to using the RPC pattern that RabbitMQ 
+provides. While this was initially hard to implement, it made the developer
 experience much better, as developers did not need to know how to do behavior
-unrelated to their own software. For example to validate a token we do an RPC
+unrelated to their own software. For example, to validate a token we do an RPC
 call to the user-service. We do not need to expose user data, token secrets or
 any other variables to the API directly, instead it is all stored on the 
 user-service.
