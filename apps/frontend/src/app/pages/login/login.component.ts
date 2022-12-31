@@ -54,7 +54,6 @@ export class LoginComponent {
   async onSubmit(): Promise<void> {
     if (this.loginEnabled()) {
       console.warn('Tried to submit an invalid/dirty login form');
-
       return;
     }
     this.isLoading = true;

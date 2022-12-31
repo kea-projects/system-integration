@@ -9,8 +9,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
-const TOKEN_HEADER_KEY = 'Authorization'; // for normal back-end
-// const TOKEN_HEADER_KEY = 'x-access-token'; // for Node.js Express back-end
+const TOKEN_HEADER_KEY = 'Authorization';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -18,10 +17,9 @@ export class AuthInterceptor implements HttpInterceptor {
 
   /**
    * Add the bearer token to the api request if the user is authenticated.
-   * If the accessToken is expired, it will try to refresh it using the refreshToken.
-   * @param req the request
-   * @param next
-   * @returns the original request with the authentication token
+   * @param req the request.
+   * @param next the next middleware chain reference.
+   * @returns the original request with the authentication token.
    */
   intercept(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
