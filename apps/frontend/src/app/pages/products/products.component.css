@@ -69,12 +69,21 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
+  height: 30px;
+  width: 80%;
+  margin-top: -10px;
+  margin-bottom: 10px;
 }
+
 #products-search-input,
 #products-search-input-placeholder {
+  height: 30px;
+  width: 50vw;
+  min-width: 200px;
   position: absolute;
   background-color: transparent;
+  border-radius: 5px;
+  border-color: #3f51b5;
 }
 
 #products-search-input-placeholder {

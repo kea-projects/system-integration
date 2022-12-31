@@ -15,9 +15,11 @@ interface IExpandedProduct extends IProduct {
 export class ProductsComponent implements OnInit {
   products: IExpandedProduct[] = [];
   filteredProducts: IExpandedProduct[] = [];
+  productNames: string[] = [];
   wishlist: IWishlist | null = null;
   isLoading = true;
   searchQuery = '';
+  searchAutocompletedText = '';
 
   constructor(
     private readonly productsService: ProductsService,
@@ -25,6 +27,7 @@ export class ProductsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.fetchProductNames();
     this.fetchProducts();
     this.fetchWishlist();
   }
@@ -39,6 +42,21 @@ export class ProductsComponent implements OnInit {
           this.markWishlistedItems();
         }
         this.updateSearch({ target: { value: '' } });
+        this.isLoading = false;
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error(err);
+        this.isLoading = false;
+      },
+    });
+  }
+
+  fetchProductNames(): void {
+    this.isLoading = true;
+    this.productsService.getProductNames().subscribe({
+      next: (response) => {
+        this.productNames = response.Products.map((product) => product.name);
+        console.log('Product Names', this.productNames);
         this.isLoading = false;
       },
       error: (err: HttpErrorResponse) => {
@@ -122,8 +140,26 @@ export class ProductsComponent implements OnInit {
    */
   updateSearch(event: any) {
     this.searchQuery = event.target.value;
-    console.log('Search query', this.searchQuery);
 
+    // Provide suggested search autocompletion
+    if (this.searchQuery === '') {
+      this.searchAutocompletedText = '';
+    } else {
+      for (const name of this.productNames) {
+        if (name.toLowerCase().includes(this.searchQuery.toLowerCase())) {
+          this.searchAutocompletedText = name.toLowerCase();
+          if (event.key === 'Enter') {
+            // autocomplete the search when enter is pressed
+            this.searchQuery = name.toLowerCase();
+          }
+          break;
+        } else {
+          this.searchAutocompletedText = ' ';
+        }
+      }
+    }
+
+    // Filter the results based on the search query
     this.filteredProducts = this.products.filter((product) =>
       product.name.toLowerCase().includes(this.searchQuery.toLowerCase())
     );

@@ -29,4 +29,13 @@ export class ProductsService {
       '{Products{category,description,id,name,subTitle,subCategory,price,link,overallRank,}}';
     return this.graphqlService.query({ query });
   }
+
+  /**
+   * Get a list of product names.
+   * @returns an observable on an object with the product names list.
+   */
+  getProductNames(): Observable<{ Products: { name: string }[] }> {
+    const query = '{Products{name,orderBy:name}}';
+    return this.graphqlService.query({ query });
+  }
 }

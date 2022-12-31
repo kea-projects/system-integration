@@ -7,17 +7,19 @@
       Wished For
     </button>
   </div>
-  <label for="products-search-input">Search for products</label>
   <div id="products-search-wrapper">
     <input
       type="text"
       id="products-search-input"
+      [value]="searchQuery"
       (keyup)="updateSearch($event)"
     />
     <input
       id="products-search-input-placeholder"
       placeholder="{{
-        this.searchQuery == '' ? 'I wish for a...' : this.searchQuery
+        this.searchAutocompletedText == ''
+          ? 'I wish for a...'
+          : this.searchAutocompletedText
       }}"
     />
   </div>
