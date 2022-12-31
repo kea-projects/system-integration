@@ -29,6 +29,8 @@ export class AppComponent implements OnInit, OnDestroy {
     this.autoCheckInterval = setInterval(() => {
       this.accessInfo = this.authService.getAccessInfo();
     }, 1000);
+
+    // Prevent loading of the profile picture unless logged in and not loaded yet
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         if (event.url.includes('/login') || event.url.includes('/signup')) {
@@ -44,11 +46,6 @@ export class AppComponent implements OnInit, OnDestroy {
   // Remove the interval to prevent memory leaks
   ngOnDestroy(): void {
     clearInterval(this.autoCheckInterval);
-  }
-
-  // TODO - implement picture upload
-  uploadPicture(): void {
-    console.warn(`Called uploadPicture WIP method - NOT IMPLEMENTED!`);
   }
 
   fetchProfilePicture(): void {
@@ -68,6 +65,10 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Download the image and make it usable in an HTML image element.
+   * @param image the image blob as included in the HTTP response.
+   */
   private createImageFromBlob(image: Blob) {
     let reader = new FileReader();
     reader.addEventListener(
@@ -84,7 +85,11 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
-  uploadImage($event: any) {
+  /**
+   * Upload a picture.
+   * @param $event an event of file selection containing the file reference.
+   */
+  uploadImage($event: any): void {
     console.log('File', $event.target.files);
     if (
       !$event.target.files[0] ||
