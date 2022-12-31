@@ -1,4 +1,5 @@
 <section id="content-wrapper">
+  <!-- Navigation buttons -->
   <div id="nav-buttons">
     <button class="secondary-btn nav-btn" type="button" routerLink="/products">
       Products
@@ -7,6 +8,8 @@
       Wished For
     </button>
   </div>
+
+  <!-- User's wishlist -->
   <ng-container *ngIf="wishlist?.products?.length == 0">
     <h2>Check out products page to find something to wish for!</h2>
   </ng-container>
@@ -34,6 +37,7 @@
     </ng-container>
   </ng-container>
 
+  <!-- Friends wishlists -->
   <ng-container *ngIf="!isLoading">
     <ng-container *ngFor="let wishlist of friendsWishlist">
       <div *ngIf="wishlist.products.length !== 0">
@@ -51,6 +55,8 @@
       </div>
     </ng-container>
   </ng-container>
+
+  <!-- Loading element -->
   <ng-container *ngIf="isLoading">
     <div class="loading-container">
       <h2>Loading...</h2>
