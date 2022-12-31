@@ -1,5 +1,7 @@
-FROM python:3.10.7-slim
+FROM cytopia/mypy:latest-py3.10
 # Install poetry
+RUN apk add py3-pip
+
 RUN pip install poetry
 
 WORKDIR /service
