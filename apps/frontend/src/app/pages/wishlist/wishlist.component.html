@@ -11,6 +11,7 @@
     <h2>Check out products page to find something to wish for!</h2>
   </ng-container>
   <ng-container *ngIf="!isLoading">
+    <h3>Your wishes:</h3>
     <ng-container *ngFor="let product of wishlist?.products">
       <div class="product-item">
         <div class="product-item-info">
@@ -29,6 +30,24 @@
             alt="Remove product from Wishlist"
           />
         </div>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <ng-container *ngIf="!isLoading">
+    <ng-container *ngFor="let wishlist of friendsWishlist">
+      <div *ngIf="wishlist.products.length !== 0">
+        <hr />
+        <h3>{{ getFriendName(wishlist.userId) }}'s wishlist:</h3>
+        <ng-container *ngFor="let product of wishlist.products">
+          <div class="product-item">
+            <div class="product-item-info">
+              <h3>{{ product.name }}</h3>
+              <h4>{{ product.subTitle }}</h4>
+              <p>{{ product.description }}</p>
+            </div>
+          </div>
+        </ng-container>
       </div>
     </ng-container>
   </ng-container>
