@@ -14,8 +14,10 @@ interface IExpandedProduct extends IProduct {
 })
 export class ProductsComponent implements OnInit {
   products: IExpandedProduct[] = [];
+  filteredProducts: IExpandedProduct[] = [];
   wishlist: IWishlist | null = null;
   isLoading = true;
+  searchQuery = '';
 
   constructor(
     private readonly productsService: ProductsService,
@@ -36,6 +38,7 @@ export class ProductsComponent implements OnInit {
         if (this.wishlist && this.wishlist?.products.length != 0) {
           this.markWishlistedItems();
         }
+        this.updateSearch({ target: { value: '' } });
         this.isLoading = false;
       },
       error: (err: HttpErrorResponse) => {
@@ -108,5 +111,21 @@ export class ProductsComponent implements OnInit {
         (wishItem) => product.name === wishItem.name
       );
     });
+  }
+
+  // ===============
+  // Products search
+
+  /**
+   * Filters the products list for only the ones containing the provided string in the product name.
+   * @param event the event with a target object and a value string property
+   */
+  updateSearch(event: any) {
+    this.searchQuery = event.target.value;
+    console.log('Search query', this.searchQuery);
+
+    this.filteredProducts = this.products.filter((product) =>
+      product.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+    );
   }
 }

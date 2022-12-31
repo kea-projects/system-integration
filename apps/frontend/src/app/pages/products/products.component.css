@@ -62,3 +62,22 @@
 .wishlist-icon:active {
   transform: scale(1.1);
 }
+
+/* =============== */
+/* Products Search */
+#products-search-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+#products-search-input,
+#products-search-input-placeholder {
+  position: absolute;
+  background-color: transparent;
+}
+
+#products-search-input-placeholder {
+  z-index: -1;
+  color: gray;
+}
