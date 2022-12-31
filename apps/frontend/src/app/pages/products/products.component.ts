@@ -56,7 +56,6 @@ export class ProductsComponent implements OnInit {
     this.productsService.getProductNames().subscribe({
       next: (response) => {
         this.productNames = response.Products.map((product) => product.name);
-        console.log('Product Names', this.productNames);
         this.isLoading = false;
       },
       error: (err: HttpErrorResponse) => {
@@ -84,9 +83,8 @@ export class ProductsComponent implements OnInit {
   addToWishlist(product: IProduct) {
     console.log(`Adding ${product.name} to wishlist`);
     this.isLoading = true;
-    const products = this.wishlist!.products;
-    products?.push(product);
-    this.wishlistService.updateWishlist(products).subscribe({
+    this.wishlist!.products?.push(product);
+    this.wishlistService.updateWishlist(this.wishlist!.products).subscribe({
       next: (response) => {
         this.wishlist = response;
         this.isLoading = false;
@@ -101,7 +99,7 @@ export class ProductsComponent implements OnInit {
   }
 
   removeFromWishlist(product: IProduct) {
-    console.log(`Removing ${product.name} to wishlist`);
+    console.log(`Removing ${product.name} from wishlist`);
     this.isLoading = true;
     const products = this.wishlist!.products?.filter(
       (item) => item.name !== product.name
@@ -121,7 +119,7 @@ export class ProductsComponent implements OnInit {
   }
 
   /**
-   * Set the optional isWhitelisted property on the products to indicate if it is on the wishlist
+   * Set the optional isWishlisted property on the products to indicate if it is on the wishlist
    */
   markWishlistedItems(): void {
     this.products.forEach((product) => {
@@ -130,9 +128,6 @@ export class ProductsComponent implements OnInit {
       );
     });
   }
-
-  // ===============
-  // Products search
 
   /**
    * Filters the products list for only the ones containing the provided string in the product name.

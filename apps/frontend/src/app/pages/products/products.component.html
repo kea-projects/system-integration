@@ -1,4 +1,5 @@
 <section id="content-wrapper">
+  <!-- Navigation buttons -->
   <div id="nav-buttons">
     <button class="primary-btn nav-btn" type="button" routerLink="/products">
       Products
@@ -7,6 +8,8 @@
       Wished For
     </button>
   </div>
+
+  <!-- Products search -->
   <div id="products-search-wrapper">
     <input
       type="text"
@@ -23,14 +26,16 @@
       }}"
     />
   </div>
+
+  <!-- Products list -->
   <ng-container *ngIf="!isLoading">
     <ng-container *ngFor="let product of filteredProducts">
-      <a class="product-item" href="{{ product.link }}" target="_blank">
-        <div class="product-item-info">
+      <div class="product-item">
+        <a class="product-item-info" href="{{ product.link }}" target="_blank">
           <h3>{{ product.name }}</h3>
           <h4>{{ product.subTitle }}</h4>
           <p>{{ product.description }}</p>
-        </div>
+        </a>
         <div class="product-item-actions">
           <p>
             <strong> Price: {{ product.price }} $$</strong>
@@ -50,9 +55,10 @@
             alt="Remove product from Wishlist"
           />
         </div>
-      </a>
+      </div>
     </ng-container>
   </ng-container>
+  <!-- Loading element -->
   <ng-container *ngIf="isLoading">
     <div class="loading-container">
       <h2>Loading...</h2>
