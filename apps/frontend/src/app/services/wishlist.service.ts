@@ -39,8 +39,15 @@ export class WishlistService {
    * @returns observable of the updated wishlist
    */
   updateWishlist(productsList: IProduct[]): Observable<IWishlist> {
-    return this.http.patch<IWishlist>(`${env.apiUrl}/wishlist`, {
-      products: productsList,
+    // Create a full product item from the filtered item.
+    const products = productsList.map((product) => {
+      return {
+        ...product,
+        overallRank: '0',
+        category: 'n/a',
+        subCategory: 'n/a',
+      };
     });
+    return this.http.patch<IWishlist>(`${env.apiUrl}/wishlist`, { products });
   }
 }
