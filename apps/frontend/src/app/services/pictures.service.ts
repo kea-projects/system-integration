@@ -19,7 +19,7 @@ export class PicturesService {
 
   /**
    * Get the profile picture image as a blob.
-   * @returns observable of the blob object
+   * @returns observable of the blob object.
    */
   getProfilePicture(): Observable<any> {
     const httpOptions = {
@@ -34,6 +34,10 @@ export class PicturesService {
     );
   }
 
+  /**
+   * Upload a file.
+   * @param params the selected file.
+   */
   uploadPicture(params: { file: File }): Observable<void> {
     const formData = new FormData();
     formData.append('file', params.file);

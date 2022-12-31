@@ -24,16 +24,4 @@ export class GraphqlService {
       })
       .pipe(map((d) => d.data));
   }
-
-  public mutate<T>(options: {
-    mutation: string;
-    variables?: { [key: string]: any };
-  }): Observable<any> {
-    return this.http
-      .post<{ data: T }>(`${env.apiUrl}/products`, {
-        query: options.mutation,
-        variables: options.variables,
-      })
-      .pipe(map((d) => d.data));
-  }
 }
