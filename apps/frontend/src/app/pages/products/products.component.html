@@ -1,0 +1,71 @@
+<section id="content-wrapper">
+  <!-- Navigation buttons -->
+  <div id="nav-buttons">
+    <button class="primary-btn nav-btn" type="button" routerLink="/products">
+      Products
+    </button>
+    <button class="secondary-btn nav-btn" type="button" routerLink="/wishlist">
+      Wished For
+    </button>
+  </div>
+
+  <!-- Products search -->
+  <div id="products-search-wrapper">
+    <input
+      type="text"
+      id="products-search-input"
+      [value]="searchQuery"
+      (keyup)="updateSearch($event)"
+    />
+    <input
+      id="products-search-input-placeholder"
+      placeholder="{{
+        this.searchAutocompletedText == ''
+          ? 'I wish for a...'
+          : this.searchAutocompletedText
+      }}"
+    />
+  </div>
+
+  <!-- Products list -->
+  <ng-container *ngIf="!isLoading">
+    <ng-container *ngFor="let product of filteredProducts">
+      <div class="product-item">
+        <a class="product-item-info" href="{{ product.link }}" target="_blank">
+          <h3>{{ product.name }}</h3>
+          <h4>{{ product.subTitle }}</h4>
+          <p>{{ product.description }}</p>
+        </a>
+        <div class="product-item-actions">
+          <p>
+            <strong> Price: {{ product.price }} $$</strong>
+          </p>
+          <p>
+            <strong> Ranking: {{ product.overallRank }}</strong>
+          </p>
+          <img
+            *ngIf="!product.isWishlisted"
+            (click)="addToWishlist(product)"
+            src="assets/icons/heart_plus.svg"
+            class="wishlist-icon"
+            alt="Add product to Wishlist"
+          />
+          <img
+            *ngIf="product.isWishlisted"
+            (click)="removeFromWishlist(product)"
+            src="assets/icons/heart_minus.svg"
+            class="wishlist-icon"
+            alt="Remove product from Wishlist"
+          />
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <!-- Loading element -->
+  <ng-container *ngIf="isLoading">
+    <div class="loading-container">
+      <h2>Loading...</h2>
+    </div>
+  </ng-container>
+</section>

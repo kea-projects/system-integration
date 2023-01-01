@@ -1,0 +1,76 @@
+<section id="content-wrapper">
+  <!-- Navigation buttons -->
+  <div id="nav-buttons">
+    <button class="secondary-btn nav-btn" type="button" routerLink="/products">
+      Products
+    </button>
+    <button class="primary-btn nav-btn" type="button" routerLink="/wishlist">
+      Wished For
+    </button>
+  </div>
+
+  <!-- User's wishlist -->
+  <ng-container *ngIf="wishlist?.products?.length == 0">
+    <h2>Check out products page to find something to wish for!</h2>
+  </ng-container>
+  <ng-container *ngIf="!isLoading">
+    <h3>Your wishes:</h3>
+    <ng-container *ngFor="let product of wishlist?.products">
+      <div class="product-item">
+        <div class="product-item-info">
+          <h3>{{ product.name }}</h3>
+          <h4>{{ product.subTitle }}</h4>
+          <p>{{ product.description }}</p>
+        </div>
+        <div class="product-item-actions">
+          <p>
+            <strong> Price: {{ product.price }} $$</strong>
+          </p>
+          <p>
+            <strong> Ranking: {{ product.overallRank }}</strong>
+          </p>
+          <img
+            (click)="removeFromWishlist(product)"
+            src="assets/icons/heart_minus.svg"
+            class="wishlist-icon"
+            alt="Remove product from Wishlist"
+          />
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <!-- Friends wishlists -->
+  <ng-container *ngIf="!isLoading">
+    <ng-container *ngFor="let wishlist of friendsWishlist">
+      <div *ngIf="wishlist.products.length !== 0">
+        <hr />
+        <h3>{{ getFriendName(wishlist.userId) }}'s wishlist:</h3>
+        <ng-container *ngFor="let product of wishlist.products">
+          <div class="product-item">
+            <div class="product-item-info">
+              <h3>{{ product.name }}</h3>
+              <h4>{{ product.subTitle }}</h4>
+              <p>{{ product.description }}</p>
+            </div>
+            <div class="product-item-actions">
+              <p>
+                <strong> Price: {{ product.price }} $$</strong>
+              </p>
+              <p>
+                <strong> Ranking: {{ product.overallRank }}</strong>
+              </p>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <!-- Loading element -->
+  <ng-container *ngIf="isLoading">
+    <div class="loading-container">
+      <h2>Loading...</h2>
+    </div>
+  </ng-container>
+</section>
