@@ -1,0 +1,18 @@
+version: "3.7"
+
+services:
+  frontend:
+    container_name: hotdeals-frontend
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./configs/frontend/frontend.dockerfile
+    environment:
+      - API_URL=$API_URL
+    ports:
+      - 8080:80
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '0.1GB'
