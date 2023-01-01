@@ -18,9 +18,10 @@
       Invite
     </button>
   </div>
+
   <div id="friends-list">
+    <!-- Invites and friends of this account -->
     <ng-container *ngFor="let friend of filteredFriends">
-      <!-- Invites and friends of this account -->
       <div class="friend-item" *ngIf="isOwnInvite(friend)">
         <div class="friend-info">
           <span>{{ friend.friendEmail }}</span>
@@ -41,6 +42,7 @@
           alt="Unfriend button"
         />
       </div>
+
       <!-- Pending invites from other users -->
       <div class="friend-item" *ngIf="!isOwnInvite(friend)">
         <div class="friend-info">

@@ -41,6 +41,7 @@ export class FriendsComponent implements OnInit {
     private readonly friendsService: FriendsService,
     private readonly authService: AuthService
   ) {
+    // Initialize the socket connection. Only send the user_connected event once the friends list is loaded so it can be included as data.
     this.socket = io(environment.apiUrl, {
       extraHeaders: {
         Authorization: `Bearer ${this.authService.getAccessInfo()?.token}`,
@@ -82,6 +83,7 @@ export class FriendsComponent implements OnInit {
   }
 
   inviteFriend(): void {
+    // Validate that the invite can be sent
     if (!this.isValidEmail()) {
       console.warn('User tried to invite a friend with an invalid email!');
       return;
@@ -90,9 +92,12 @@ export class FriendsComponent implements OnInit {
       console.warn('User tried to invite an already invited friend!');
       return;
     }
+
+    // Check if the user exists, and if they don't send an email invite. If they do, send a friend request.
     this.friendsService.checkIfUserExists(this.searchQuery).subscribe({
       next: (response) => {
         console.log('Check user exists response', response);
+        // Check if the user exists. If the list is empty, no matching user exists.
         if (response.length === 0) {
           console.log(`User doesn't exist, sending an email invite`);
           this.friendsService.inviteByEmail(this.searchQuery).subscribe({
@@ -160,6 +165,7 @@ export class FriendsComponent implements OnInit {
     return this.searchQuery.match(/.+@.+\..+/gm) !== null;
   }
 
+  /** Check if the given email is already present on the friends list */
   isOnFriendList(email: string): boolean {
     return (
       this.friends.filter((friend) => friend.friendEmail.includes(email))
@@ -167,6 +173,7 @@ export class FriendsComponent implements OnInit {
     );
   }
 
+  /** Check if the given user is on the list of online users */
   isOnline(friendId: string): boolean {
     let isOnline = false;
     for (const status of this.friendStatuses) {
@@ -219,6 +226,7 @@ export class FriendsComponent implements OnInit {
     });
   }
 
+  /** Let the friends know this use ris now online */
   emitUserConnectedEvent() {
     const preparedFriendsList: any[] = [];
     this.friends.forEach((friend) => {
