@@ -3,12 +3,10 @@ import { Observable } from 'rxjs';
 import { GraphqlService } from './graphql.service';
 
 export interface IProduct {
-  category: string;
   description: string;
   id: string;
   name: string;
   subTitle: string;
-  subCategory: string;
   price: number;
   link: string;
   overallRank: number;
@@ -27,7 +25,8 @@ export class ProductsService {
    * @returns an observable on an object with the products list.
    */
   getAll(): Observable<{ Products: IProduct[] }> {
-    const query = '{Products{description,id,name,subTitle,price,link,}}';
+    const query =
+      '{Products{description,id,name,subTitle,price,link,overallRank,}}';
     return this.graphqlService.query({ query });
   }
 

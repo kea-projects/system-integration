@@ -40,6 +40,9 @@
           <p>
             <strong> Price: {{ product.price }} $$</strong>
           </p>
+          <p>
+            <strong> Ranking: {{ product.overallRank }}</strong>
+          </p>
           <img
             *ngIf="!product.isWishlisted"
             (click)="addToWishlist(product)"

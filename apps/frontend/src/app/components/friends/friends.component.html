@@ -24,6 +24,7 @@
     <ng-container *ngFor="let friend of filteredFriends">
       <div class="friend-item" *ngIf="isOwnInvite(friend)">
         <div class="friend-info">
+          <span>{{ friend.friendName }}</span>
           <span>{{ friend.friendEmail }}</span>
           <span>{{
             friend.friendStatus == "REQUESTED" ? "Awaiting response" : "Friends"

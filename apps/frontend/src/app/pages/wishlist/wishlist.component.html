@@ -26,6 +26,9 @@
           <p>
             <strong> Price: {{ product.price }} $$</strong>
           </p>
+          <p>
+            <strong> Ranking: {{ product.overallRank }}</strong>
+          </p>
           <img
             (click)="removeFromWishlist(product)"
             src="assets/icons/heart_minus.svg"
@@ -49,6 +52,14 @@
               <h3>{{ product.name }}</h3>
               <h4>{{ product.subTitle }}</h4>
               <p>{{ product.description }}</p>
+            </div>
+            <div class="product-item-actions">
+              <p>
+                <strong> Price: {{ product.price }} $$</strong>
+              </p>
+              <p>
+                <strong> Ranking: {{ product.overallRank }}</strong>
+              </p>
             </div>
           </div>
         </ng-container>
