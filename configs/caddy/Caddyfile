@@ -27,8 +27,8 @@ api.gifts.hotdeals.dev, :80 {
         reverse_proxy gateway:80
 }
 
-gifts.hotdeals.dev, :80 {
-        reverse_proxy gateway:8080
+gifts.hotdeals.dev {
+        reverse_proxy hotdeals-frontend:80
 }
 
 

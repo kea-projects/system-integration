@@ -33,7 +33,7 @@ WORKDIR /app
 # Copy nginx config to nginx container
 COPY configs/frontend/nginx.conf /etc/nginx/nginx.conf
 # Copy build files to nginx container
-COPY --from=builder /apps/frontend/dist/ /usr/share/nginx/html
+COPY --from=builder /app/dist/frontend /usr/share/nginx/html
 
 # https://pumpingco.de/blog/environment-variables-angular-docker/
 # When the container starts, replace the env.js with values from environment variables via package.json scripts
