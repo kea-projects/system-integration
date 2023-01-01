@@ -42,10 +42,15 @@ export class WishlistService {
     // Create a full product item from the filtered item.
     const products = productsList.map((product) => {
       return {
-        ...product,
-        overallRank: '0',
         category: 'n/a',
         subCategory: 'n/a',
+        subTitle: product.subTitle ? product.subTitle : 'n/a',
+        description: product.description ? product.description : 'n/a',
+        id: product.id ? product.id : 'n/a',
+        name: product.name ? product.name : 'n/a',
+        price: product.price ? product.price : 0,
+        link: product.link ? product.link : 'n/a',
+        overallRank: product.overallRank ? product.overallRank : 0,
       };
     });
     return this.http.patch<IWishlist>(`${env.apiUrl}/wishlist`, { products });
