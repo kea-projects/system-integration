@@ -1,0 +1,49 @@
+<ng-container *ngIf="router.url === '/products' || router.url === '/wishlist'">
+  <div id="page-wrapper">
+    <section id="top-bar">
+      <div id="user-info-wrapper">
+        <!-- hidden html upload image element -->
+        <input
+          style="display: none"
+          #fileUpload
+          type="file"
+          (change)="uploadImage($event)"
+          accept="image/png, image/jpeg, image/svg"
+        />
+
+        <!-- The actual image that when clicked will open the file selection menu -->
+        <img
+          *ngIf="!loadedProfilePicture"
+          class="profile-picture-img"
+          (click)="fileUpload.click()"
+          src="assets/icons/profile-picture.svg"
+          alt="Profile Picture"
+        />
+        <img
+          *ngIf="loadedProfilePicture"
+          class="profile-picture-img"
+          (click)="fileUpload.click()"
+          src="{{ profilePictureImg }}"
+          alt="Profile Picture"
+        />
+        <span id="user-email-text">Hello {{ accessInfo?.user?.email }}</span>
+      </div>
+      <button class="secondary-btn" (click)="logout()" id="logout-btn">
+        Log Out
+      </button>
+    </section>
+
+    <div id="content-wrapper">
+      <section id="outlet">
+        <router-outlet></router-outlet>
+      </section>
+      <section id="friends-list">
+        <frontend-friends></frontend-friends>
+      </section>
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="router.url !== '/products' && router.url !== '/wishlist'">
+  <router-outlet></router-outlet>
+</ng-container>

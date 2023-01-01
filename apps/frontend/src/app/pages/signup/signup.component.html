@@ -1,0 +1,105 @@
+<img
+  class="logo"
+  src="https://giftwishinglogo.blob.core.windows.net/newcontainer/Smile.svg.png"
+  alt="Hotdeals Logo"
+/>
+<div *ngIf="isLoggedIn" class="wrapper">
+  <h1>You're already logged in. Log out first before you try to sign up</h1>
+  <button class="primary-btn" style="width: 100%" routerLink="/">
+    Go Home
+  </button>
+</div>
+
+<form
+  *ngIf="!isLoggedIn"
+  (ngSubmit)="onSubmit()"
+  name="signupForm"
+  class="wrapper"
+  [formGroup]="signupForm"
+>
+  <h1>Registration</h1>
+
+  <div class="input">
+    <label for="email">E-mail</label>
+    <input
+      type="email"
+      formControlName="email"
+      name="email"
+      id="email"
+      autocomplete="email"
+      required
+    />
+    <span
+      class="input-error"
+      *ngIf="
+        this.signupForm.get('email')?.dirty &&
+        this.signupForm.get('email')?.invalid
+      "
+      >The email must be a valid email</span
+    >
+  </div>
+
+  <div class="input">
+    <label for="name">Name</label>
+    <input
+      #password
+      type="text"
+      formControlName="name"
+      name="name"
+      id="name"
+      required
+    />
+    <span
+      class="input-error"
+      *ngIf="
+        this.signupForm.get('name')?.dirty &&
+        this.signupForm.get('name')?.invalid
+      "
+      >The name is required</span
+    >
+  </div>
+
+  <div class="input">
+    <label for="password">Password</label>
+    <input
+      #password
+      type="password"
+      formControlName="password"
+      name="password"
+      id="password"
+      autocomplete="current-password"
+      required
+    />
+    <span
+      class="input-error"
+      *ngIf="
+        this.signupForm.get('password')?.dirty &&
+        this.signupForm.get('password')?.invalid
+      "
+      >The password must be minimum 5 characters</span
+    >
+  </div>
+
+  <button
+    class="primary-btn"
+    type="submit"
+    id="signup-btn"
+    [disabled]="signupEnabled()"
+  >
+    Sign up
+  </button>
+
+  <!-- ====== Login in instead of signing up ====== -->
+  <hr />
+
+  <button class="secondary-btn" type="button" routerLink="/" id="login-btn">
+    I already have an account, I wanna log in instead! Sorry I forgot...
+  </button>
+  <br />
+  <div
+    *ngIf="alert"
+    [ngClass]="alert.type === 'info' ? 'alert-info' : 'alert-error'"
+  >
+    {{ alert.message }}
+  </div>
+</form>

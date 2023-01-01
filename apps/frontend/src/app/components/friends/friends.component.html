@@ -1,0 +1,67 @@
+<section id="friends-wrapper">
+  <div id="title">
+    <h1>Your Friends</h1>
+  </div>
+  <div id="friends-search">
+    <input
+      id="friends-search"
+      placeholder="friends email"
+      type="text"
+      (keyup)="updateSearch($event)"
+    />
+    <button
+      id="invite-btn"
+      class="secondary-btn"
+      (click)="inviteFriend()"
+      [disabled]="!isValidEmail() || isOnFriendList(searchQuery)"
+    >
+      Invite
+    </button>
+  </div>
+
+  <div id="friends-list">
+    <!-- Invites and friends of this account -->
+    <ng-container *ngFor="let friend of filteredFriends">
+      <div class="friend-item" *ngIf="isOwnInvite(friend)">
+        <div class="friend-info">
+          <span>{{ friend.friendEmail }}</span>
+          <span>{{
+            friend.friendStatus == "REQUESTED" ? "Awaiting response" : "Friends"
+          }}</span>
+          <span
+            class="online-status"
+            *ngIf="friend.friendStatus === 'ACCEPTED'"
+          >
+            {{ isOnline(friend.friendId) ? "online" : "offline" }}</span
+          >
+        </div>
+        <img
+          class="invite-img-btn"
+          (click)="unfriend(friend.friendId)"
+          src="assets/icons/person_remove.svg"
+          alt="Unfriend button"
+        />
+      </div>
+
+      <!-- Pending invites from other users -->
+      <div class="friend-item" *ngIf="!isOwnInvite(friend)">
+        <div class="friend-info">
+          <span>{{ friend.friendEmail }}</span>
+          <span>Wants to be your friend</span>
+        </div>
+        <img
+          class="invite-img-btn"
+          (click)="acceptInvite(friend.friendId)"
+          src="assets/icons/person_add.svg"
+          alt="Accept invite button"
+        />
+        <img
+          class="invite-img-btn"
+          (click)="unfriend(friend.friendId)"
+          src="assets/icons/person_add_disabled.svg"
+          alt="Deny invite button"
+        />
+      </div>
+    </ng-container>
+  </div>
+</section>
