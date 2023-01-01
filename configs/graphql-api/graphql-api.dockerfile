@@ -18,8 +18,5 @@ RUN npm install --only-production --force
 
 COPY ./apps/graphql-api /app/
 
-
-# Install dependencies
-
 # Run the app
-ENTRYPOINT [ "npm", "start" ]
+ENTRYPOINT [ "node", "app.js" ]

@@ -34,17 +34,19 @@ const createTables = () => {
   client.query(`CREATE TABLE IF NOT EXISTS wishes (
         wish_id VARCHAR,
         product_name VARCHAR,
-        user_id VARCHAR
+        user_id VARCHAR,
+        user_email VARCHAR
     )`);
 };
 
-export const createWish = async (product_name, user_id) => {
+export const createWish = async (product_name, user_id, user_email) => {
   const id = uuidv4();
   await client
-    .query(`INSERT INTO wishes VALUES ($1::text, $2::text, $3::text)`, [
+    .query(`INSERT INTO wishes VALUES ($1::text, $2::text, $3::text, $4::text)`, [
       id,
       product_name,
       user_id,
+      user_email,
     ])
     .catch((err) => {
       console.log(chalk.redBright(`[ERROR] Failed to create a wish`, err));
@@ -55,7 +57,7 @@ export const createWish = async (product_name, user_id) => {
       console.log(chalk.redBright(`[ERROR] Failed to get a created wish`, err));
     });
   console.log(
-    chalk.green(`[INFO] A wish has been created for user: ${user_id}`)
+    chalk.green(`[INFO] A wish has been created for user: ${user_id}, ${user_email}`)
   );
   return result.rows[0];
 };
@@ -67,15 +69,15 @@ export const getWishes = async () => {
   return result.rows;
 };
 
-export const deleteWish = async (product_name, user_id) => {
+export const deleteWish = async (product_name, user_email) => {
   const result = await client
     .query(
-      `DELETE FROM wishes WHERE product_name = $1::text AND user_id = $2::text`,
-      [product_name, user_id]
+      `DELETE FROM wishes WHERE product_name = $1::text AND user_email = $2::text`,
+      [product_name, user_email]
     )
     .catch((err) => {
       console.log(chalk.redBright(`[ERROR] Failed to delete a wish`, err));
     });
-  console.log(chalk.green(`[INFO] Deleted a wish of user: ${user_id}`));
+  console.log(chalk.green(`[INFO] Deleted a wish of user: ${user_email}`));
   return result;
 };

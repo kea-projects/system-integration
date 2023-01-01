@@ -38,7 +38,31 @@ write to the uploads folder through a startup script in the image.
 TODO: Teodor
 
 # Friend Path
-TODO: Cris
+The Friend Path service handles the data related to a user's friends. The purpose of it is to display to the currently logged in user a
+list of all of their invited friends, along with their availability status. This status can be either one of the following three values:
+- `Not Registered` -> which indicates that the person does not yet have an account in our app.
+- `Offline` -> which indicates that the person has signed up, but is not currently logged in.
+- `Online` -> which indicates that the person has signed up and is currently logged in.
+
+The service exposes an API with two endpoints: `/friend/health`, which always responds with `Up and running!`, and is used as a healthcheck, and 
+`/friend/invite` which can be used by any user to invite other people to their friends list.
+The invite endpoint requires an `email` attribute in the body of the request, as well as a token in the `Authorization` header. Internally, it will
+verify that the auth token is valid, and that the `email` is also a valid email string. If these checks pass, then we check if the person we are trying to invite has already
+been invited or not, and respond accordingly.
+Since some of these actions require data that the Friend Path does not have, we use multiple RPC calls through RabbitMQ to the services that are capable of doing these actions
+and wait for their response.
+
+Additionally, the Friend Path service is also open for socket connection, which is how it actually serves the friend information to the user.
+
+## Socket.IO Events
+
+The following pictures describe the events that are being used by the system,
+where they come from (client/server), what data they carry, as well as a description of what they do. Furthermore, there can also be seen a diagram with the flow of our events, along with a little step-by-step description of what happens when they are emitted.
+
+![Socket Events](./images/socket/flow-socket-plan.png)
+
+
+![Socket Plan](./images/socket/socket-diagram-socket-plan.png)
 
 # Auth Path
 We implemented the Authorization path in python with fast-api. It does not
@@ -76,4 +100,17 @@ RabbitMQ.
 [Information is located here](./../apps/email-service/README.md)
 
 # RabbitMQ
-TODO: Cris
+The RabbitMQ service handles all of the inner communication of our services.\
+All of the communication is done through an RPC pattern detailed [here](https://www.rabbitmq.com/tutorials/tutorial-six-javascript.html). 
+The way it works is by creating an exchange with queues through which we start sending `request` type messages with a correlation ID attached to them. 
+When these messages are consumed on the other end, the correlation ID is extracted from the request, and attached to a new message that is being sent 
+as a `response` message with the result of what has been requested.\
+This way, we have a way of knowing exactly which request the response is meant to reply to.\
+In order to differentiate different kinds of messages, and whether they are a response or request type, we make use of topics. 
+The naming system we have in place is the following:
+- `action.name.request`
+- `action.name.response`
+
+This way, Service A can send out a message on a queue with the topic: `token.check.valid.request`, and Service B can be listening on the same queue. 
+It will know that when it receives a message there, it is a request to check the validity of a token, and send out a reply message on a queue with a 
+topic like: `token.check.valid.response`, where Service A will be waiting to receive its response.

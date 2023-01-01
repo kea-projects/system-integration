@@ -1,0 +1,1 @@
+* * * * *  </absolute/path/to/web-scraper>/scripts/webscraper.sh </absolute/path/to/web-scraper> <sftp_user@host:/upload_folder> <sftp_password>  > <log_folder/log_name> 2>&1
