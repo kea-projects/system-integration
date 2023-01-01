@@ -1,0 +1,1 @@
+0 12 * * *  /home/pi/system-integration/apps/web-scraper/scripts/webscraper.sh /home/pi/system-integration/apps/web-scraper/ giftwishingstorage@gift-wishing.westeurope.azurecontainer.io:/upload 5231tLY8jT9jyGm0bRh0L  >> /tmp/dump 2>&1

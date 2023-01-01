@@ -16,10 +16,10 @@ echo 'Loading environment variables...'
 source ./scripts/env-loader.sh;
 
 echo 'Scrapping for products...'
-docker run --rm -v $WORKDIR/sqlite:/service/sqlite scrappy-doo;
+docker run --rm -v $WORKDIR/sqlite:/service/sqlite webscraper-python-amazing-wow;
 
 echo 'Uploading database...'
-sshpass -p $SFTP_PASSWORD sftp $SFTP_CONNECTION <<< 'put ./sqlite/products.db';
+sshpass -p $SFTP_PASSWORD sftp -P 7777 $SFTP_CONNECTION <<< 'put ./sqlite/products.db';
 
 upload_result=$?;
 

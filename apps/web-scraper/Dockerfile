@@ -1,5 +1,7 @@
 FROM python:alpine
 
+RUN apk add gcc musl-dev libffi-dev 
+
 RUN pip install poetry
 
 WORKDIR /service
